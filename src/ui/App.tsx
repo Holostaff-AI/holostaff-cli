@@ -3,18 +3,22 @@ import { Box, Text, useApp } from 'ink'
 import SelectInput from 'ink-select-input'
 import type { RepoDetection } from '../detect/repo.js'
 import { Welcome } from './Welcome.js'
+import { Login } from './Login.js'
+import { resolveAuth, type ResolvedAuth } from '../auth/credentials.js'
 
 /**
- * Top-level Ink shell. v0.1 just renders the welcome banner and the
- * first-run picker; on pick we show a "this is what would happen"
- * stub since auth + scan aren't built yet. Subsequent passes wire
- * each branch to its real implementation.
+ * Top-level Ink shell. State machine:
  *
- * Layout matches PRD §4.1: welcome, then numeric menu, then a
+ *   booting → (auth?)
+ *     ├── yes → menu
+ *     └── no  → login → menu (on success)
+ *
+ * Layout matches PRD §4.1: welcome → (auth gate) → numeric menu →
  * picked-action context message.
  */
 
 type Action = 'scan' | 'instrument' | 'embed' | 'chat'
+type Phase = 'auth' | 'menu' | 'picked'
 
 interface MenuItem {
   label: string
@@ -31,23 +35,48 @@ const ITEMS: MenuItem[] = [
 
 export function App({ detection, version }: { detection: RepoDetection; version: string }) {
   const { exit } = useApp()
+  const [auth, setAuth] = useState<ResolvedAuth>(() => resolveAuth())
   const [picked, setPicked] = useState<Action | null>(null)
+
+  // Phase: auth gate first, then menu, then picked-stub.
+  const phase: Phase = picked
+    ? 'picked'
+    : (auth.source === 'none' || auth.expired)
+      ? 'auth'
+      : 'menu'
 
   // Once a menu item is picked, we render its stub then schedule
   // a clean exit. The stub stays in scrollback so the user can act
   // on its instructions after we exit.
   useEffect(() => {
-    if (!picked) return
+    if (phase !== 'picked') return
     const t = setTimeout(() => exit(), 80)
     return () => clearTimeout(t)
-  }, [picked, exit])
+  }, [phase, exit])
 
   return (
     <Box flexDirection="column">
       <Welcome detection={detection} version={version} />
-      {picked
-        ? <PickedStub action={picked} />
-        : <Picker onSelect={(item) => setPicked(item.value)} />}
+      {phase === 'auth'
+        ? <Login baseUrl={auth.baseUrl} onDone={() => setAuth(resolveAuth())} />
+        : phase === 'menu'
+          ? <ReadyView auth={auth} onPick={(item) => setPicked(item.value)} />
+          : <PickedStub action={picked!} />}
+    </Box>
+  )
+}
+
+function ReadyView({ auth, onPick }: { auth: ResolvedAuth; onPick: (item: MenuItem) => void }) {
+  return (
+    <Box flexDirection="column">
+      <Box marginTop={1} marginLeft={2}>
+        <Text color="green">✓ </Text>
+        <Text>Connected </Text>
+        <Text color="gray">· workspace: </Text>
+        <Text color="cyan">{auth.workspaceId ?? '(unknown)'}</Text>
+        {auth.source === 'env' && <Text color="gray"> · CI mode (HOLOSTAFF_API_KEY)</Text>}
+      </Box>
+      <Picker onSelect={onPick} />
     </Box>
   )
 }
