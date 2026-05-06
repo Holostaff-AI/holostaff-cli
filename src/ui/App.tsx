@@ -33,15 +33,30 @@ const ITEMS: MenuItem[] = [
   { label: '4.  Just chat — show me what you can do',                                    value: 'chat',       key: 'chat' },
 ]
 
-export function App({ detection, version }: { detection: RepoDetection; version: string }) {
+export function App({
+  detection,
+  version,
+  forceLogin = false,
+  exitAfterLogin = false,
+}: {
+  detection: RepoDetection
+  version: string
+  /** Treat current creds as absent — used by `holostaff login` to re-auth. */
+  forceLogin?: boolean
+  /** Exit the process as soon as login completes — used by `holostaff login`. */
+  exitAfterLogin?: boolean
+}) {
   const { exit } = useApp()
   const [auth, setAuth] = useState<ResolvedAuth>(() => resolveAuth())
   const [picked, setPicked] = useState<Action | null>(null)
+  const [hasReauthed, setHasReauthed] = useState(false)
 
   // Phase: auth gate first, then menu, then picked-stub.
+  // forceLogin overrides the auth check until the user re-auths once.
+  const needsAuth = (forceLogin && !hasReauthed) || auth.source === 'none' || auth.expired
   const phase: Phase = picked
     ? 'picked'
-    : (auth.source === 'none' || auth.expired)
+    : needsAuth
       ? 'auth'
       : 'menu'
 
@@ -58,7 +73,14 @@ export function App({ detection, version }: { detection: RepoDetection; version:
     <Box flexDirection="column">
       <Welcome detection={detection} version={version} />
       {phase === 'auth'
-        ? <Login baseUrl={auth.baseUrl} onDone={() => setAuth(resolveAuth())} />
+        ? <Login
+            baseUrl={auth.baseUrl}
+            onDone={() => {
+              setHasReauthed(true)
+              setAuth(resolveAuth())
+              if (exitAfterLogin) setTimeout(() => exit(), 600)
+            }}
+          />
         : phase === 'menu'
           ? <ReadyView auth={auth} onPick={(item) => setPicked(item.value)} />
           : <PickedStub action={picked!} />}
