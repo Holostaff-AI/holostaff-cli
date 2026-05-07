@@ -1,10 +1,14 @@
 /**
- * proposeInstrumentationPlan — the agent's exit tool for /instrument.
+ * Plan-submission exit tool factory.
  *
- * Same shape as scan's submitFindings: a per-run sink captures the
- * validated plan, the orchestrator hands it to the diff/apply UI.
+ * Both /instrument and /embed produce the same plan shape (install +
+ * edit + create ops with unique-anchor edits) — the difference is the
+ * prompt + tool name the agent sees. This factory takes the tool name
+ * + description and returns a configured tool that captures the plan
+ * to a per-run sink.
+ *
  * First valid call wins; later calls are rejected so the agent can't
- * accidentally overwrite a plan it already submitted.
+ * accidentally overwrite the plan it already submitted.
  */
 
 import { tool } from '@anthropic-ai/claude-agent-sdk'
@@ -15,15 +19,22 @@ export interface InstrumentationSink {
   isCaptured(): boolean
 }
 
-export function makeProposeInstrumentationTool(sink: InstrumentationSink) {
+export interface ProposePlanToolConfig {
+  /** Tool name as the agent sees it (un-prefixed; the SDK adds mcp__server__). */
+  name: string
+  /** One-line description shown to the model in its tool catalog. */
+  description: string
+  /** Where the validated plan goes. */
+  sink: InstrumentationSink
+  /** Used in error messages back to the agent ("the /instrument run is complete"). */
+  runLabel: string
+}
+
+export function makeProposePlanTool(config: ProposePlanToolConfig) {
+  const { name, description, sink, runLabel } = config
   return tool(
-    'proposeInstrumentationPlan',
-    [
-      'Submit the proposed instrumentation patch. Call this EXACTLY ONCE',
-      'once you\'ve drafted a complete plan. After submitting, the run is',
-      'over — do not invoke any further tools. Arguments are validated;',
-      'if validation fails, fix the payload and call again.',
-    ].join(' '),
+    name,
+    description,
     InstrumentationPlanSchema.shape,
     async (args) => {
       const parsed = InstrumentationPlanSchema.safeParse(args)
@@ -32,7 +43,7 @@ export function makeProposeInstrumentationTool(sink: InstrumentationSink) {
           content: [
             {
               type: 'text' as const,
-              text: `proposeInstrumentationPlan rejected: ${parsed.error.issues
+              text: `${name} rejected: ${parsed.error.issues
                 .map((i) => `${i.path.join('.')}: ${i.message}`)
                 .join('; ')}. Fix the payload and call again.`,
             },
@@ -45,7 +56,7 @@ export function makeProposeInstrumentationTool(sink: InstrumentationSink) {
           content: [
             {
               type: 'text' as const,
-              text: 'A plan was already received. The /instrument run is complete; do not call this tool again.',
+              text: `A plan was already received. The ${runLabel} run is complete; do not call this tool again.`,
             },
           ],
           isError: true,
@@ -62,4 +73,19 @@ export function makeProposeInstrumentationTool(sink: InstrumentationSink) {
       }
     },
   )
+}
+
+/** /instrument's specific configuration — kept here so callers don't have to know the description text. */
+export function makeProposeInstrumentationTool(sink: InstrumentationSink) {
+  return makeProposePlanTool({
+    name: 'proposeInstrumentationPlan',
+    description: [
+      'Submit the proposed instrumentation patch. Call this EXACTLY ONCE',
+      'once you\'ve drafted a complete plan. After submitting, the run is',
+      'over — do not invoke any further tools. Arguments are validated;',
+      'if validation fails, fix the payload and call again.',
+    ].join(' '),
+    sink,
+    runLabel: '/instrument',
+  })
 }

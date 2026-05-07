@@ -29,7 +29,8 @@
     "spike:chat": "tsx src/spike/chatSmoke.ts",
     "spike:refine": "tsx src/spike/refineSmoke.ts",
     "spike:add-repo": "tsx src/spike/addRepoSmoke.ts",
-    "spike:instrument": "tsx src/spike/instrumentSmoke.ts"
+    "spike:instrument": "tsx src/spike/instrumentSmoke.ts",
+    "spike:embed": "tsx src/spike/embedSmoke.ts"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.131",

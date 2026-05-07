@@ -25,11 +25,12 @@ import { Login } from './Login.js'
 import { Scan, type ScanExitResult } from './scan/Scan.js'
 import { Refine, type RefineExitResult } from './refine/Refine.js'
 import { Instrument, type InstrumentExitResult } from './instrument/Instrument.js'
+import { Embed, type EmbedExitResult } from './embed/Embed.js'
 import { Shell, type ShellAction } from './chat/Shell.js'
 import { newId, type ShellMessage } from './chat/types.js'
 import { resolveAuth, type ResolvedAuth } from '../auth/credentials.js'
 
-type Phase = 'auth' | 'shell' | 'scan' | 'refine' | 'instrument'
+type Phase = 'auth' | 'shell' | 'scan' | 'refine' | 'instrument' | 'embed'
 
 export function App({
   detection,
@@ -71,6 +72,7 @@ export function App({
     }
     if (action === 'open_refine') return setPhase('refine')
     if (action === 'open_instrument') return setPhase('instrument')
+    if (action === 'open_embed') return setPhase('embed')
     if (action === 'reauth') {
       setHasReauthed(false)
       setAuth({ ...auth, source: 'none' as const, expired: true })
@@ -91,6 +93,12 @@ export function App({
 
   function handleInstrumentExit(result: InstrumentExitResult) {
     const summary = instrumentResultMessage(result)
+    setShellMessages((prev) => [...(prev ?? []), ...summary])
+    setPhase('shell')
+  }
+
+  function handleEmbedExit(result: EmbedExitResult) {
+    const summary = embedResultMessage(result)
     setShellMessages((prev) => [...(prev ?? []), ...summary])
     setPhase('shell')
   }
@@ -120,6 +128,9 @@ export function App({
       )}
       {effectivePhase === 'instrument' && (
         <Instrument cwd={detection.root} onExit={handleInstrumentExit} />
+      )}
+      {effectivePhase === 'embed' && (
+        <Embed cwd={detection.root} onExit={handleEmbedExit} />
       )}
     </Box>
   )
@@ -229,5 +240,25 @@ function instrumentResultMessage(result: InstrumentExitResult): ShellMessage[] {
       return [{ id: newId(), kind: 'system', tone: 'warn', text: 'No knowledge source for this repo. Type /scan to create one first.' }]
     case 'failed':
       return [{ id: newId(), kind: 'system', tone: 'error', text: `/instrument failed: ${result.error}` }]
+  }
+}
+
+function embedResultMessage(result: EmbedExitResult): ShellMessage[] {
+  switch (result.kind) {
+    case 'committed': {
+      const lines = [
+        `Embed committed on branch ${result.branch} (${result.sha.slice(0, 7)}).`,
+        `Files changed: ${result.filesChanged.length}.`,
+        `Before pushing: replace REPLACE_WITH_COPILOT_ID with a real copilot id from https://www.holostaff.ai/copilots.`,
+        `Push when ready: git push -u origin ${result.branch}.`,
+      ]
+      return [{ id: newId(), kind: 'system', tone: 'success', text: lines.join('\n') }]
+    }
+    case 'cancelled':
+      return [{ id: newId(), kind: 'system', tone: 'info', text: '/embed cancelled. Nothing was changed.' }]
+    case 'no_binding':
+      return [{ id: newId(), kind: 'system', tone: 'warn', text: 'No knowledge source for this repo. Type /scan to create one first.' }]
+    case 'failed':
+      return [{ id: newId(), kind: 'system', tone: 'error', text: `/embed failed: ${result.error}` }]
   }
 }

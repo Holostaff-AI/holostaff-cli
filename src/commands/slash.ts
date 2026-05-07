@@ -20,7 +20,13 @@ export type SlashOutcome =
   | { kind: 'message'; text: string; tone?: 'info' | 'warn' | 'error' | 'success' }
   | {
       kind: 'action'
-      action: 'open_scan' | 'open_refine' | 'open_instrument' | 'exit' | 'reauth'
+      action:
+        | 'open_scan'
+        | 'open_refine'
+        | 'open_instrument'
+        | 'open_embed'
+        | 'exit'
+        | 'reauth'
       args?: string
     }
 
@@ -70,13 +76,9 @@ const INSTRUMENT: SlashCommand = {
 
 const EMBED: SlashCommand = {
   name: '/embed',
-  desc: 'Add a copilot widget to the app entry point. (lands in A6)',
-  run: () => ({
-    kind: 'message',
-    tone: 'info',
-    text:
-      '/embed lands in milestone A6. The flow will: 1) list your workspace\'s copilots, 2) you pick one, 3) I add the Holostaff widget to your app entry, 4) branch + commit + PR.',
-  }),
+  desc: 'Add the Holostaff widget script to your app entry, write to a feature branch.',
+  opensFlow: true,
+  run: () => ({ kind: 'action', action: 'open_embed' }),
 }
 
 const WHOAMI: SlashCommand = {
