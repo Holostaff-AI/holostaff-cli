@@ -16,11 +16,12 @@
  * the shell appends as a system message.
  */
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Box } from 'ink'
 import { useApp } from 'ink'
 import type { RepoDetection } from '../detect/repo.js'
 import { Welcome } from './Welcome.js'
+import { checkForUpdate } from '../updateCheck.js'
 import { Login } from './Login.js'
 import { Scan, type ScanExitResult } from './scan/Scan.js'
 import { Refine, type RefineExitResult } from './refine/Refine.js'
@@ -49,6 +50,18 @@ export function App({
   const [auth, setAuth] = useState<ResolvedAuth>(() => resolveAuth())
   const [hasReauthed, setHasReauthed] = useState(false)
   const [phase, setPhase] = useState<Phase>('shell')
+  const [latestVersion, setLatestVersion] = useState<string | undefined>(undefined)
+
+  // Background update check. Late resolution just nudges a re-render —
+  // if the user has already started something, the banner appears next
+  // mount of Welcome (which is on every screen).
+  useEffect(() => {
+    let cancelled = false
+    void checkForUpdate(version).then((latest) => {
+      if (!cancelled && latest) setLatestVersion(latest)
+    })
+    return () => { cancelled = true }
+  }, [version])
   // Shell scrollback persists across scan/auth round-trips so the
   // user sees the full session in scrollback without context loss.
   const [shellMessages, setShellMessages] = useState<ShellMessage[] | undefined>(undefined)
@@ -113,7 +126,7 @@ export function App({
 
   return (
     <Box flexDirection="column">
-      <Welcome detection={detection} version={version} />
+      <Welcome detection={detection} version={version} latestVersion={latestVersion} />
       {effectivePhase === 'auth' && (
         <Login baseUrl={auth.baseUrl} onDone={handleLoginDone} />
       )}
