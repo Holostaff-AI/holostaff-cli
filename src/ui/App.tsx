@@ -263,12 +263,17 @@ function instrumentResultMessage(result: InstrumentExitResult): ShellMessage[] {
 function embedResultMessage(result: EmbedExitResult): ShellMessage[] {
   switch (result.kind) {
     case 'committed': {
+      const who = result.copilotName ? ` for ${result.copilotName}` : ''
       const lines = [
-        `Embed committed on branch ${result.branch} (${result.sha.slice(0, 7)}).`,
+        `Embed committed on branch ${result.branch} (${result.sha.slice(0, 7)})${who}.`,
         `Files changed: ${result.filesChanged.length}.`,
-        `Before pushing: replace REPLACE_WITH_COPILOT_ID with a real copilot id from https://www.holostaff.ai/copilots.`,
-        `Push when ready: git push -u origin ${result.branch}.`,
       ]
+      if (result.pr?.kind === 'opened') {
+        lines.push(`Pull request: ${result.pr.url}`)
+      } else {
+        lines.push(`Push when ready: git push -u origin ${result.branch}.`)
+      }
+      lines.push(`After your build deploys, mark embedded at https://www.holostaff.ai/copilots.`)
       return [{ id: newId(), kind: 'system', tone: 'success', text: lines.join('\n') }]
     }
     case 'cancelled':

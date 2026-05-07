@@ -69,11 +69,17 @@ export interface ApplyOptions {
   plan: InstrumentationPlan
   workspaceId: string
   sourceId: string
+  /**
+   * When set, substitutes the literal `REPLACE_WITH_COPILOT_ID` in plan
+   * ops with this id. Used by /embed once the user has picked a copilot;
+   * /instrument leaves it unset (it doesn't deal with copilot ids).
+   */
+  copilotId?: string
   onEvent?: (ev: ApplyEvent) => void
 }
 
 export async function applyPlan(options: ApplyOptions): Promise<ApplyResult> {
-  const { cwd, plan, workspaceId, sourceId, onEvent } = options
+  const { cwd, plan, workspaceId, sourceId, copilotId, onEvent } = options
   const emit = onEvent ?? (() => {})
 
   // 1) Preflight — clean tree.
@@ -126,11 +132,11 @@ export async function applyPlan(options: ApplyOptions): Promise<ApplyResult> {
           packageManager = op.packageManager
           break
         case 'create':
-          await applyCreate(cwd, op, workspaceId, sourceId)
+          await applyCreate(cwd, op, workspaceId, sourceId, copilotId)
           filesChanged.push(op.file)
           break
         case 'edit':
-          await applyEdit(cwd, op, workspaceId, sourceId)
+          await applyEdit(cwd, op, workspaceId, sourceId, copilotId)
           filesChanged.push(op.file)
           break
       }
@@ -187,8 +193,15 @@ export async function applyPlan(options: ApplyOptions): Promise<ApplyResult> {
 // Op application
 // ────────────────────────────────────────────────────────────────────────
 
-function substitute(text: string, workspaceId: string, sourceId: string): string {
-  return text.replace(/<workspaceId>/g, workspaceId).replace(/<sourceId>/g, sourceId)
+function substitute(text: string, workspaceId: string, sourceId: string, copilotId?: string): string {
+  let out = text.replace(/<workspaceId>/g, workspaceId).replace(/<sourceId>/g, sourceId)
+  if (copilotId) {
+    // The /embed agent emits the literal placeholder; we swap it for
+    // the user-picked id at apply time so the customer doesn't have to
+    // edit the diff before pushing.
+    out = out.replace(/REPLACE_WITH_COPILOT_ID/g, copilotId)
+  }
+  return out
 }
 
 async function applyCreate(
@@ -196,13 +209,14 @@ async function applyCreate(
   op: CreateOp,
   workspaceId: string,
   sourceId: string,
+  copilotId?: string,
 ): Promise<void> {
   const target = join(cwd, op.file)
   if (existsSync(target)) {
     throw new Error(`create op refused: ${op.file} already exists`)
   }
   mkdirSync(dirname(target), { recursive: true })
-  writeFileSync(target, substitute(op.content, workspaceId, sourceId), { encoding: 'utf8' })
+  writeFileSync(target, substitute(op.content, workspaceId, sourceId, copilotId), { encoding: 'utf8' })
 }
 
 async function applyEdit(
@@ -210,13 +224,14 @@ async function applyEdit(
   op: EditOp,
   workspaceId: string,
   sourceId: string,
+  copilotId?: string,
 ): Promise<void> {
   const target = join(cwd, op.file)
   if (!existsSync(target)) {
     throw new Error(`edit op failed: ${op.file} does not exist`)
   }
   const original = readFileSync(target, 'utf8')
-  const oldText = substitute(op.oldText, workspaceId, sourceId)
+  const oldText = substitute(op.oldText, workspaceId, sourceId, copilotId)
   const occurrences = countOccurrences(original, oldText)
   if (occurrences === 0) {
     throw new Error(`edit op failed: oldText not found in ${op.file}`)
@@ -226,7 +241,7 @@ async function applyEdit(
       `edit op failed: oldText is not unique in ${op.file} (${occurrences} matches). Agent must propose a more specific anchor.`,
     )
   }
-  const newText = substitute(op.newText, workspaceId, sourceId)
+  const newText = substitute(op.newText, workspaceId, sourceId, copilotId)
   const next = original.replace(oldText, newText)
   writeFileSync(target, next, { encoding: 'utf8' })
 }
