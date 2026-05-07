@@ -7,13 +7,18 @@
  *   running         agent generates the plan
  *   reviewing       PlanDiff + prompt: [Y]/[N]
  *   applying        applyPlan() — git checkout -b + writes + commit
- *   done            success summary with branch name + next steps
+ *   pushing_pr      auto-attempt push + gh pr create after a clean commit
+ *   done            success summary with branch + (PR URL or push hint)
  *   cancelled       user said no
  *   failed          something errored along the way
  *
  * The preflight is non-trivial: /instrument needs both a source binding
  * (so we know the workspace + sourceId to inject) AND a clean git tree
  * (so the apply step can branch + commit safely).
+ *
+ * PR creation runs automatically post-commit but skips gracefully if
+ * `gh` isn't installed/authed or there's no `origin` remote — we never
+ * surface a hard failure for the optional PR step.
  */
 
 import React, { useEffect, useRef, useState } from 'react'
@@ -23,12 +28,21 @@ import Spinner from 'ink-spinner'
 import { runInstrument, type InstrumentEvent } from '../../agent/instrument/runInstrument.js'
 import type { InstrumentationPlan } from '../../agent/instrument/instrumentSchema.js'
 import { applyPlan, type ApplyEvent, type ApplyResult } from '../../instrument/applyPlan.js'
+import { openPullRequest, type PrResult } from '../../instrument/openPullRequest.js'
 import { resolveAuth } from '../../auth/credentials.js'
 import { readBinding } from '../../binding/sourceBinding.js'
 import { emit, classifyError } from '../../telemetry.js'
 
 export type InstrumentExitResult =
-  | { kind: 'committed'; branch: string; sha: string; filesChanged: string[]; packagesToInstall: string[]; packageManager?: string }
+  | {
+      kind: 'committed'
+      branch: string
+      sha: string
+      filesChanged: string[]
+      packagesToInstall: string[]
+      packageManager?: string
+      pr?: PrResult
+    }
   | { kind: 'cancelled' }
   | { kind: 'failed'; error: string }
   | { kind: 'no_binding' }
@@ -51,7 +65,8 @@ type Phase =
       plan: InstrumentationPlan
       events: ApplyEvent[]
     }
-  | { kind: 'done'; result: Extract<ApplyResult, { ok: true }> }
+  | { kind: 'pushing_pr'; result: Extract<ApplyResult, { ok: true }> }
+  | { kind: 'done'; result: Extract<ApplyResult, { ok: true }>; pr?: PrResult }
   | { kind: 'cancelled' }
   | { kind: 'failed'; error: string }
 
@@ -168,6 +183,7 @@ export function Instrument({ cwd, onExit }: InstrumentProps) {
     }
     if (phase.kind === 'done') {
       const r = phase.result
+      const pr = phase.pr
       if (!telemetryEmittedRef.current) {
         telemetryEmittedRef.current = true
         emit({ command: 'instrument', outcome: 'success', durationMs: Date.now() - startedAtRef.current })
@@ -181,6 +197,7 @@ export function Instrument({ cwd, onExit }: InstrumentProps) {
             filesChanged: r.filesChanged,
             packagesToInstall: r.packagesToInstall,
             packageManager: r.packageManager,
+            pr,
           }),
         2500,
       )
@@ -207,7 +224,17 @@ export function Instrument({ cwd, onExit }: InstrumentProps) {
     })
 
     if (result.ok) {
-      setPhase({ kind: 'done', result })
+      setPhase({ kind: 'pushing_pr', result })
+      // Fire the PR attempt; on completion (success, skip, or fail),
+      // settle into 'done' carrying the PrResult. The terminal effect
+      // handles onExit from there.
+      const pr = await openPullRequest({
+        cwd,
+        branch: result.branch,
+        title: `chore(holostaff): wire SDK instrumentation`,
+        body: composePrBody(plan, result),
+      })
+      setPhase({ kind: 'done', result, pr })
     } else {
       setPhase({ kind: 'failed', error: `${result.step}: ${result.error}` })
     }
@@ -238,8 +265,18 @@ export function Instrument({ cwd, onExit }: InstrumentProps) {
       return <ReviewView plan={phase.plan} />
     case 'applying':
       return <ApplyView events={phase.events} />
+    case 'pushing_pr':
+      return (
+        <Box flexDirection="column" marginTop={1} marginLeft={2}>
+          <Text color="green">✓ committed {phase.result.sha.slice(0, 7)} on {phase.result.branch}</Text>
+          <Box marginTop={1}>
+            <Text color="cyan"><Spinner type="dots" /></Text>
+            <Text> Pushing branch and opening a pull request…</Text>
+          </Box>
+        </Box>
+      )
     case 'done':
-      return <DoneView result={phase.result} />
+      return <DoneView result={phase.result} pr={phase.pr} />
     case 'cancelled':
       return (
         <Box marginTop={1} marginLeft={2}>
@@ -316,7 +353,13 @@ function ApplyLine({ ev }: { ev: ApplyEvent }) {
   }
 }
 
-function DoneView({ result }: { result: Extract<ApplyResult, { ok: true }> }) {
+function DoneView({
+  result,
+  pr,
+}: {
+  result: Extract<ApplyResult, { ok: true }>
+  pr?: PrResult
+}) {
   return (
     <Box flexDirection="column" marginTop={1} marginLeft={2}>
       <Text color="green">✓ Instrumentation committed on {result.branch}</Text>
@@ -326,6 +369,12 @@ function DoneView({ result }: { result: Extract<ApplyResult, { ok: true }> }) {
         <Text color="gray">  ·  </Text>
         <Text>{result.filesChanged.length} file{result.filesChanged.length === 1 ? '' : 's'} changed</Text>
       </Box>
+      {pr?.kind === 'opened' && (
+        <Box marginTop={1} flexDirection="column">
+          <Text color="green">✓ Pull request opened</Text>
+          <Text color="cyan">  {pr.url}</Text>
+        </Box>
+      )}
       <Box marginTop={1} flexDirection="column">
         <Text bold>Next steps</Text>
         <Text color="gray">  Review the diff:</Text>
@@ -336,11 +385,54 @@ function DoneView({ result }: { result: Extract<ApplyResult, { ok: true }> }) {
             <Text color="cyan">{`    ${result.packageManager} ${result.packageManager === 'yarn' ? 'add' : 'install'} ${result.packagesToInstall.join(' ')}`}</Text>
           </>
         )}
-        <Text color="gray">  Push when ready:</Text>
-        <Text color="cyan">{`    git push -u origin ${result.branch}`}</Text>
+        {pr?.kind !== 'opened' && (
+          <>
+            <Text color="gray">  Push when ready:</Text>
+            <Text color="cyan">{`    git push -u origin ${result.branch}`}</Text>
+            {pr?.kind === 'skipped' && (
+              <Text color="gray">  ({prSkipHint(pr.reason)})</Text>
+            )}
+            {pr?.kind === 'failed' && (
+              <Text color="yellow">  (couldn't open PR automatically: {pr.error})</Text>
+            )}
+          </>
+        )}
       </Box>
     </Box>
   )
+}
+
+function prSkipHint(reason: 'gh_missing' | 'gh_unauthed' | 'no_remote'): string {
+  switch (reason) {
+    case 'gh_missing':  return 'install GitHub CLI to auto-open a PR: https://cli.github.com'
+    case 'gh_unauthed': return 'run `gh auth login` to auto-open a PR next time'
+    case 'no_remote':   return 'no `origin` remote — add one and re-run'
+  }
+}
+
+/** Short PR body that a reviewer can read in 10 seconds. */
+function composePrBody(
+  plan: InstrumentationPlan,
+  result: Extract<ApplyResult, { ok: true }>,
+): string {
+  const lines = [
+    `Generated by \`holostaff /instrument\`.`,
+    ``,
+    plan.summary || `Wires the Holostaff SDK into this app so user copy + interactions feed back to the live knowledge artifact.`,
+    ``,
+    `**Files changed (${result.filesChanged.length}):**`,
+    ...result.filesChanged.map((f) => `- \`${f}\``),
+  ]
+  if (result.packagesToInstall.length && result.packageManager) {
+    const pm = result.packageManager
+    const cmd = `${pm} ${pm === 'yarn' ? 'add' : 'install'} ${result.packagesToInstall.join(' ')}`
+    lines.push('', `**Run on this branch before merging:**`, '```', cmd, '```')
+  }
+  if (plan.coverageGaps?.length) {
+    lines.push('', `**Coverage gaps the agent flagged:**`)
+    for (const g of plan.coverageGaps) lines.push(`- ${g}`)
+  }
+  return lines.join('\n')
 }
 
 // ────────────────────────────────────────────────────────────────────────
