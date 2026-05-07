@@ -39,29 +39,40 @@ export function runVersion(version: string): number {
   return 0
 }
 
-export function runWhoami(): number {
+export function formatWhoami(): { ok: boolean; text: string } {
   const auth = resolveAuth()
   if (auth.source === 'none') {
-    process.stdout.write('Not signed in. Run `holostaff login` to connect.\n')
-    return 1
+    return { ok: false, text: 'Not signed in. Run `holostaff login` to connect.' }
   }
   if (auth.source === 'env') {
-    process.stdout.write(`Signed in via HOLOSTAFF_API_KEY (CI mode).\n`)
-    process.stdout.write(`Workspace: ${auth.workspaceId ?? '(not set — set HOLOSTAFF_WORKSPACE_ID)'}\n`)
-    process.stdout.write(`Backend:   ${auth.baseUrl}\n`)
-    return 0
+    return {
+      ok: true,
+      text: [
+        `Signed in via HOLOSTAFF_API_KEY (CI mode).`,
+        `Workspace: ${auth.workspaceId ?? '(not set — set HOLOSTAFF_WORKSPACE_ID)'}`,
+        `Backend:   ${auth.baseUrl}`,
+      ].join('\n'),
+    }
   }
-  // File-backed
   if (auth.expired) {
-    process.stdout.write(`Token expired. Run \`holostaff login\` to refresh.\n`)
-    return 1
+    return { ok: false, text: 'Token expired. Run `holostaff login` to refresh.' }
   }
-  process.stdout.write(`Signed in.\n`)
-  process.stdout.write(`User:      ${auth.userId ?? '(unknown)'}\n`)
-  process.stdout.write(`Workspace: ${auth.workspaceId ?? '(unknown)'}\n`)
-  process.stdout.write(`Backend:   ${auth.baseUrl}\n`)
-  process.stdout.write(`Creds:     ${credentialsPath()}\n`)
-  return 0
+  return {
+    ok: true,
+    text: [
+      `Signed in.`,
+      `User:      ${auth.userId ?? '(unknown)'}`,
+      `Workspace: ${auth.workspaceId ?? '(unknown)'}`,
+      `Backend:   ${auth.baseUrl}`,
+      `Creds:     ${credentialsPath()}`,
+    ].join('\n'),
+  }
+}
+
+export function runWhoami(): number {
+  const r = formatWhoami()
+  process.stdout.write(r.text + '\n')
+  return r.ok ? 0 : 1
 }
 
 export function runLogout(): number {
@@ -81,18 +92,21 @@ export function runLogout(): number {
  * multi-workspace lands in a follow-up; the device flow only ever
  * binds one workspace today.
  */
-export function runWorkspace(): number {
+export function formatWorkspace(): { ok: boolean; text: string } {
   const auth = resolveAuth()
   if (auth.source === 'none') {
-    process.stdout.write('Not signed in. Run `holostaff login` first.\n')
-    return 1
+    return { ok: false, text: 'Not signed in. Run `holostaff login` first.' }
   }
   if (!auth.workspaceId) {
-    process.stdout.write('No workspace bound to current credentials.\n')
-    return 1
+    return { ok: false, text: 'No workspace bound to current credentials.' }
   }
-  process.stdout.write(`Active workspace: ${auth.workspaceId}\n`)
-  return 0
+  return { ok: true, text: `Active workspace: ${auth.workspaceId}` }
+}
+
+export function runWorkspace(): number {
+  const r = formatWorkspace()
+  process.stdout.write(r.text + '\n')
+  return r.ok ? 0 : 1
 }
 
 export function runUnknown(arg: string): number {

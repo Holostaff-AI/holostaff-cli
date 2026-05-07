@@ -1,37 +1,33 @@
-import React, { useEffect, useState } from 'react'
-import { Box, Text, useApp } from 'ink'
-import SelectInput from 'ink-select-input'
+/**
+ * Top-level Ink shell for the Holostaff CLI.
+ *
+ * State machine after A3:
+ *
+ *   booting → auth?
+ *     ├── yes → shell (chat with slash commands)
+ *     └── no  → login → shell
+ *
+ *   shell --[/scan]--> scan flow --[onExit]--> shell (with result in scrollback)
+ *   shell --[/login]-> auth → shell
+ *   shell --[/quit]--> exit
+ *
+ * The shell owns scrollback; transient flows like /scan replace the
+ * shell view while running, then return control with a typed result
+ * the shell appends as a system message.
+ */
+
+import React, { useState } from 'react'
+import { Box } from 'ink'
+import { useApp } from 'ink'
 import type { RepoDetection } from '../detect/repo.js'
 import { Welcome } from './Welcome.js'
 import { Login } from './Login.js'
+import { Scan, type ScanExitResult } from './scan/Scan.js'
+import { Shell, type ShellAction } from './chat/Shell.js'
+import { newId, type ShellMessage } from './chat/types.js'
 import { resolveAuth, type ResolvedAuth } from '../auth/credentials.js'
 
-/**
- * Top-level Ink shell. State machine:
- *
- *   booting → (auth?)
- *     ├── yes → menu
- *     └── no  → login → menu (on success)
- *
- * Layout matches PRD §4.1: welcome → (auth gate) → numeric menu →
- * picked-action context message.
- */
-
-type Action = 'scan' | 'instrument' | 'embed' | 'chat'
-type Phase = 'auth' | 'menu' | 'picked'
-
-interface MenuItem {
-  label: string
-  value: Action
-  key?: string
-}
-
-const ITEMS: MenuItem[] = [
-  { label: '1.  Scan this repo and add it to your knowledge base       (recommended)', value: 'scan',       key: 'scan' },
-  { label: '2.  Scan + instrument (adds the Holostaff SDK to the code)',                value: 'instrument', key: 'instrument' },
-  { label: '3.  Embed a copilot in this app',                                            value: 'embed',      key: 'embed' },
-  { label: '4.  Just chat — show me what you can do',                                    value: 'chat',       key: 'chat' },
-]
+type Phase = 'auth' | 'shell' | 'scan'
 
 export function App({
   detection,
@@ -48,132 +44,95 @@ export function App({
 }) {
   const { exit } = useApp()
   const [auth, setAuth] = useState<ResolvedAuth>(() => resolveAuth())
-  const [picked, setPicked] = useState<Action | null>(null)
   const [hasReauthed, setHasReauthed] = useState(false)
+  const [phase, setPhase] = useState<Phase>('shell')
+  // Shell scrollback persists across scan/auth round-trips so the
+  // user sees the full session in scrollback without context loss.
+  const [shellMessages, setShellMessages] = useState<ShellMessage[] | undefined>(undefined)
 
-  // Phase: auth gate first, then menu, then picked-stub.
-  // forceLogin overrides the auth check until the user re-auths once.
-  const needsAuth = (forceLogin && !hasReauthed) || auth.source === 'none' || auth.expired
-  const phase: Phase = picked
-    ? 'picked'
-    : needsAuth
-      ? 'auth'
-      : 'menu'
+  // Auth gate. forceLogin overrides until the user re-auths once.
+  const needsAuth =
+    (forceLogin && !hasReauthed) || auth.source === 'none' || auth.expired
+  const effectivePhase: Phase = needsAuth ? 'auth' : phase
 
-  // Once a menu item is picked, we render its stub then schedule
-  // a clean exit. The stub stays in scrollback so the user can act
-  // on its instructions after we exit.
-  useEffect(() => {
-    if (phase !== 'picked') return
-    const t = setTimeout(() => exit(), 80)
-    return () => clearTimeout(t)
-  }, [phase, exit])
+  function handleShellAction(action: ShellAction, history: ShellMessage[]) {
+    setShellMessages(history)
+    if (action === 'exit') return exit()
+    if (action === 'open_scan') return setPhase('scan')
+    if (action === 'reauth') {
+      setHasReauthed(false)
+      setAuth({ ...auth, source: 'none' as const, expired: true })
+    }
+  }
+
+  function handleScanExit(result?: ScanExitResult) {
+    const summary = scanResultMessage(result)
+    setShellMessages((prev) => [...(prev ?? []), ...summary])
+    setPhase('shell')
+  }
+
+  function handleLoginDone() {
+    setHasReauthed(true)
+    setAuth(resolveAuth())
+    if (exitAfterLogin) {
+      setTimeout(() => exit(), 600)
+    }
+  }
 
   return (
     <Box flexDirection="column">
       <Welcome detection={detection} version={version} />
-      {phase === 'auth'
-        ? <Login
-            baseUrl={auth.baseUrl}
-            onDone={() => {
-              setHasReauthed(true)
-              setAuth(resolveAuth())
-              if (exitAfterLogin) setTimeout(() => exit(), 600)
-            }}
-          />
-        : phase === 'menu'
-          ? <ReadyView auth={auth} onPick={(item) => setPicked(item.value)} />
-          : <PickedStub action={picked!} />}
+      {effectivePhase === 'auth' && (
+        <Login baseUrl={auth.baseUrl} onDone={handleLoginDone} />
+      )}
+      {effectivePhase === 'shell' && (
+        <Shell initialMessages={shellMessages} onAction={handleShellAction} />
+      )}
+      {effectivePhase === 'scan' && (
+        <Scan cwd={detection.root} onExit={handleScanExit} />
+      )}
     </Box>
   )
 }
 
-function ReadyView({ auth, onPick }: { auth: ResolvedAuth; onPick: (item: MenuItem) => void }) {
-  return (
-    <Box flexDirection="column">
-      <Box marginTop={1} marginLeft={2}>
-        <Text color="green">✓ </Text>
-        <Text>Connected </Text>
-        <Text color="gray">· workspace: </Text>
-        <Text color="cyan">{auth.workspaceId ?? '(unknown)'}</Text>
-        {auth.source === 'env' && <Text color="gray"> · CI mode (HOLOSTAFF_API_KEY)</Text>}
-      </Box>
-      <Picker onSelect={onPick} />
-    </Box>
-  )
-}
-
-function Picker({ onSelect }: { onSelect: (item: MenuItem) => void }) {
-  return (
-    <Box flexDirection="column" marginTop={1} marginLeft={2}>
-      <Text>What would you like to do?</Text>
-      <Box marginTop={1}>
-        <SelectInput items={ITEMS} onSelect={onSelect} />
-      </Box>
-    </Box>
-  )
-}
-
-function PickedStub({ action }: { action: Action }) {
-  const message = STUBS[action]
-  return (
-    <Box flexDirection="column" marginTop={1} marginLeft={2}>
-      <Text color="cyan">› {actionLabel(action)}</Text>
-      <Box flexDirection="column" marginTop={1}>
-        {message.map((line, i) => (
-          <Text key={i} color={i === 0 ? undefined : 'gray'}>{line}</Text>
-        ))}
-      </Box>
-    </Box>
-  )
-}
-
-function actionLabel(a: Action): string {
-  switch (a) {
-    case 'scan':       return 'Scan'
-    case 'instrument': return 'Scan + instrument'
-    case 'embed':      return 'Embed a copilot'
-    case 'chat':       return 'Chat'
+function scanResultMessage(result: ScanExitResult | undefined): ShellMessage[] {
+  if (!result) return []
+  switch (result.kind) {
+    case 'uploaded':
+      return [
+        {
+          id: newId(),
+          kind: 'system',
+          tone: 'success',
+          text: `Uploaded ${result.sourceName} version ${result.version}.\nView at ${result.viewUrl}`,
+        },
+      ]
+    case 'saved_local':
+      return [
+        {
+          id: newId(),
+          kind: 'system',
+          tone: 'info',
+          text: `Saved artifact locally to ${result.path}. No upload sent.`,
+        },
+      ]
+    case 'cancelled':
+      return [
+        {
+          id: newId(),
+          kind: 'system',
+          tone: 'info',
+          text: 'Scan cancelled. Nothing was uploaded.',
+        },
+      ]
+    case 'failed':
+      return [
+        {
+          id: newId(),
+          kind: 'system',
+          tone: 'error',
+          text: `Scan failed: ${result.error}`,
+        },
+      ]
   }
-}
-
-// Stub messages explain what *would* happen, in concrete steps. This
-// is more useful than "not implemented" — users see the surface and
-// know what's coming. Tone: PRD §4.8 — concise, names the work.
-const STUBS: Record<Action, string[]> = {
-  scan: [
-    'When auth + scan ship, I will:',
-    '  1. Confirm you\'re signed in to your Holostaff workspace',
-    '  2. Read your code — routes, components, copy, brand',
-    '  3. Synthesise the knowledge artifact',
-    '  4. Show the trust report (what I\'ll send vs. what stays local)',
-    '  5. Upload to your workspace',
-    '',
-    'For now, auth is the next thing to land. Re-run me after it ships.',
-  ],
-  instrument: [
-    'When this is wired, I will run the scan above, then:',
-    '  6. Generate Holostaff SDK init + tracking calls',
-    '  7. Show you the diff before writing anything',
-    '  8. Branch + commit + open a PR via gh',
-    '',
-    'For now, auth is the next thing to land. Re-run me after it ships.',
-  ],
-  embed: [
-    'When this is wired, I will:',
-    '  1. List your workspace\'s copilots',
-    '  2. You pick one',
-    '  3. I add the Holostaff widget to your app entry',
-    '  4. Branch + commit + open a PR via gh',
-    '',
-    'For now, auth is the next thing to land. Re-run me after it ships.',
-  ],
-  chat: [
-    'The conversational shell lands in milestone A3.',
-    '',
-    'When it ships, you\'ll be able to ask me what I\'m doing, why,',
-    'and how each piece of the artifact gets used by your copilots.',
-    '',
-    'For now, the slash commands above are how things work.',
-  ],
 }
