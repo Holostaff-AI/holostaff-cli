@@ -6,10 +6,11 @@
  *   holostaff                    → interactive (welcome → auth → menu)
  *   holostaff login              → interactive, forces re-auth, then exit
  *   holostaff logout|whoami|...  → plain-text command, no Ink
+ *   holostaff scan [...]         → headless / CI scan (no Ink, JSON output)
  *   holostaff --help|--version   → plain-text, no Ink
  *
- * The TTY guard only runs for interactive paths. Plain-text commands
- * work fine when piped / in CI.
+ * The TTY guard only runs for interactive paths. Plain-text + CI
+ * commands work fine when piped.
  */
 
 import React from 'react'
@@ -25,6 +26,7 @@ import {
   runWhoami,
   runWorkspace,
 } from './commands/text.js'
+import { runScanCi } from './commands/scanCi.js'
 
 // Read version from our own package.json at runtime — keeps a single
 // source of truth and avoids bake-in drift.
@@ -55,6 +57,12 @@ async function main() {
     case 'logout':    process.exit(runLogout())
     case 'workspace': process.exit(runWorkspace())
     case 'unknown':   process.exit(runUnknown(args.arg))
+    case 'bad_args':
+      process.stderr.write(`holostaff: ${args.reason}\n`)
+      process.exit(2)
+    case 'scan':
+      // Headless CI mode — no TTY guard, no Ink.
+      process.exit(await runScanCi(args.opts, process.cwd()))
   }
 
   // ─── Interactive paths (login + default) ─────────────────────
@@ -63,7 +71,7 @@ async function main() {
   if (!process.stdin.isTTY) {
     process.stderr.write(
       `holostaff: this is the interactive surface and needs a real terminal.\n`
-      + `For CI / scripted use, run with --quiet --json (lands in milestone A7).\n`,
+      + `For CI / scripted use, run \`holostaff scan --quiet --json\`.\n`,
     )
     process.exit(2)
   }
