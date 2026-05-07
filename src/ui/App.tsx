@@ -244,7 +244,11 @@ function instrumentResultMessage(result: InstrumentExitResult): ShellMessage[] {
           `Run ${result.packageManager} ${result.packageManager === 'yarn' ? 'add' : 'install'} ${result.packagesToInstall.join(' ')} on the branch.`,
         )
       }
-      lines.push(`Push when ready: git push -u origin ${result.branch}.`)
+      if (result.pr?.kind === 'opened') {
+        lines.push(`Pull request: ${result.pr.url}`)
+      } else {
+        lines.push(`Push when ready: git push -u origin ${result.branch}.`)
+      }
       return [{ id: newId(), kind: 'system', tone: 'success', text: lines.join('\n') }]
     }
     case 'cancelled':
