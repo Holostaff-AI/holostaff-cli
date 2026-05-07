@@ -25,6 +25,7 @@ import type { InstrumentationPlan } from '../../agent/instrument/instrumentSchem
 import { applyPlan, type ApplyEvent, type ApplyResult } from '../../instrument/applyPlan.js'
 import { resolveAuth } from '../../auth/credentials.js'
 import { readBinding } from '../../binding/sourceBinding.js'
+import { emit, classifyError } from '../../telemetry.js'
 
 export type InstrumentExitResult =
   | { kind: 'committed'; branch: string; sha: string; filesChanged: string[]; packagesToInstall: string[]; packageManager?: string }
@@ -58,6 +59,8 @@ export function Instrument({ cwd, onExit }: InstrumentProps) {
   const [phase, setPhase] = useState<Phase>({ kind: 'preflight' })
   const startedRef = useRef(false)
   const ctxRef = useRef<{ workspaceId: string; sourceId: string } | null>(null)
+  const startedAtRef = useRef(Date.now())
+  const telemetryEmittedRef = useRef(false)
 
   // Preflight: resolve auth + binding, then kick off the agent.
   useEffect(() => {
@@ -138,11 +141,24 @@ export function Instrument({ cwd, onExit }: InstrumentProps) {
   // Exit a beat after terminal states.
   useEffect(() => {
     if (phase.kind === 'cancelled') {
+      if (!telemetryEmittedRef.current) {
+        telemetryEmittedRef.current = true
+        emit({ command: 'instrument', outcome: 'canceled', durationMs: Date.now() - startedAtRef.current })
+      }
       const t = setTimeout(() => onExit({ kind: 'cancelled' }), 1200)
       return () => clearTimeout(t)
     }
     if (phase.kind === 'failed') {
       const error = phase.error
+      if (!telemetryEmittedRef.current) {
+        telemetryEmittedRef.current = true
+        emit({
+          command: 'instrument',
+          outcome: 'error',
+          durationMs: Date.now() - startedAtRef.current,
+          errorKind: classifyError(error),
+        })
+      }
       const isNoBinding = error.startsWith('No knowledge source bound')
       const t = setTimeout(
         () => onExit(isNoBinding ? { kind: 'no_binding' } : { kind: 'failed', error }),
@@ -152,6 +168,10 @@ export function Instrument({ cwd, onExit }: InstrumentProps) {
     }
     if (phase.kind === 'done') {
       const r = phase.result
+      if (!telemetryEmittedRef.current) {
+        telemetryEmittedRef.current = true
+        emit({ command: 'instrument', outcome: 'success', durationMs: Date.now() - startedAtRef.current })
+      }
       const t = setTimeout(
         () =>
           onExit({

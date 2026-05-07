@@ -19,6 +19,7 @@ import type { InstrumentationPlan } from '../../agent/instrument/instrumentSchem
 import { applyPlan, type ApplyEvent, type ApplyResult } from '../../instrument/applyPlan.js'
 import { resolveAuth } from '../../auth/credentials.js'
 import { readBinding } from '../../binding/sourceBinding.js'
+import { emit, classifyError } from '../../telemetry.js'
 import { PlanDiff } from '../instrument/PlanDiff.js'
 
 export type EmbedExitResult =
@@ -52,6 +53,8 @@ export function Embed({ cwd, onExit }: EmbedProps) {
   const [phase, setPhase] = useState<Phase>({ kind: 'preflight' })
   const startedRef = useRef(false)
   const ctxRef = useRef<{ workspaceId: string; sourceId: string } | null>(null)
+  const startedAtRef = useRef(Date.now())
+  const telemetryEmittedRef = useRef(false)
 
   useEffect(() => {
     if (startedRef.current) return
@@ -125,11 +128,24 @@ export function Embed({ cwd, onExit }: EmbedProps) {
 
   useEffect(() => {
     if (phase.kind === 'cancelled') {
+      if (!telemetryEmittedRef.current) {
+        telemetryEmittedRef.current = true
+        emit({ command: 'embed', outcome: 'canceled', durationMs: Date.now() - startedAtRef.current })
+      }
       const t = setTimeout(() => onExit({ kind: 'cancelled' }), 1200)
       return () => clearTimeout(t)
     }
     if (phase.kind === 'failed') {
       const error = phase.error
+      if (!telemetryEmittedRef.current) {
+        telemetryEmittedRef.current = true
+        emit({
+          command: 'embed',
+          outcome: 'error',
+          durationMs: Date.now() - startedAtRef.current,
+          errorKind: classifyError(error),
+        })
+      }
       const isNoBinding = error.startsWith('No knowledge source bound')
       const t = setTimeout(
         () => onExit(isNoBinding ? { kind: 'no_binding' } : { kind: 'failed', error }),
@@ -139,6 +155,10 @@ export function Embed({ cwd, onExit }: EmbedProps) {
     }
     if (phase.kind === 'done') {
       const r = phase.result
+      if (!telemetryEmittedRef.current) {
+        telemetryEmittedRef.current = true
+        emit({ command: 'embed', outcome: 'success', durationMs: Date.now() - startedAtRef.current })
+      }
       const t = setTimeout(
         () =>
           onExit({
