@@ -1,0 +1,68 @@
+name: release
+
+# Publishes @holostaff/cli to npm with sigstore provenance.
+#
+# Trigger: a tag of the form `vX.Y.Z` (e.g. `v0.1.1`). The job refuses to
+# publish unless the tag's version matches package.json, so a stray tag
+# can't ship a stale tarball.
+#
+# Provenance: --provenance writes a sigstore attestation that ties the
+# tarball to this workflow run. Requires id-token: write permission and
+# npm 9.5+ (Node 20 ships 10.x).
+#
+# Setup: add an `NPM_TOKEN` secret to the repo with publish access to the
+# @holostaff scope.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Tag to publish (vX.Y.Z)'
+        required: true
+
+jobs:
+  publish:
+    name: publish to npm (signed)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # required for sigstore provenance
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Setup Node 20 (npm registry)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Verify tag matches package version
+        run: |
+          tag="${GITHUB_REF_NAME:-${{ github.event.inputs.ref }}}"
+          want="${tag#v}"
+          got="$(node -p "require('./package.json').version")"
+          if [ "$want" != "$got" ]; then
+            echo "::error::Tag $tag implies version $want but package.json is $got" >&2
+            exit 1
+          fi
+          echo "Publishing $got from tag $tag"
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish (signed, public)
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
