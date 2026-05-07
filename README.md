@@ -165,6 +165,10 @@ To disable: set `HOLOSTAFF_TELEMETRY=0` in your environment.
 
 Apache-2.0. See [LICENSE](./LICENSE).
 
+## Contributing
+
+PRs welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md) for dev setup, smoke spikes, and the release flow. Release notes live in [CHANGELOG.md](./CHANGELOG.md).
+
 ## Reporting issues
 
 Open an issue at https://github.com/automi-ai/holostaff-agent or reach out via your Holostaff workspace's support channel.
