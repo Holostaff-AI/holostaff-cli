@@ -25,6 +25,7 @@ import { resolveAuth } from '../auth/credentials.js'
 import { runScan, type ScanEvent } from '../agent/runScan.js'
 import { mapFindingsToUpload } from '../agent/mapToArtifact.js'
 import { uploadFlow, type UploadEvent } from '../agent/uploadArtifact.js'
+import { emit as emitTelemetry, bucketSize } from '../telemetry.js'
 
 export interface CiScanResult {
   ok: boolean
@@ -64,10 +65,17 @@ export interface CiScanResult {
 
 export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
   const log = opts.quiet ? () => { /* suppressed */ } : (line: string) => process.stderr.write(line + '\n')
+  const t0 = Date.now()
 
   // 1. Auth — must be env-source.
   const auth = resolveAuth()
   if (auth.source !== 'env' || !auth.token || !auth.workspaceId) {
+    emitTelemetry({
+      command: 'scan_ci',
+      outcome: 'error',
+      errorKind: 'auth_missing',
+      durationMs: Date.now() - t0,
+    })
     return emitFailure(opts, {
       ok: false,
       phase: 'auth',
@@ -83,6 +91,12 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
   // 2. Run scan.
   const env = await import('../agent/runScan.js').then((m) => m.buildAgentEnv())
   if (!env) {
+    emitTelemetry({
+      command: 'scan_ci',
+      outcome: 'error',
+      errorKind: 'env_missing',
+      durationMs: Date.now() - t0,
+    })
     return emitFailure(opts, {
       ok: false,
       phase: 'env',
@@ -91,7 +105,6 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
     }, log, 2)
   }
 
-  const t0 = Date.now()
   let lastTool = ''
   const scanResult = await runScan({
     cwd,
@@ -107,6 +120,12 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
   })
 
   if (!scanResult.ok) {
+    emitTelemetry({
+      command: 'scan_ci',
+      outcome: 'error',
+      errorKind: `scan_${scanResult.reason}`,
+      durationMs: Date.now() - t0,
+    })
     return emitFailure(opts, {
       ok: false,
       phase: 'scan',
@@ -148,6 +167,13 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
     },
   })
   if (!uploadResult.ok) {
+    emitTelemetry({
+      command: 'scan_ci',
+      outcome: 'error',
+      errorKind: `upload_${uploadResult.step}`,
+      durationMs: Date.now() - t0,
+      frameworkDetected: scanResult.findings.primaryFramework,
+    })
     return emitFailure(opts, {
       ok: false,
       phase: 'upload',
@@ -188,6 +214,19 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
       coverageGaps: f.coverageGaps,
     },
   }
+
+  // Telemetry: bucketed source-file count would require running detect
+  // here too. For the success path we skip bucketing; the framework is
+  // signal enough. Bucketing lands when the Scan UI emits its own
+  // events (later A8 push).
+  emitTelemetry({
+    command: 'scan_ci',
+    outcome: 'success',
+    durationMs: Date.now() - t0,
+    frameworkDetected: f.primaryFramework,
+    repoSizeBucket: bucketSize(f.routes.length + f.components.length),
+  })
+
   return emitResult(opts, result, log, 0)
 }
 
