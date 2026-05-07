@@ -1,14 +1,13 @@
 # Contributing to `@holostaff/cli`
 
 Thanks for the interest. The CLI is alpha and moves fast — expect rough
-edges. This file is the short version; deeper context lives in
-[`documents/holostaff-cli-prd.md`](../documents/holostaff-cli-prd.md).
+edges.
 
 ## Dev setup
 
 ```bash
-git clone https://github.com/automi-ai/holostaff-agent
-cd holostaff-agent/cli
+git clone https://github.com/Holostaff-AI/holostaff-cli
+cd holostaff-cli
 npm install
 npm run build
 npm link            # makes `holostaff` available globally for local testing
@@ -70,7 +69,7 @@ Maintainers only:
 1. Bump `version` in [package.json](./package.json).
 2. Add a section to [CHANGELOG.md](./CHANGELOG.md) under a new
    `[X.Y.Z] — YYYY-MM-DD` heading.
-3. Commit, then tag: `git tag cli-vX.Y.Z && git push --tags`.
+3. Commit, then tag: `git tag vX.Y.Z && git push --tags`.
 4. The `cli-release` GitHub Action publishes the signed tarball to npm.
 
 The release workflow refuses to publish if the tag's version doesn't
@@ -78,7 +77,7 @@ match `package.json`, so a botched bump can't ship a stale build.
 
 ## Reporting issues
 
-[github.com/automi-ai/holostaff-agent/issues](https://github.com/automi-ai/holostaff-agent/issues).
+[github.com/Holostaff-AI/holostaff-cli/issues](https://github.com/Holostaff-AI/holostaff-cli/issues).
 Include CLI version (`holostaff --version`), framework, and the error
 output. We're especially interested in scans that produce empty
 artifacts and `/instrument` patches that don't typecheck.

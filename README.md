@@ -20,12 +20,12 @@ The `@holostaff/sdk` tracking package referenced by `/instrument` is not yet on 
 ## Install
 
 ```bash
-# Once we publish:
+# From npm:
 npm install -g @holostaff/cli
 
-# Today (private install):
-git clone https://github.com/automi-ai/holostaff-agent
-cd holostaff-agent/cli
+# Or from source:
+git clone https://github.com/Holostaff-AI/holostaff-cli
+cd holostaff-cli
 npm install
 npm run build
 npm link
@@ -171,4 +171,4 @@ PRs welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md) for dev setup, smoke sp
 
 ## Reporting issues
 
-Open an issue at https://github.com/automi-ai/holostaff-agent or reach out via your Holostaff workspace's support channel.
+Open an issue at https://github.com/Holostaff-AI/holostaff-cli/issues or reach out via your Holostaff workspace's support channel.

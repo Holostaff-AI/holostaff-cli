@@ -7,6 +7,16 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-05-07
+
+### Changed
+- Repo split out of the `holostaff-agent` monorepo into its own home at
+  [Holostaff-AI/holostaff-cli](https://github.com/Holostaff-AI/holostaff-cli).
+- `package.json` `homepage` / `repository` / `bugs` URLs corrected. The
+  `0.1.0` tarball pointed at a non-existent `automi-ai/holostaff-agent`
+  repo; this release fixes the broken links on the npm page.
+- Tag scheme simplified: future releases use `vX.Y.Z`, not `cli-vX.Y.Z`.
+
 ## [0.1.0] — 2026-05-07
 
 First public alpha. Replaces the deleted browser wizard as the sole way to
@@ -51,5 +61,6 @@ build a Holostaff knowledge artifact and wire a copilot into a codebase.
   will issue per-session model tokens before public GA. Tracked in PRD
   §13 OQ10.
 
-[Unreleased]: https://github.com/automi-ai/holostaff-agent/compare/cli-v0.1.0...HEAD
-[0.1.0]: https://github.com/automi-ai/holostaff-agent/releases/tag/cli-v0.1.0
+[Unreleased]: https://github.com/Holostaff-AI/holostaff-cli/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/Holostaff-AI/holostaff-cli/releases/tag/v0.1.1
+[0.1.0]: https://github.com/Holostaff-AI/holostaff-cli/releases/tag/v0.1.0
