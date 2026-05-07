@@ -28,7 +28,7 @@ import { MessageList } from './MessageList.js'
 import { InputBar } from './InputBar.js'
 import { newId, type ShellMessage } from './types.js'
 
-export type ShellAction = 'open_scan' | 'open_refine' | 'reauth' | 'exit'
+export type ShellAction = 'open_scan' | 'open_refine' | 'open_instrument' | 'reauth' | 'exit'
 
 export interface ShellProps {
   /** Messages to seed the scrollback with — used after returning from /scan. */

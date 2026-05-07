@@ -18,7 +18,11 @@ import { clearCredentials, credentialsPath } from '../auth/credentials.js'
 
 export type SlashOutcome =
   | { kind: 'message'; text: string; tone?: 'info' | 'warn' | 'error' | 'success' }
-  | { kind: 'action'; action: 'open_scan' | 'open_refine' | 'exit' | 'reauth'; args?: string }
+  | {
+      kind: 'action'
+      action: 'open_scan' | 'open_refine' | 'open_instrument' | 'exit' | 'reauth'
+      args?: string
+    }
 
 export interface SlashCommand {
   /** Canonical name including leading slash, e.g. '/scan'. */
@@ -59,13 +63,9 @@ const REFINE: SlashCommand = {
 
 const INSTRUMENT: SlashCommand = {
   name: '/instrument',
-  desc: 'Add Holostaff SDK tracking calls and open a PR. (lands in A5)',
-  run: () => ({
-    kind: 'message',
-    tone: 'info',
-    text:
-      '/instrument lands in milestone A5. The flow will: 1) run /scan, 2) generate SDK init + tracking calls, 3) show a diff, 4) branch + commit + open a PR via gh. For now use /scan.',
-  }),
+  desc: 'Generate Holostaff SDK init + tracking, write to a feature branch.',
+  opensFlow: true,
+  run: () => ({ kind: 'action', action: 'open_instrument' }),
 }
 
 const EMBED: SlashCommand = {
