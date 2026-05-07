@@ -23,11 +23,12 @@ import type { RepoDetection } from '../detect/repo.js'
 import { Welcome } from './Welcome.js'
 import { Login } from './Login.js'
 import { Scan, type ScanExitResult } from './scan/Scan.js'
+import { Refine, type RefineExitResult } from './refine/Refine.js'
 import { Shell, type ShellAction } from './chat/Shell.js'
 import { newId, type ShellMessage } from './chat/types.js'
 import { resolveAuth, type ResolvedAuth } from '../auth/credentials.js'
 
-type Phase = 'auth' | 'shell' | 'scan'
+type Phase = 'auth' | 'shell' | 'scan' | 'refine'
 
 export function App({
   detection,
@@ -49,16 +50,25 @@ export function App({
   // Shell scrollback persists across scan/auth round-trips so the
   // user sees the full session in scrollback without context loss.
   const [shellMessages, setShellMessages] = useState<ShellMessage[] | undefined>(undefined)
+  // Mode the next /scan run should use. Set by handleShellAction when
+  // it parses '--add-repo' from the slash args.
+  const [scanMergeMode, setScanMergeMode] = useState<'replace' | 'append'>('replace')
 
   // Auth gate. forceLogin overrides until the user re-auths once.
   const needsAuth =
     (forceLogin && !hasReauthed) || auth.source === 'none' || auth.expired
   const effectivePhase: Phase = needsAuth ? 'auth' : phase
 
-  function handleShellAction(action: ShellAction, history: ShellMessage[]) {
+  function handleShellAction(action: ShellAction, args: string, history: ShellMessage[]) {
     setShellMessages(history)
     if (action === 'exit') return exit()
-    if (action === 'open_scan') return setPhase('scan')
+    if (action === 'open_scan') {
+      // /scan args today: '--add-repo' switches to merge mode.
+      const wantsAppend = /(?:^|\s)--add-repo(?:\s|$)/.test(args)
+      setScanMergeMode(wantsAppend ? 'append' : 'replace')
+      return setPhase('scan')
+    }
+    if (action === 'open_refine') return setPhase('refine')
     if (action === 'reauth') {
       setHasReauthed(false)
       setAuth({ ...auth, source: 'none' as const, expired: true })
@@ -67,6 +77,12 @@ export function App({
 
   function handleScanExit(result?: ScanExitResult) {
     const summary = scanResultMessage(result)
+    setShellMessages((prev) => [...(prev ?? []), ...summary])
+    setPhase('shell')
+  }
+
+  function handleRefineExit(result: RefineExitResult) {
+    const summary = refineResultMessage(result)
     setShellMessages((prev) => [...(prev ?? []), ...summary])
     setPhase('shell')
   }
@@ -89,7 +105,10 @@ export function App({
         <Shell initialMessages={shellMessages} onAction={handleShellAction} />
       )}
       {effectivePhase === 'scan' && (
-        <Scan cwd={detection.root} onExit={handleScanExit} />
+        <Scan cwd={detection.root} mergeMode={scanMergeMode} onExit={handleScanExit} />
+      )}
+      {effectivePhase === 'refine' && (
+        <Refine cwd={detection.root} onExit={handleRefineExit} />
       )}
     </Box>
   )
@@ -132,6 +151,47 @@ function scanResultMessage(result: ScanExitResult | undefined): ShellMessage[] {
           kind: 'system',
           tone: 'error',
           text: `Scan failed: ${result.error}`,
+        },
+      ]
+  }
+}
+
+function refineResultMessage(result: RefineExitResult): ShellMessage[] {
+  switch (result.kind) {
+    case 'saved':
+      return [
+        {
+          id: newId(),
+          kind: 'system',
+          tone: 'success',
+          text: `Refinements saved to ${result.sourceName}.\nView at ${result.viewUrl}`,
+        },
+      ]
+    case 'cancelled':
+      return [
+        {
+          id: newId(),
+          kind: 'system',
+          tone: 'info',
+          text: 'Refine cancelled. Nothing was saved.',
+        },
+      ]
+    case 'no_binding':
+      return [
+        {
+          id: newId(),
+          kind: 'system',
+          tone: 'warn',
+          text: 'No knowledge source bound for this repo yet. Type /scan to create one first.',
+        },
+      ]
+    case 'failed':
+      return [
+        {
+          id: newId(),
+          kind: 'system',
+          tone: 'error',
+          text: `Refine failed: ${result.error}`,
         },
       ]
   }

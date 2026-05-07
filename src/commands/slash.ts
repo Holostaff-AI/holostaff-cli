@@ -18,7 +18,7 @@ import { clearCredentials, credentialsPath } from '../auth/credentials.js'
 
 export type SlashOutcome =
   | { kind: 'message'; text: string; tone?: 'info' | 'warn' | 'error' | 'success' }
-  | { kind: 'action'; action: 'open_scan' | 'exit' | 'reauth' }
+  | { kind: 'action'; action: 'open_scan' | 'open_refine' | 'exit' | 'reauth'; args?: string }
 
 export interface SlashCommand {
   /** Canonical name including leading slash, e.g. '/scan'. */
@@ -45,9 +45,16 @@ const QUIT: SlashCommand = {
 
 const SCAN: SlashCommand = {
   name: '/scan',
-  desc: 'Scan this repository and upload a knowledge artifact.',
+  desc: 'Scan this repository and upload a knowledge artifact. Add --add-repo to merge into an existing source.',
   opensFlow: true,
-  run: () => ({ kind: 'action', action: 'open_scan' }),
+  run: (args) => ({ kind: 'action', action: 'open_scan', args }),
+}
+
+const REFINE: SlashCommand = {
+  name: '/refine',
+  desc: 'Edit identity overrides on the live artifact (name, description, notes).',
+  opensFlow: true,
+  run: () => ({ kind: 'action', action: 'open_refine' }),
 }
 
 const INSTRUMENT: SlashCommand = {
@@ -113,7 +120,7 @@ const LOGOUT: SlashCommand = {
 }
 
 export const SLASH_COMMANDS: SlashCommand[] = [
-  HELP, SCAN, INSTRUMENT, EMBED, WHOAMI, WORKSPACE, LOGIN, LOGOUT, QUIT,
+  HELP, SCAN, REFINE, INSTRUMENT, EMBED, WHOAMI, WORKSPACE, LOGIN, LOGOUT, QUIT,
 ]
 
 function findCommand(name: string): SlashCommand | undefined {

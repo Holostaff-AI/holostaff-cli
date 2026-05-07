@@ -28,7 +28,7 @@ import { MessageList } from './MessageList.js'
 import { InputBar } from './InputBar.js'
 import { newId, type ShellMessage } from './types.js'
 
-export type ShellAction = 'open_scan' | 'reauth' | 'exit'
+export type ShellAction = 'open_scan' | 'open_refine' | 'reauth' | 'exit'
 
 export interface ShellProps {
   /** Messages to seed the scrollback with — used after returning from /scan. */
@@ -38,10 +38,13 @@ export interface ShellProps {
    * handle them — open_scan switches to <Scan/>, reauth re-runs the
    * device flow, exit unmounts.
    *
+   * `args` is the raw text after the slash command (e.g. '--add-repo'
+   * for /scan). Parent parses what it needs.
+   *
    * Returns updated history if the parent wants to mutate scrollback
    * (e.g. after /scan completes the parent appends a result message).
    */
-  onAction: (action: ShellAction, history: ShellMessage[]) => void
+  onAction: (action: ShellAction, args: string, history: ShellMessage[]) => void
 }
 
 export function Shell({ initialMessages, onAction }: ShellProps) {
@@ -70,7 +73,7 @@ export function Shell({ initialMessages, onAction }: ShellProps) {
       // Action — let the parent take over. Pass current history so it
       // can be restored / appended to on return.
       if (outcome.action === 'exit') return exit()
-      onAction(outcome.action, after)
+      onAction(outcome.action, outcome.args ?? '', after)
       return
     }
 

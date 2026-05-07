@@ -29,11 +29,14 @@ import { mapFindingsToUpload, type CliArtifactUpload } from '../../agent/mapToAr
 import { uploadFlow, type UploadEvent, type UploadResult } from '../../agent/uploadArtifact.js'
 import { resolveAuth } from '../../auth/credentials.js'
 import { ScanProgress, reduceScanEvent, initialProgress, type ScanProgressState } from './ScanProgress.js'
+import { SourcePicker } from './SourcePicker.js'
 import { TrustReport } from './TrustReport.js'
 import { UploadProgress, type UploadPhase } from './UploadProgress.js'
 
 type Phase =
   | { kind: 'preflight' }
+  // Pre-scan source picker, only shown when mergeMode='append'.
+  | { kind: 'picking_source' }
   | { kind: 'running'; progress: ScanProgressState }
   | { kind: 'trust'; result: SuccessResult }
   | { kind: 'uploading'; result: SuccessResult; upload: CliArtifactUpload; uploadPhase: UploadPhase }
@@ -61,19 +64,38 @@ export type ScanExitResult =
 
 export interface ScanProps {
   cwd: string
+  /**
+   * 'replace' (default): scan + upload as a fresh artifact / new
+   * source. 'append': scan + merge findings into a user-picked
+   * existing source (--add-repo).
+   */
+  mergeMode?: 'replace' | 'append'
   onExit: (result?: ScanExitResult) => void
 }
 
-export function Scan({ cwd, onExit }: ScanProps) {
+export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
   const [phase, setPhase] = useState<Phase>({ kind: 'preflight' })
+  const [pickedSource, setPickedSource] = useState<{ sourceId: string; sourceName: string } | undefined>(
+    undefined,
+  )
 
   // Guard against double-fire: useEffect can run twice in dev/strict mode,
   // and the agent SDK is heavy — we only want one runScan per mount.
-  const startedRef = useRef(false)
+  const scanStartedRef = useRef(false)
 
+  // Initial mount: decide between picker (append + no pick yet) and scan.
   useEffect(() => {
-    if (startedRef.current) return
-    startedRef.current = true
+    if (mergeMode === 'append' && !pickedSource) {
+      setPhase({ kind: 'picking_source' })
+      return
+    }
+    startScan()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mergeMode, pickedSource])
+
+  function startScan() {
+    if (scanStartedRef.current) return
+    scanStartedRef.current = true
 
     const env = buildAgentEnv()
     if (!env) {
@@ -114,7 +136,7 @@ export function Scan({ cwd, onExit }: ScanProps) {
         },
       })
     })
-  }, [cwd])
+  }
 
   // Exit a beat after a terminal state renders so the user sees it.
   // Upload is terminal only once its inner phase reaches 'done'; the
@@ -163,6 +185,17 @@ export function Scan({ cwd, onExit }: ScanProps) {
     case 'preflight':
       return <Centered>Preparing to scan {cwd}…</Centered>
 
+    case 'picking_source':
+      return (
+        <SourcePicker
+          onPick={(picked) => {
+            setPickedSource(picked)
+            // useEffect on pickedSource will fire startScan().
+          }}
+          onCancel={() => setPhase({ kind: 'cancelled' })}
+        />
+      )
+
     case 'running':
       return <ScanProgress state={phase.progress} />
 
@@ -205,6 +238,8 @@ export function Scan({ cwd, onExit }: ScanProps) {
               appBaseUrl,
               artifact: trustUpload,
               repoOrigin: undefined, // surfaced in a later milestone via `git remote`
+              mergeMode,
+              forceSourceId: pickedSource,
               onEvent: (ev) => {
                 events.push(ev)
                 setPhase({

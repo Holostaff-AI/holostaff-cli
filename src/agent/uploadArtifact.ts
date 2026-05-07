@@ -81,60 +81,94 @@ export interface UploadOptions {
    * Caller resolves this since we don't run git here.
    */
   repoOrigin?: string
+  /**
+   * 'replace' (default): findings overwrite the existing artifact.
+   * 'append':  merge into the existing artifact (used by --add-repo).
+   * Set by Scan when the user opted into multi-repo mode; the server
+   * dedupes by item identity.
+   */
+  mergeMode?: 'replace' | 'append'
+  /**
+   * When set, the upload binds to this sourceId regardless of any
+   * existing local binding — used by --add-repo, where the user
+   * picked an existing source to contribute to. Overwrites the
+   * .holostaff/source.json on success.
+   */
+  forceSourceId?: { sourceId: string; sourceName: string }
   onEvent?: (ev: UploadEvent) => void
 }
 
 export async function uploadFlow(options: UploadOptions): Promise<UploadResult> {
-  const { cwd, baseUrl, bearer, workspaceId, appBaseUrl, artifact, repoOrigin, onEvent } = options
+  const {
+    cwd, baseUrl, bearer, workspaceId, appBaseUrl, artifact,
+    repoOrigin, mergeMode = 'replace', forceSourceId, onEvent,
+  } = options
   const emit = onEvent ?? (() => {})
 
-  // Phase 1 — resolve source
+  // Phase 1 — resolve source. Three paths:
+  //   - forceSourceId set (--add-repo): use it, ignore any existing
+  //     local binding, mark as needing rebind.
+  //   - found binding for current workspace: reuse.
+  //   - missing / wrong_workspace / malformed: create fresh.
   emit({ type: 'resolving_source' })
   let sourceId: string
   let sourceName: string
+  // isNewSource gates whether we write the binding. true when we just
+  // created one OR when --add-repo rebinds to a different existing
+  // source.
   let isNewSource = false
 
   try {
-    const read = readBinding(cwd, workspaceId)
-    switch (read.kind) {
-      case 'found': {
-        sourceId = read.binding.sourceId
-        sourceName = read.binding.name
-        emit({ type: 'reusing_source', sourceId, name: sourceName })
-        break
-      }
-      case 'wrong_workspace': {
-        emit({
-          type: 'wrong_workspace_binding',
-          bindingWorkspaceId: read.binding.workspaceId,
-          currentWorkspaceId: workspaceId,
-        })
-        // Fall through to create-fresh; we don't overwrite the existing
-        // binding silently — caller can decide later (UX in v2).
-        const created = await createSource(baseUrl, bearer, artifact.productName, repoOrigin)
-        sourceId = created.id
-        sourceName = created.name
-        isNewSource = true
-        emit({ type: 'source_created', sourceId, name: sourceName })
-        break
-      }
-      case 'malformed': {
-        emit({ type: 'binding_malformed', error: read.error })
-        const created = await createSource(baseUrl, bearer, artifact.productName, repoOrigin)
-        sourceId = created.id
-        sourceName = created.name
-        isNewSource = true
-        emit({ type: 'source_created', sourceId, name: sourceName })
-        break
-      }
-      case 'missing': {
-        emit({ type: 'creating_source', name: artifact.productName })
-        const created = await createSource(baseUrl, bearer, artifact.productName, repoOrigin)
-        sourceId = created.id
-        sourceName = created.name
-        isNewSource = true
-        emit({ type: 'source_created', sourceId, name: sourceName })
-        break
+    if (forceSourceId) {
+      sourceId = forceSourceId.sourceId
+      sourceName = forceSourceId.sourceName
+      // Always rebind on --add-repo so subsequent scans land on the
+      // chosen source. emit a 'reusing' event with a flag so the UI
+      // can say "rebinding to existing source X".
+      emit({ type: 'reusing_source', sourceId, name: sourceName })
+      isNewSource = true // forces phase-3 binding write
+    } else {
+      const read = readBinding(cwd, workspaceId)
+      switch (read.kind) {
+        case 'found': {
+          sourceId = read.binding.sourceId
+          sourceName = read.binding.name
+          emit({ type: 'reusing_source', sourceId, name: sourceName })
+          break
+        }
+        case 'wrong_workspace': {
+          emit({
+            type: 'wrong_workspace_binding',
+            bindingWorkspaceId: read.binding.workspaceId,
+            currentWorkspaceId: workspaceId,
+          })
+          // Fall through to create-fresh; we don't overwrite the existing
+          // binding silently — caller can decide later (UX in v2).
+          const created = await createSource(baseUrl, bearer, artifact.productName, repoOrigin)
+          sourceId = created.id
+          sourceName = created.name
+          isNewSource = true
+          emit({ type: 'source_created', sourceId, name: sourceName })
+          break
+        }
+        case 'malformed': {
+          emit({ type: 'binding_malformed', error: read.error })
+          const created = await createSource(baseUrl, bearer, artifact.productName, repoOrigin)
+          sourceId = created.id
+          sourceName = created.name
+          isNewSource = true
+          emit({ type: 'source_created', sourceId, name: sourceName })
+          break
+        }
+        case 'missing': {
+          emit({ type: 'creating_source', name: artifact.productName })
+          const created = await createSource(baseUrl, bearer, artifact.productName, repoOrigin)
+          sourceId = created.id
+          sourceName = created.name
+          isNewSource = true
+          emit({ type: 'source_created', sourceId, name: sourceName })
+          break
+        }
       }
     }
   } catch (err) {
@@ -148,7 +182,7 @@ export async function uploadFlow(options: UploadOptions): Promise<UploadResult> 
   let version: number
   let artifactId: string
   try {
-    const result = await apiUploadArtifact(baseUrl, bearer, sourceId, artifact)
+    const result = await apiUploadArtifact(baseUrl, bearer, sourceId, artifact, mergeMode)
     version = result.version
     artifactId = result.artifactId
     emit({ type: 'uploaded', sourceId, version, artifactId })

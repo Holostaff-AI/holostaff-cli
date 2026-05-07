@@ -172,6 +172,13 @@ export async function uploadArtifact(
   bearer: string,
   sourceId: string,
   body: UploadArtifactBody,
+  /**
+   * 'replace' (default): overwrite the source's findings.
+   * 'append':  merge into the existing artifact — used by /scan --add-repo.
+   *            Server dedupes routes/components/copy/workflows by identity
+   *            and keeps product-level fields from the previous version.
+   */
+  mergeMode: 'replace' | 'append' = 'replace',
 ): Promise<UploadArtifactResponse> {
   return request<UploadArtifactResponse>(
     baseUrl,
@@ -179,8 +186,68 @@ export async function uploadArtifact(
     {
       method: 'POST',
       bearer,
-      body: JSON.stringify({ artifact: body }),
+      body: JSON.stringify({ artifact: body, mergeMode }),
     },
+  )
+}
+
+/**
+ * Artifact returned by GET /api/cli/sources/:id/artifacts/:version.
+ * Loose-typed at the CLI boundary — server-side Zod is the authority.
+ */
+export interface CliArtifact {
+  id: string
+  sourceId: string
+  tenantId: string
+  version: number
+  runId: string
+  ingestedAt: string
+  ingestedVia: string
+  productName: string
+  oneLineDescription: string
+  primaryFramework: string
+  language: 'typescript' | 'javascript' | 'mixed' | 'unknown'
+  routes: Array<{ path: string; description: string; file?: string }>
+  components: Array<{ name: string; role: string; file?: string }>
+  copy: Array<{ text: string; location: string }>
+  brandVoice?: { tone: string; keywords: string[]; avoidTerms: string[] }
+  workflows: Array<{ name: string; steps: string[]; entryRoute?: string }>
+  coverageGaps: string[]
+  notes?: string
+  customerEdits: Record<string, unknown>
+  updates?: unknown
+}
+
+export async function getCliArtifact(
+  baseUrl: string,
+  bearer: string,
+  sourceId: string,
+  version: number,
+): Promise<{ artifact: CliArtifact }> {
+  return request<{ artifact: CliArtifact }>(
+    baseUrl,
+    `/api/cli/sources/${encodeURIComponent(sourceId)}/artifacts/${version}`,
+    { method: 'GET', bearer },
+  )
+}
+
+/**
+ * Whole-replacement PATCH of customerEdits. Caller composes the full
+ * edits object (existing edits + new overrides) and we send it.
+ * Returns the re-validated artifact with edits applied for the caller
+ * to display.
+ */
+export async function patchCliArtifactEdits(
+  baseUrl: string,
+  bearer: string,
+  sourceId: string,
+  version: number,
+  edits: Record<string, unknown>,
+): Promise<{ artifact: CliArtifact }> {
+  return request<{ artifact: CliArtifact }>(
+    baseUrl,
+    `/api/cli/sources/${encodeURIComponent(sourceId)}/artifacts/${version}/edits`,
+    { method: 'PATCH', bearer, body: JSON.stringify({ edits }) },
   )
 }
 

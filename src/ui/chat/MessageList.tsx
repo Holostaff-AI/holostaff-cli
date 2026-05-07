@@ -70,7 +70,9 @@ function Message({ message }: { message: ShellMessage }) {
   }
 }
 
-function toneColor(tone: ShellMessage['tone'] extends infer T ? T : never): string {
+type Tone = 'info' | 'warn' | 'error' | 'success' | undefined
+
+function toneColor(tone: Tone): string {
   switch (tone) {
     case 'success': return 'green'
     case 'warn':    return 'yellow'
@@ -80,7 +82,7 @@ function toneColor(tone: ShellMessage['tone'] extends infer T ? T : never): stri
   }
 }
 
-function toneGlyph(tone: ShellMessage['tone'] extends infer T ? T : never): string {
+function toneGlyph(tone: Tone): string {
   switch (tone) {
     case 'success': return '✓'
     case 'warn':    return '!'
