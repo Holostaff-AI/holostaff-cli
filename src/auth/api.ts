@@ -251,4 +251,47 @@ export async function patchCliArtifactEdits(
   )
 }
 
+/**
+ * /embed copilot picker + embed-state tracking. The dashboard's
+ * Copilots page surfaces the same data (PR open, embedded, etc.).
+ */
+export interface CopilotSummary {
+  id: string
+  name: string
+  status?: string
+  description?: string
+  avatar?: string
+  workspaceId: string
+}
+
+export async function listCopilots(baseUrl: string, bearer: string): Promise<{ copilots: CopilotSummary[] }> {
+  return request<{ copilots: CopilotSummary[] }>(baseUrl, '/api/cli/copilots', {
+    method: 'GET',
+    bearer,
+  })
+}
+
+export interface SetEmbedStateInput {
+  copilotId: string
+  sourceId: string
+  phase: 'none' | 'pr_open' | 'embedded'
+  prUrl?: string
+  prState?: 'open' | 'merged' | 'closed'
+  repoPath?: string
+  sdkVersion?: string
+  markEmbeddedNow?: boolean
+}
+
+export async function setEmbedState(
+  baseUrl: string,
+  bearer: string,
+  input: SetEmbedStateInput,
+): Promise<{ state: unknown }> {
+  return request<{ state: unknown }>(baseUrl, '/api/cli/embed-state', {
+    method: 'POST',
+    bearer,
+    body: JSON.stringify(input),
+  })
+}
+
 export { isApiError }
