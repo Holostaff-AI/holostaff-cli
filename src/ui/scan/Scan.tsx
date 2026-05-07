@@ -1,0 +1,298 @@
+/**
+ * Scan — top-level Ink view orchestrating /scan.
+ *
+ * State machine:
+ *
+ *   preflight  → check env + cwd before kicking off the agent
+ *   running    → runScan() in flight; ScanProgress shows live events
+ *   trust      → scan succeeded; TrustReport awaits user decision
+ *   uploading  → user said yes; A2.5 will land the actual upload —
+ *                today this stub displays a "would upload" notice
+ *                so the flow is observable end-to-end
+ *   saved      → user said save-locally; we wrote the artifact to
+ *                .holostaff/scan-<timestamp>.json
+ *   cancelled  → user said no, or scan was aborted
+ *   failed     → scan errored (preflight or runScan reason !== ok)
+ *
+ * onExit fires once after a terminal state renders, giving the parent
+ * (App) a beat to show the resolution before useApp().exit() runs.
+ */
+
+import React, { useEffect, useRef, useState } from 'react'
+import { Box, Text } from 'ink'
+import { mkdir, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
+
+import { runScan, buildAgentEnv, type ScanEvent, type ScanResult } from '../../agent/runScan.js'
+import type { ScanFindings } from '../../agent/findingsSchema.js'
+import { mapFindingsToUpload, type CliArtifactUpload } from '../../agent/mapToArtifact.js'
+import { uploadFlow, type UploadEvent, type UploadResult } from '../../agent/uploadArtifact.js'
+import { resolveAuth } from '../../auth/credentials.js'
+import { ScanProgress, reduceScanEvent, initialProgress, type ScanProgressState } from './ScanProgress.js'
+import { TrustReport } from './TrustReport.js'
+import { UploadProgress, type UploadPhase } from './UploadProgress.js'
+
+type Phase =
+  | { kind: 'preflight' }
+  | { kind: 'running'; progress: ScanProgressState }
+  | { kind: 'trust'; result: SuccessResult }
+  | { kind: 'uploading'; result: SuccessResult; upload: CliArtifactUpload; uploadPhase: UploadPhase }
+  | { kind: 'saved'; path: string }
+  | { kind: 'cancelled' }
+  | { kind: 'failed'; error: string }
+
+interface SuccessResult {
+  findings: ScanFindings
+  durationMs: number
+  tokens: { input: number; output: number }
+  sessionId: string | undefined
+}
+
+/**
+ * Outcome the parent gets when the user backs out of (or finishes) the
+ * scan flow. The shell uses this to render a one-line summary in
+ * scrollback when it remounts.
+ */
+export type ScanExitResult =
+  | { kind: 'uploaded'; sourceId: string; sourceName: string; version: number; viewUrl: string }
+  | { kind: 'saved_local'; path: string }
+  | { kind: 'cancelled' }
+  | { kind: 'failed'; error: string }
+
+export interface ScanProps {
+  cwd: string
+  onExit: (result?: ScanExitResult) => void
+}
+
+export function Scan({ cwd, onExit }: ScanProps) {
+  const [phase, setPhase] = useState<Phase>({ kind: 'preflight' })
+
+  // Guard against double-fire: useEffect can run twice in dev/strict mode,
+  // and the agent SDK is heavy — we only want one runScan per mount.
+  const startedRef = useRef(false)
+
+  useEffect(() => {
+    if (startedRef.current) return
+    startedRef.current = true
+
+    const env = buildAgentEnv()
+    if (!env) {
+      setPhase({
+        kind: 'failed',
+        error:
+          'Missing AZURE_ANTHROPIC_ENDPOINT or AZURE_ANTHROPIC_API_KEY. Set them in your shell and re-run. (Production CLI distribution will fetch a session-scoped model key from your workspace; tracked in PRD §13.10.)',
+      })
+      return
+    }
+
+    // Drive the scan and reduce events into progress state.
+    let progress = { ...initialProgress }
+    setPhase({ kind: 'running', progress })
+
+    runScan({
+      cwd,
+      env,
+      onEvent: (ev: ScanEvent) => {
+        progress = reduceScanEvent(progress, ev)
+        setPhase({ kind: 'running', progress })
+      },
+    }).then((result: ScanResult) => {
+      if (!result.ok) {
+        setPhase({
+          kind: 'failed',
+          error: `${result.reason}: ${result.error}`,
+        })
+        return
+      }
+      setPhase({
+        kind: 'trust',
+        result: {
+          findings: result.findings,
+          durationMs: result.durationMs,
+          tokens: result.tokens,
+          sessionId: result.sessionId,
+        },
+      })
+    })
+  }, [cwd])
+
+  // Exit a beat after a terminal state renders so the user sees it.
+  // Upload is terminal only once its inner phase reaches 'done'; the
+  // delay then is longer because the success message includes a URL
+  // the user may want to click.
+  useEffect(() => {
+    if (phase.kind === 'cancelled') {
+      const t = setTimeout(() => onExit({ kind: 'cancelled' }), 1200)
+      return () => clearTimeout(t)
+    }
+    if (phase.kind === 'failed') {
+      const error = phase.error
+      const t = setTimeout(() => onExit({ kind: 'failed', error }), 1200)
+      return () => clearTimeout(t)
+    }
+    if (phase.kind === 'saved') {
+      const path = phase.path
+      const t = setTimeout(() => onExit({ kind: 'saved_local', path }), 1200)
+      return () => clearTimeout(t)
+    }
+    if (phase.kind === 'uploading' && phase.uploadPhase.kind === 'done') {
+      const r = phase.uploadPhase.result
+      const out: ScanExitResult = r.ok
+        ? {
+            kind: 'uploaded',
+            sourceId: r.sourceId,
+            sourceName: r.sourceName,
+            version: r.version,
+            viewUrl: r.viewUrl,
+          }
+        : { kind: 'failed', error: r.error }
+      const t = setTimeout(() => onExit(out), 2500)
+      return () => clearTimeout(t)
+    }
+  }, [phase, onExit])
+
+  // Build the upload payload eagerly when we hit trust, so confirm is instant.
+  const upload =
+    phase.kind === 'trust'
+      ? mapFindingsToUpload({ findings: phase.result.findings, cliSessionId: phase.result.sessionId })
+      : phase.kind === 'uploading'
+        ? phase.upload
+        : null
+
+  switch (phase.kind) {
+    case 'preflight':
+      return <Centered>Preparing to scan {cwd}…</Centered>
+
+    case 'running':
+      return <ScanProgress state={phase.progress} />
+
+    case 'trust':
+      return (
+        <TrustReport
+          findings={phase.result.findings}
+          durationMs={phase.result.durationMs}
+          tokensIn={phase.result.tokens.input}
+          tokensOut={phase.result.tokens.output}
+          onConfirm={() => {
+            const trustResult = phase.result
+            const trustUpload = upload!
+            // Initial uploading state — UploadProgress shows a starting
+            // line until the first orchestrator event arrives.
+            setPhase({
+              kind: 'uploading',
+              result: trustResult,
+              upload: trustUpload,
+              uploadPhase: { kind: 'starting' },
+            })
+
+            const auth = resolveAuth()
+            if (auth.source === 'none' || auth.expired || !auth.workspaceId || !auth.token) {
+              setPhase({
+                kind: 'failed',
+                error: 'Not signed in. Run `holostaff login` and try again.',
+              })
+              return
+            }
+
+            const events: UploadEvent[] = []
+            const appBaseUrl = process.env.HOLOSTAFF_APP_BASE_URL ?? 'https://www.holostaff.ai'
+
+            void uploadFlow({
+              cwd,
+              baseUrl: auth.baseUrl,
+              bearer: auth.token,
+              workspaceId: auth.workspaceId,
+              appBaseUrl,
+              artifact: trustUpload,
+              repoOrigin: undefined, // surfaced in a later milestone via `git remote`
+              onEvent: (ev) => {
+                events.push(ev)
+                setPhase({
+                  kind: 'uploading',
+                  result: trustResult,
+                  upload: trustUpload,
+                  uploadPhase: { kind: 'in_flight', events: [...events] },
+                })
+              },
+            }).then((result: UploadResult) => {
+              setPhase({
+                kind: 'uploading',
+                result: trustResult,
+                upload: trustUpload,
+                uploadPhase: { kind: 'done', result },
+              })
+            })
+          }}
+          onSaveLocal={() => {
+            void saveLocally(cwd, upload!).then((path) => {
+              setPhase({ kind: 'saved', path })
+            }).catch((err) => {
+              setPhase({ kind: 'failed', error: `couldn't save locally: ${err.message}` })
+            })
+          }}
+          onCancel={() => setPhase({ kind: 'cancelled' })}
+        />
+      )
+
+    case 'uploading':
+      return (
+        <Box flexDirection="column">
+          <TrustReport
+            findings={phase.result.findings}
+            durationMs={phase.result.durationMs}
+            tokensIn={phase.result.tokens.input}
+            tokensOut={phase.result.tokens.output}
+            onConfirm={() => { /* disabled */ }}
+            onSaveLocal={() => { /* disabled */ }}
+            onCancel={() => { /* disabled */ }}
+            inputDisabled
+          />
+          <UploadProgress phase={phase.uploadPhase} />
+        </Box>
+      )
+
+    case 'saved':
+      return (
+        <Box flexDirection="column" marginTop={1} marginLeft={2}>
+          <Text color="green">✓ Saved to {phase.path}</Text>
+          <Text color="gray">Inspect it, then re-run and upload when ready.</Text>
+        </Box>
+      )
+
+    case 'cancelled':
+      return (
+        <Box marginTop={1} marginLeft={2}>
+          <Text color="gray">Cancelled. Nothing was uploaded.</Text>
+        </Box>
+      )
+
+    case 'failed':
+      return (
+        <Box flexDirection="column" marginTop={1} marginLeft={2}>
+          <Text color="red">✗ Scan failed</Text>
+          <Text color="gray">{phase.error}</Text>
+        </Box>
+      )
+  }
+}
+
+function Centered({ children }: { children: React.ReactNode }) {
+  return (
+    <Box marginTop={1} marginLeft={2}>
+      <Text color="gray">{children}</Text>
+    </Box>
+  )
+}
+
+async function saveLocally(cwd: string, upload: CliArtifactUpload): Promise<string> {
+  const dir = join(cwd, '.holostaff')
+  await mkdir(dir, { recursive: true })
+  const file = join(dir, `scan-${stamp()}.json`)
+  await writeFile(file, JSON.stringify(upload, null, 2), 'utf8')
+  return file
+}
+
+function stamp(): string {
+  // ISO-ish but filesystem-safe.
+  return new Date().toISOString().replace(/[:.]/g, '-').replace(/Z$/, '')
+}
