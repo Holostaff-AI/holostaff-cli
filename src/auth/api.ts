@@ -94,4 +94,94 @@ export async function getWorkspaces(baseUrl: string, bearer: string): Promise<Wo
   })
 }
 
+// -------------------------------------------------------------------------
+// Sources + artifacts
+// -------------------------------------------------------------------------
+
+export interface CliSourceSummary {
+  id: string
+  name: string
+  status: 'draft' | 'ingesting' | 'live' | 'paused' | 'failed'
+  repoOrigin?: string
+  liveArtifactVersion: number | null
+  latestArtifactVersion: number | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CliSourceFull extends CliSourceSummary {
+  tenantId: string
+  mode: string
+  activeRunId: string | null
+  linkedStaffIds: string[]
+}
+
+export interface UploadArtifactBody {
+  /** Mirrors CliArtifactInput on the server, minus tenantId/sourceId. */
+  runId: string
+  ingestedVia: 'cli_scan'
+  ingestedAt: string
+  productName: string
+  oneLineDescription: string
+  primaryFramework: string
+  language: 'typescript' | 'javascript' | 'mixed' | 'unknown'
+  routes?: unknown[]
+  components?: unknown[]
+  copy?: unknown[]
+  brandVoice?: unknown
+  workflows?: unknown[]
+  coverageGaps?: string[]
+  notes?: string
+}
+
+export interface UploadArtifactResponse {
+  ok: true
+  version: number
+  artifactId: string
+}
+
+export async function listCliSources(baseUrl: string, bearer: string): Promise<{ sources: CliSourceSummary[] }> {
+  return request<{ sources: CliSourceSummary[] }>(baseUrl, '/api/cli/sources', {
+    method: 'GET',
+    bearer,
+  })
+}
+
+export async function getCliSource(baseUrl: string, bearer: string, sourceId: string): Promise<{ source: CliSourceFull }> {
+  return request<{ source: CliSourceFull }>(
+    baseUrl,
+    `/api/cli/sources/${encodeURIComponent(sourceId)}`,
+    { method: 'GET', bearer },
+  )
+}
+
+export async function createCliSource(
+  baseUrl: string,
+  bearer: string,
+  input: { name: string; repoOrigin?: string },
+): Promise<{ source: CliSourceFull }> {
+  return request<{ source: CliSourceFull }>(baseUrl, '/api/cli/sources', {
+    method: 'POST',
+    bearer,
+    body: JSON.stringify(input),
+  })
+}
+
+export async function uploadArtifact(
+  baseUrl: string,
+  bearer: string,
+  sourceId: string,
+  body: UploadArtifactBody,
+): Promise<UploadArtifactResponse> {
+  return request<UploadArtifactResponse>(
+    baseUrl,
+    `/api/cli/sources/${encodeURIComponent(sourceId)}/artifacts`,
+    {
+      method: 'POST',
+      bearer,
+      body: JSON.stringify({ artifact: body }),
+    },
+  )
+}
+
 export { isApiError }
