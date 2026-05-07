@@ -27,6 +27,7 @@ import TextInput from 'ink-text-input'
 import { getCliArtifact, patchCliArtifactEdits, type CliArtifact } from '../../auth/api.js'
 import { resolveAuth } from '../../auth/credentials.js'
 import { readBinding } from '../../binding/sourceBinding.js'
+import { emit, classifyError } from '../../telemetry.js'
 
 export type RefineExitResult =
   | { kind: 'saved'; viewUrl: string; sourceName: string }
@@ -63,6 +64,14 @@ const APP_BASE_URL = process.env.HOLOSTAFF_APP_BASE_URL ?? 'https://www.holostaf
 export function Refine({ cwd, onExit }: RefineProps) {
   const [phase, setPhase] = useState<Phase>({ kind: 'preflight' })
   const startedRef = useRef(false)
+  const startedAtRef = useRef(Date.now())
+  const telemetryEmittedRef = useRef(false)
+
+  function emitOnce(outcome: 'success' | 'error' | 'canceled', errorKind?: string) {
+    if (telemetryEmittedRef.current) return
+    telemetryEmittedRef.current = true
+    emit({ command: 'refine', outcome, durationMs: Date.now() - startedAtRef.current, errorKind })
+  }
 
   // Preflight: resolve auth + binding, then load the artifact.
   useEffect(() => {
@@ -141,6 +150,7 @@ export function Refine({ cwd, onExit }: RefineProps) {
   // Exit a beat after a terminal state renders.
   useEffect(() => {
     if (phase.kind === 'done') {
+      emitOnce('success')
       const t = setTimeout(
         () => onExit({ kind: 'saved', viewUrl: phase.viewUrl, sourceName: phase.sourceName }),
         2000,
@@ -149,6 +159,7 @@ export function Refine({ cwd, onExit }: RefineProps) {
     }
     if (phase.kind === 'failed') {
       const error = phase.error
+      emitOnce('error', classifyError(error))
       const isNoBinding =
         error.startsWith('No knowledge source bound')
         || error.startsWith('No live artifact')
@@ -166,6 +177,7 @@ export function Refine({ cwd, onExit }: RefineProps) {
     (input, key) => {
       if (phase.kind !== 'editing' || phase.saving) return
       if (key.escape) {
+        emitOnce('canceled')
         return onExit({ kind: 'cancelled' })
       }
       if (key.tab && key.shift) {
@@ -180,7 +192,10 @@ export function Refine({ cwd, onExit }: RefineProps) {
       if (phase.focusIndex === 3) {
         const ch = input.toLowerCase()
         if (ch === 's' || ch === 'y') return void doSave()
-        if (ch === 'n' || ch === 'c') return onExit({ kind: 'cancelled' })
+        if (ch === 'n' || ch === 'c') {
+          emitOnce('canceled')
+          return onExit({ kind: 'cancelled' })
+        }
       }
     },
     { isActive: phase.kind === 'editing' && !phase.saving },

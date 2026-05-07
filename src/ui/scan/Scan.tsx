@@ -28,6 +28,7 @@ import type { ScanFindings } from '../../agent/findingsSchema.js'
 import { mapFindingsToUpload, type CliArtifactUpload } from '../../agent/mapToArtifact.js'
 import { uploadFlow, type UploadEvent, type UploadResult } from '../../agent/uploadArtifact.js'
 import { resolveAuth } from '../../auth/credentials.js'
+import { emit, classifyError } from '../../telemetry.js'
 import { ScanProgress, reduceScanEvent, initialProgress, type ScanProgressState } from './ScanProgress.js'
 import { SourcePicker } from './SourcePicker.js'
 import { TrustReport } from './TrustReport.js'
@@ -82,6 +83,8 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
   // Guard against double-fire: useEffect can run twice in dev/strict mode,
   // and the agent SDK is heavy — we only want one runScan per mount.
   const scanStartedRef = useRef(false)
+  const startedAtRef = useRef(Date.now())
+  const telemetryEmittedRef = useRef(false)
 
   // Initial mount: decide between picker (append + no pick yet) and scan.
   useEffect(() => {
@@ -144,21 +147,47 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
   // the user may want to click.
   useEffect(() => {
     if (phase.kind === 'cancelled') {
+      if (!telemetryEmittedRef.current) {
+        telemetryEmittedRef.current = true
+        emit({ command: 'scan', outcome: 'canceled', durationMs: Date.now() - startedAtRef.current })
+      }
       const t = setTimeout(() => onExit({ kind: 'cancelled' }), 1200)
       return () => clearTimeout(t)
     }
     if (phase.kind === 'failed') {
       const error = phase.error
+      if (!telemetryEmittedRef.current) {
+        telemetryEmittedRef.current = true
+        emit({
+          command: 'scan',
+          outcome: 'error',
+          durationMs: Date.now() - startedAtRef.current,
+          errorKind: classifyError(error),
+        })
+      }
       const t = setTimeout(() => onExit({ kind: 'failed', error }), 1200)
       return () => clearTimeout(t)
     }
     if (phase.kind === 'saved') {
       const path = phase.path
+      if (!telemetryEmittedRef.current) {
+        telemetryEmittedRef.current = true
+        emit({ command: 'scan', outcome: 'success', durationMs: Date.now() - startedAtRef.current })
+      }
       const t = setTimeout(() => onExit({ kind: 'saved_local', path }), 1200)
       return () => clearTimeout(t)
     }
     if (phase.kind === 'uploading' && phase.uploadPhase.kind === 'done') {
       const r = phase.uploadPhase.result
+      if (!telemetryEmittedRef.current) {
+        telemetryEmittedRef.current = true
+        emit({
+          command: 'scan',
+          outcome: r.ok ? 'success' : 'error',
+          durationMs: Date.now() - startedAtRef.current,
+          errorKind: r.ok ? undefined : classifyError(r.error),
+        })
+      }
       const out: ScanExitResult = r.ok
         ? {
             kind: 'uploaded',

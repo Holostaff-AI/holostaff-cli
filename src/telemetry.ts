@@ -92,6 +92,16 @@ export function bucketSize(sourceFileCount: number | undefined): RepoSizeBucket 
   return 'large'
 }
 
+/** Bucket a free-form error message into a short telemetry token. */
+export function classifyError(msg: string | undefined): string | undefined {
+  if (!msg) return undefined
+  if (/auth|token|sign in/i.test(msg)) return 'auth'
+  if (/binding|no source/i.test(msg)) return 'no_binding'
+  if (/network|fetch|ENOTFOUND/i.test(msg)) return 'network'
+  if (/timeout/i.test(msg)) return 'timeout'
+  return 'other'
+}
+
 function isDisabled(): boolean {
   const v = process.env.HOLOSTAFF_TELEMETRY
   return v === '0' || v === 'false' || v === 'off'
