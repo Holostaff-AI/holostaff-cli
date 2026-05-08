@@ -92,20 +92,20 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
       setPhase({ kind: 'picking_source' })
       return
     }
-    startScan()
+    void startScan()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mergeMode, pickedSource])
 
-  function startScan() {
+  async function startScan() {
     if (scanStartedRef.current) return
     scanStartedRef.current = true
 
-    const env = buildAgentEnv()
+    const env = await buildAgentEnv()
     if (!env) {
       setPhase({
         kind: 'failed',
         error:
-          'Missing AZURE_ANTHROPIC_ENDPOINT or AZURE_ANTHROPIC_API_KEY. Set them in your shell and re-run. (Production CLI distribution will fetch a session-scoped model key from your workspace; tracked in PRD §13.10.)',
+          'Couldn\'t resolve model credentials. Sign in (`/login`) so the CLI can mint a session, or set AZURE_ANTHROPIC_ENDPOINT + AZURE_ANTHROPIC_API_KEY for BYO-key dev mode.',
       })
       return
     }

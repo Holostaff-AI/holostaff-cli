@@ -53,12 +53,12 @@ export interface RunEmbedOptions {
 export async function runEmbed(options: RunEmbedOptions): Promise<EmbedResult> {
   const { cwd, onEvent, abortController, maxTurns = 20 } = options
 
-  const env = buildAgentEnv()
+  const env = await buildAgentEnv()
   if (!env) {
     const result: EmbedResult = {
       ok: false,
       reason: 'env_missing',
-      error: 'Missing AZURE_ANTHROPIC_ENDPOINT or AZURE_ANTHROPIC_API_KEY. Set them in your shell and re-run.',
+      error: 'Couldn\'t resolve model credentials. Sign in (`/login`) or set AZURE_ANTHROPIC_ENDPOINT + AZURE_ANTHROPIC_API_KEY.',
       sessionId: undefined,
       durationMs: 0,
     }

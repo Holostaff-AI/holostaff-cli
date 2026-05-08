@@ -50,13 +50,13 @@ export interface RunInstrumentOptions {
 export async function runInstrument(options: RunInstrumentOptions): Promise<InstrumentResult> {
   const { cwd, onEvent, abortController, maxTurns = 25 } = options
 
-  const env = buildAgentEnv()
+  const env = await buildAgentEnv()
   if (!env) {
     const result: InstrumentResult = {
       ok: false,
       reason: 'env_missing',
       error:
-        'Missing AZURE_ANTHROPIC_ENDPOINT or AZURE_ANTHROPIC_API_KEY. Set them in your shell and re-run.',
+        'Couldn\'t resolve model credentials. Sign in (`/login`) or set AZURE_ANTHROPIC_ENDPOINT + AZURE_ANTHROPIC_API_KEY.',
       sessionId: undefined,
       durationMs: 0,
     }
