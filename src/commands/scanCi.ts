@@ -89,7 +89,8 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
   log(`· running scan on ${cwd}`)
 
   // 2. Run scan.
-  const env = await import('../agent/runScan.js').then((m) => m.buildAgentEnv())
+  const { buildAgentEnv } = await import('../agent/runScan.js')
+  const env = await buildAgentEnv()
   if (!env) {
     emitTelemetry({
       command: 'scan_ci',
@@ -101,7 +102,7 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
       ok: false,
       phase: 'env',
       error:
-        'Missing AZURE_ANTHROPIC_ENDPOINT or AZURE_ANTHROPIC_API_KEY. CI must provide these alongside HOLOSTAFF_API_KEY.',
+        'Couldn\'t resolve model credentials. CI mode mints them from /api/cli/model-session via HOLOSTAFF_API_KEY; or set AZURE_ANTHROPIC_ENDPOINT + AZURE_ANTHROPIC_API_KEY for BYO-key.',
     }, log, 2)
   }
 

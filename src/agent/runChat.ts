@@ -32,12 +32,12 @@ export interface RunChatOptions {
 }
 
 export async function runChat(options: RunChatOptions): Promise<void> {
-  const env = buildAgentEnv()
+  const env = await buildAgentEnv()
   if (!env) {
     options.onEvent?.({
       type: 'failed',
       error:
-        'Missing AZURE_ANTHROPIC_ENDPOINT or AZURE_ANTHROPIC_API_KEY in your shell. Chat needs the model API; production CLI distribution will fetch a session-scoped model key from your workspace (PRD §13.10).',
+        'Couldn\'t resolve model credentials. Sign in (`/login`) or set AZURE_ANTHROPIC_ENDPOINT + AZURE_ANTHROPIC_API_KEY for BYO-key dev mode.',
     })
     return
   }
