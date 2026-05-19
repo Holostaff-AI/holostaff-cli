@@ -101,6 +101,20 @@ export const ScanFindingsSchema = z.object({
         name: z.string().describe('Customer-language name: "Sign up", "Create a project", "Invite a teammate".'),
         steps: z.array(z.string()).min(1).describe('Ordered steps as the user experiences them, not as code paths.'),
         entryRoute: z.string().optional().describe('Where the workflow starts.'),
+        bowtieStage: z
+          .enum([
+            'awareness',
+            'education',
+            'selection',
+            'mutual_commit',
+            'onboarding',
+            'adoption',
+            'expansion',
+          ])
+          .optional()
+          .describe(
+            'Bowtie customer-journey stage this workflow lives in. See the Bowtie stage taxonomy section of the system prompt for definitions. If you genuinely can\'t tell, omit it — the dashboard will fall back to a heuristic.',
+          ),
       }),
     )
     .default([])
