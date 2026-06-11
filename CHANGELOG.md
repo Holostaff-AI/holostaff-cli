@@ -7,6 +7,53 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-06-11
+
+### Added
+- **`holostaff deploy`** — opens a deploy PR for the bound source via the
+  Holostaff GitHub App. Full state machine: binding → source state →
+  edits-drift check → open-deploy guard (`--force` to repush) → deploy
+  intent → PR creation. Also available as `/deploy` in the interactive
+  shell. `--dry-run` prints the plan without side effects.
+- **Scan reconciliation** — scans now walk the repo for existing
+  `holostaff.*` SDK calls (`.vue`, `.tsx`, `.jsx`) and upload them as
+  `detectedInstrumentation`, so the dashboard's instrumentation chips
+  reflect what's actually wired in code.
+- **Signal taxonomy walk** — the scan agent maps host-app events
+  (checkout success, resource created, errors) to the Holostaff
+  custom-signal taxonomy and declares `emitSignal` probes per workflow
+  step. Taxonomy names only; unmappable events surface as candidates in
+  scan notes.
+- **Identity surface declarations** — the scan agent reports where the
+  app completes sign-in/sign-out (OAuth callbacks, auth-state listeners,
+  custom-named routes) so the deploy PR can ship `identify()` /
+  `clearIdentity()` skeletons at the right spots.
+- Interactive shell shows a spinner with a command-aware label while a
+  slash command runs (previously silent until completion).
+
+### Changed
+- The scan agent no longer declares `markStageEntry` calls — the server
+  derives those deterministically from each workflow's entry pages.
+
+## [0.2.0] — 2026-06-02
+
+### Added
+- `/scan` now emits **risks** and **interventions** per workflow. The agent
+  walks the Bowtie stage decomposition (~36 sub-steps) for each workflow's
+  stage and, for sub-steps that map onto the journey, designs a risk
+  anchored to the relevant step and a paired copilot intervention. Seven
+  modalities are supported, including `silence` as a deliberate
+  no-intervention output.
+- Bundled framework data in `src/agent/stageDecomposition.ts` (mirrors the
+  server's authoritative copy). The scan-agent prompt renders it inline so
+  the agent has the full taxonomy in context.
+
+### Changed
+- `ScanFindings` schema (and the resulting artifact upload) gains two new
+  arrays per workflow: `risks[]` and `interventions[]`. Both default to
+  `[]` so existing workflows without a designed shadow path still
+  validate.
+
 ## [0.1.1] — 2026-05-07
 
 ### Changed
