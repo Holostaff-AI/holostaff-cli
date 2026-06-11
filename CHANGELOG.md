@@ -7,6 +7,15 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.3.2] — 2026-06-11
+
+### Fixed
+- The conversational shell knew nothing about `/deploy` — its system
+  prompt carried a hand-written command list that went stale. The chat
+  prompt now renders the live command registry, and a bare command name
+  typed without the slash ("deploy") gets an instant "Did you mean
+  `/deploy`?" without an LLM round-trip.
+
 ## [0.3.1] — 2026-06-11
 
 ### Fixed

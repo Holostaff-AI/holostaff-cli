@@ -23,7 +23,7 @@ import React, { useState } from 'react'
 import { Box, Text, useApp } from 'ink'
 import Spinner from 'ink-spinner'
 
-import { dispatchSlash, type SlashOutcome } from '../../commands/slash.js'
+import { dispatchSlash, SLASH_COMMANDS, type SlashOutcome } from '../../commands/slash.js'
 import { runChat } from '../../agent/runChat.js'
 import { MessageList } from './MessageList.js'
 import { InputBar } from './InputBar.js'
@@ -93,6 +93,22 @@ export function Shell({ initialMessages, onAction }: ShellProps) {
       // can be restored / appended to on return.
       if (outcome.action === 'exit') return exit()
       onAction(outcome.action, outcome.args ?? '', after)
+      return
+    }
+
+    // Bare command name without the slash ("deploy", "scan")? Suggest
+    // the slash form deterministically — no LLM round-trip, no chance
+    // of the chat agent inventing an answer about its own commands.
+    const bare = text.trim().toLowerCase()
+    const matched = SLASH_COMMANDS.find(c => c.name.slice(1) === bare)
+    if (matched) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: newId(), kind: 'system', tone: 'info',
+          text: `Did you mean \`${matched.name}\`? (${matched.desc})`,
+        },
+      ])
       return
     }
 
