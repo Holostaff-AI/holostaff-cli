@@ -67,9 +67,12 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
   const log = opts.quiet ? () => { /* suppressed */ } : (line: string) => process.stderr.write(line + '\n')
   const t0 = Date.now()
 
-  // 1. Auth — must be env-source.
+  // 1. Auth — env key (CI) or file-backed credentials (local scripted
+  // runs: same machine, same user who ran `holostaff login`). File
+  // creds were previously rejected here, which made every local
+  // headless invocation fail for no security gain.
   const auth = resolveAuth()
-  if (auth.source !== 'env' || !auth.token || !auth.workspaceId) {
+  if (auth.source === 'none' || !auth.token || !auth.workspaceId) {
     emitTelemetry({
       command: 'scan_ci',
       outcome: 'error',
@@ -79,13 +82,24 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
     return emitFailure(opts, {
       ok: false,
       phase: 'auth',
-      error: auth.source === 'none'
-        ? 'Not signed in. Set HOLOSTAFF_API_KEY (and HOLOSTAFF_WORKSPACE_ID) for CI mode, or run `holostaff login` for interactive mode.'
-        : 'CI mode requires HOLOSTAFF_API_KEY + HOLOSTAFF_WORKSPACE_ID. File-backed credentials are interactive-only.',
+      error: 'Not signed in. Set HOLOSTAFF_API_KEY (and HOLOSTAFF_WORKSPACE_ID) for CI mode, or run `holostaff login` for interactive mode.',
+    }, log, 3)
+  }
+  if (auth.source === 'file' && auth.expired) {
+    emitTelemetry({
+      command: 'scan_ci',
+      outcome: 'error',
+      errorKind: 'auth_expired',
+      durationMs: Date.now() - t0,
+    })
+    return emitFailure(opts, {
+      ok: false,
+      phase: 'auth',
+      error: 'Token expired. Run `holostaff login` to refresh.',
     }, log, 3)
   }
 
-  log(`· authed as workspace ${auth.workspaceId} via env`)
+  log(`· authed as workspace ${auth.workspaceId} via ${auth.source === 'env' ? 'env' : 'local credentials'}`)
   log(`· running scan on ${cwd}`)
 
   // 2. Run scan.
