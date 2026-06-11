@@ -15,6 +15,7 @@
 
 import { formatWhoami, formatWorkspace } from './text.js'
 import { clearCredentials, credentialsPath } from '../auth/credentials.js'
+import { runDeploy, type RunDeployResult } from '../deploy/index.js'
 
 export type SlashOutcome =
   | { kind: 'message'; text: string; tone?: 'info' | 'warn' | 'error' | 'success' }
@@ -81,6 +82,75 @@ const EMBED: SlashCommand = {
   run: () => ({ kind: 'action', action: 'open_embed' }),
 }
 
+const DEPLOY: SlashCommand = {
+  name: '/deploy',
+  desc: 'Open a deploy PR for the bound source. Flags: --dry-run, --force.',
+  run: async (args) => {
+    const dryRun = /(^|\s)(--dry-run|-n)(\s|$)/.test(args)
+    const force = /(^|\s)(--force|-f)(\s|$)/.test(args)
+    // silent: the structured result drives the message; nonInteractive:
+    // readline prompts would clash with Ink's raw-mode stdin.
+    const result = await runDeploy({
+      repoRoot: process.cwd(),
+      dryRun,
+      force,
+      silent: true,
+      nonInteractive: true,
+    })
+    return formatDeployOutcome(result, dryRun)
+  },
+}
+
+function formatDeployOutcome(r: RunDeployResult, dryRun: boolean): SlashOutcome {
+  switch (r.kind) {
+    case 'pr_opened':
+      return {
+        kind: 'message', tone: 'success',
+        text: [
+          `Deploy ${r.deploy?.id ?? ''} → PR opened:`,
+          `  ${r.prUrl}`,
+          '',
+          'Merge the PR to make this version live. The dashboard pill flips on the merge webhook.',
+        ].join('\n'),
+      }
+    case 'live':
+      return {
+        kind: 'message', tone: 'info',
+        text: `v${r.source?.liveArtifactVersion} is already deployed. Nothing to do.`,
+      }
+    case 'pending_scan':
+      return dryRun && r.source?.liveArtifactVersion
+        ? { kind: 'message', tone: 'info', text: `Dry run — would open a deploy PR for v${r.source.liveArtifactVersion}. Run /deploy to proceed.` }
+        : { kind: 'message', tone: 'warn', text: 'Source has no live artifact yet. Run /scan first.' }
+    case 'pending_edits':
+      return { kind: 'message', tone: 'info', text: `Dry run — canvas edits drifted since the last deploy. Run /deploy to ship them.` }
+    case 'open_deploy_aborted':
+      return {
+        kind: 'message', tone: 'warn',
+        text: [
+          `An open deploy already exists${r.deploy?.pr ? ` (PR: ${r.deploy.pr.url})` : ''}.`,
+          'Run `/deploy --force` to push onto it, or merge/close the PR first.',
+        ].join('\n'),
+      }
+    case 'no_auth':
+      return { kind: 'message', tone: 'error', text: 'Not signed in (or token expired). Run /login first.' }
+    case 'no_binding':
+      return { kind: 'message', tone: 'error', text: 'No source binding in this repo. Run /scan first.' }
+    case 'no_repo':
+      return { kind: 'message', tone: 'error', text: 'Could not detect a GitHub origin remote in this repo.' }
+    case 'pr_create_failed':
+      return {
+        kind: 'message', tone: 'error',
+        text: [
+          `PR creation failed: ${r.message ?? 'unknown error'}`,
+          'The deploy was marked failed so the source is not locked. Fix the cause and re-run /deploy.',
+        ].join('\n'),
+      }
+    default:
+      return { kind: 'message', tone: 'error', text: `Deploy failed: ${r.message ?? r.kind}` }
+  }
+}
+
 const WHOAMI: SlashCommand = {
   name: '/whoami',
   desc: 'Show the signed-in user + workspace.',
@@ -122,7 +192,7 @@ const LOGOUT: SlashCommand = {
 }
 
 export const SLASH_COMMANDS: SlashCommand[] = [
-  HELP, SCAN, REFINE, INSTRUMENT, EMBED, WHOAMI, WORKSPACE, LOGIN, LOGOUT, QUIT,
+  HELP, SCAN, DEPLOY, REFINE, INSTRUMENT, EMBED, WHOAMI, WORKSPACE, LOGIN, LOGOUT, QUIT,
 ]
 
 function findCommand(name: string): SlashCommand | undefined {

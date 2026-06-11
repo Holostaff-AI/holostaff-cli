@@ -29,6 +29,13 @@ export interface ScanArgs {
   addRepo?: string
 }
 
+export interface DeployArgs {
+  /** Print the plan; never register or modify state. */
+  dryRun: boolean
+  /** Skip the open-deploy prompt; push onto any open deploy. */
+  force: boolean
+}
+
 export type ParsedArgs =
   | { kind: 'interactive' }
   | { kind: 'login' }
@@ -36,6 +43,7 @@ export type ParsedArgs =
   | { kind: 'whoami' }
   | { kind: 'workspace' }
   | { kind: 'scan'; opts: ScanArgs }
+  | { kind: 'deploy'; opts: DeployArgs }
   | { kind: 'help' }
   | { kind: 'version' }
   | { kind: 'unknown'; arg: string }
@@ -51,7 +59,18 @@ export function parseArgs(argv: string[]): ParsedArgs {
   if (a === 'whoami') return { kind: 'whoami' }
   if (a === 'workspace') return { kind: 'workspace' }
   if (a === 'scan') return parseScan(argv.slice(1))
+  if (a === 'deploy') return parseDeploy(argv.slice(1))
   return { kind: 'unknown', arg: a }
+}
+
+function parseDeploy(rest: string[]): ParsedArgs {
+  const opts: DeployArgs = { dryRun: false, force: false }
+  for (const tok of rest) {
+    if (tok === '--dry-run' || tok === '-n') { opts.dryRun = true; continue }
+    if (tok === '--force' || tok === '-f') { opts.force = true; continue }
+    return { kind: 'bad_args', reason: `unknown deploy flag: ${tok}` }
+  }
+  return { kind: 'deploy', opts }
 }
 
 function parseScan(rest: string[]): ParsedArgs {
