@@ -7,6 +7,15 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.3.1] — 2026-06-11
+
+### Fixed
+- Headless `holostaff scan` now accepts file-backed credentials (from
+  `holostaff login`) instead of requiring `HOLOSTAFF_API_KEY` env vars.
+  Local scripted scans previously failed with "CI mode requires
+  HOLOSTAFF_API_KEY" even when signed in. Env keys still take
+  precedence; expired tokens get a clear re-login error.
+
 ## [0.3.0] — 2026-06-11
 
 ### Added
