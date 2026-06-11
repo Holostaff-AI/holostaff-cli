@@ -27,6 +27,7 @@ import {
   runWorkspace,
 } from './commands/text.js'
 import { runScanCi } from './commands/scanCi.js'
+import { runDeploy } from './deploy/index.js'
 
 // Read version from our own package.json at runtime — keeps a single
 // source of truth and avoids bake-in drift.
@@ -63,6 +64,16 @@ async function main() {
     case 'scan':
       // Headless CI mode — no TTY guard, no Ink.
       process.exit(await runScanCi(args.opts, process.cwd()))
+    case 'deploy': {
+      // Headless like scan. The open-deploy prompt degrades to a
+      // helpful error when stdin isn't a TTY (use --force in CI).
+      const result = await runDeploy({
+        repoRoot: process.cwd(),
+        dryRun: args.opts.dryRun,
+        force: args.opts.force,
+      })
+      process.exit(result.exitCode)
+    }
   }
 
   // ─── Interactive paths (login + default) ─────────────────────

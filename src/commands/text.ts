@@ -19,6 +19,7 @@ const COMMAND_HELP = [
   '    holostaff workspace                               List workspaces',
   '    holostaff scan [--add-repo ID] [--quiet] [--json] Headless scan (CI-friendly)',
   '             [--out PATH]',
+  '    holostaff deploy [--dry-run] [--force]            Open a deploy PR for the bound source',
   '    holostaff --version                               Print CLI version',
   '    holostaff --help                                  This message',
   '',

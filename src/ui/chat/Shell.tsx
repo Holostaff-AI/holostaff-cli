@@ -21,6 +21,7 @@
 
 import React, { useState } from 'react'
 import { Box, Text, useApp } from 'ink'
+import Spinner from 'ink-spinner'
 
 import { dispatchSlash, type SlashOutcome } from '../../commands/slash.js'
 import { runChat } from '../../agent/runChat.js'
@@ -57,6 +58,7 @@ export function Shell({ initialMessages, onAction }: ShellProps) {
   const { exit } = useApp()
   const [messages, setMessages] = useState<ShellMessage[]>(initialMessages ?? defaultGreeting())
   const [busy, setBusy] = useState(false)
+  const [busyLabel, setBusyLabel] = useState('thinking…')
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
 
   async function handleSubmit(text: string) {
@@ -68,7 +70,18 @@ export function Shell({ initialMessages, onAction }: ShellProps) {
     setMessages(after)
 
     if (text.startsWith('/')) {
-      const outcome: SlashOutcome = await dispatchSlash(text)
+      // Slash commands can take seconds (network round-trips — /deploy
+      // does several). Show the wait state immediately so the user gets
+      // feedback the moment they hit enter.
+      setBusy(true)
+      setBusyLabel(labelForSlash(text))
+      let outcome: SlashOutcome
+      try {
+        outcome = await dispatchSlash(text)
+      } finally {
+        setBusy(false)
+        setBusyLabel('thinking…')
+      }
       if (outcome.kind === 'message') {
         setMessages((prev) => [
           ...prev,
@@ -86,6 +99,7 @@ export function Shell({ initialMessages, onAction }: ShellProps) {
     // Free-form: stream the model response into a fresh assistant
     // message. We mutate `setMessages` on every delta so the UI re-renders.
     setBusy(true)
+    setBusyLabel('thinking…')
     const assistantId = newId()
     setMessages((prev) => [
       ...prev,
@@ -147,11 +161,22 @@ export function Shell({ initialMessages, onAction }: ShellProps) {
       />
       {busy && (
         <Box marginTop={0} marginLeft={4}>
-          <Text color="gray" dimColor>thinking…</Text>
+          <Text color="magenta"><Spinner type="dots" /></Text>
+          <Text color="gray" dimColor> {busyLabel}</Text>
         </Box>
       )}
     </Box>
   )
+}
+
+function labelForSlash(line: string): string {
+  const cmd = line.trim().split(/\s+/)[0]?.toLowerCase() ?? ''
+  switch (cmd) {
+    case '/deploy': return 'deploying — registering intent + opening the PR…'
+    case '/whoami': return 'checking credentials…'
+    case '/workspace': return 'loading workspaces…'
+    default: return `running ${cmd}…`
+  }
 }
 
 function defaultGreeting(): ShellMessage[] {
