@@ -32,6 +32,11 @@ import {
   bindingPath,
   type SourceBinding,
 } from '../binding/sourceBinding.js'
+import {
+  detectInstrumentation,
+  type WorkflowLite,
+  type RouteLite,
+} from '../detect/instrumentation.js'
 
 export type UploadEvent =
   | { type: 'resolving_source' }
@@ -175,6 +180,27 @@ export async function uploadFlow(options: UploadOptions): Promise<UploadResult> 
     const error = (err as Error).message
     emit({ type: 'failed', error })
     return { ok: false, error, step: 'resolve_source' }
+  }
+
+  // Phase 1.5 — scan reconciliation. Walk the repo for existing
+  // `holostaff.*` SDK calls so the server can populate
+  // `instrumentation.detected[]` (its Wave 2d merge). Fail-soft: a
+  // detector error never blocks the upload; detection just stays empty.
+  try {
+    const detected = detectInstrumentation({
+      repoRoot: cwd,
+      workflows: (artifact.workflows ?? []) as unknown as WorkflowLite[],
+      routes: (artifact.routes ?? []) as unknown as RouteLite[],
+    })
+    const anyCalls =
+      Object.values(detected.workflows).some(calls => calls.length > 0)
+      || detected.identity.length > 0
+    if (anyCalls) {
+      artifact.detectedInstrumentation = detected.workflows as unknown as Record<string, unknown[]>
+      artifact.detectedIdentityInstrumentation = detected.identity as unknown as unknown[]
+    }
+  } catch {
+    // Detector is best-effort; scan output is unaffected.
   }
 
   // Phase 2 — upload artifact

@@ -132,6 +132,17 @@ export interface UploadArtifactBody {
   workflows?: unknown[]
   coverageGaps?: string[]
   notes?: string
+  /**
+   * Scan reconciliation (server Wave 2d): `holostaff.*` calls the
+   * detector found in the host repo, bucketed by workflow name. The
+   * server merges these into `workflow.instrumentation.detected[]`.
+   */
+  detectedInstrumentation?: Record<string, unknown[]>
+  /** Cross-workflow identify/clearIdentity calls found in the repo. */
+  detectedIdentityInstrumentation?: unknown[]
+  /** Identity surfaces the scan agent declared SHOULD be instrumented
+   *  (OAuth callbacks etc.) — merged with the server's heuristic. */
+  declaredIdentityInstrumentation?: unknown[]
 }
 
 export interface UploadArtifactResponse {
