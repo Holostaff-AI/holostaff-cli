@@ -151,6 +151,34 @@ export interface UploadArtifactResponse {
   artifactId: string
 }
 
+export interface RenderMockupItem {
+  key: string
+  sourceBundle: string
+  tokens?: unknown
+  framework?: string
+}
+export interface RenderMockupResult {
+  key: string
+  visualRef?: { url: string; w: number; h: number }
+  error?: string
+}
+
+/** Host-agnostic page-mockup render proxy. The CLI captures bundles from
+ *  the local working tree and posts them; the server fans out to the
+ *  render service and returns visualRef URLs. */
+export async function renderMockups(
+  baseUrl: string,
+  bearer: string,
+  sourceId: string,
+  items: RenderMockupItem[],
+): Promise<{ results: RenderMockupResult[] }> {
+  return request<{ results: RenderMockupResult[] }>(
+    baseUrl,
+    `/api/cli/sources/${encodeURIComponent(sourceId)}/render-mockups`,
+    { method: 'POST', bearer, body: JSON.stringify({ items }) },
+  )
+}
+
 export async function listCliSources(baseUrl: string, bearer: string): Promise<{ sources: CliSourceSummary[] }> {
   return request<{ sources: CliSourceSummary[] }>(baseUrl, '/api/cli/sources', {
     method: 'GET',

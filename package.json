@@ -1,7 +1,7 @@
 {
   "name": "@holostaff/cli",
-  "version": "0.3.2",
-  "description": "Holostaff CLI \u2014 scan, instrument, and embed copilots in your codebase",
+  "version": "0.3.4",
+  "description": "Holostaff CLI — scan, instrument, and embed copilots in your codebase",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Holostaff-AI/holostaff-cli#readme",
   "repository": {

@@ -37,6 +37,7 @@ import {
   type WorkflowLite,
   type RouteLite,
 } from '../detect/instrumentation.js'
+import { capturePageMockups, type CaptureOptions } from './capturePageMockups.js'
 
 export type UploadEvent =
   | { type: 'resolving_source' }
@@ -201,6 +202,23 @@ export async function uploadFlow(options: UploadOptions): Promise<UploadResult> 
     }
   } catch {
     // Detector is best-effort; scan output is unaffected.
+  }
+
+  // Phase 1.6 — page mockups. Capture each page step's source bundle from
+  // the LOCAL working tree (host-agnostic) and render code-grounded
+  // thumbnails via the render proxy; fold the returned visualRef URLs into
+  // the artifact's page steps so the canvas can show them. Mutates
+  // `artifact` in place before the upload below. Fail-soft + additive.
+  try {
+    await capturePageMockups({
+      repoRoot: cwd,
+      baseUrl,
+      bearer,
+      sourceId,
+      artifact: artifact as unknown as CaptureOptions['artifact'],
+    })
+  } catch {
+    // Never blocks the upload.
   }
 
   // Phase 2 — upload artifact
