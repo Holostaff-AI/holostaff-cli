@@ -95,6 +95,44 @@ export const ScanFindingsSchema = z.object({
     .optional()
     .describe('Tonal signals from copy. Skip if there isn\'t enough copy to infer it honestly.'),
 
+  designTokens: z
+    .object({
+      fontFamily: z.string().optional().describe('Primary sans-serif font stack, as authored. Source: tailwind.config `theme.fontFamily.sans`, a `--font-sans` CSS var, or the body font in a global stylesheet.'),
+      fontFamilyMono: z.string().optional().describe('Monospace font stack, if the host declares one.'),
+      radius: z.string().optional().describe('Base corner radius, e.g. "0.5rem". Source: a `--radius` CSS var or tailwind `borderRadius` base.'),
+      spacing: z.string().optional().describe('Base spacing unit if evident, e.g. "4px" / "0.25rem". Informational; omit if unclear.'),
+      light: z
+        .object({
+          primary: z.string().optional().describe('Primary/brand/action color, as authored (hex, rgb(), hsl(), or a bare HSL triple like "222.2 47.4% 11.2%").'),
+          primaryForeground: z.string().optional().describe('Text/icon color shown on top of primary.'),
+          accent: z.string().optional().describe('Secondary accent color.'),
+          background: z.string().optional().describe('Page background color.'),
+          foreground: z.string().optional().describe('Default text color on the background.'),
+          muted: z.string().optional().describe('Muted surface / secondary background color.'),
+          border: z.string().optional().describe('Border / divider color.'),
+        })
+        .optional()
+        .describe('Light-mode (default) color set.'),
+      dark: z
+        .object({
+          primary: z.string().optional(),
+          primaryForeground: z.string().optional(),
+          accent: z.string().optional(),
+          background: z.string().optional(),
+          foreground: z.string().optional(),
+          muted: z.string().optional(),
+          border: z.string().optional(),
+        })
+        .optional()
+        .describe('Dark-mode color set, ONLY if the host ships a dark theme (a `.dark` selector block or tailwind darkMode config).'),
+      source: z
+        .array(z.string())
+        .default([])
+        .describe('Repo-relative files you read the tokens from, e.g. ["tailwind.config.ts", "app/globals.css"]. Provenance for the deploy-PR review.'),
+    })
+    .optional()
+    .describe('The host app\'s design tokens — colors, fonts, radius — read from its design system. Used to theme the copilot\'s presentation surfaces so they feel native. Extract from the SOURCE OF TRUTH (tailwind.config, CSS custom properties in :root / .dark, theme files), NOT by guessing from component markup. Skip entirely if the repo has no discoverable design system.'),
+
   workflows: z
     .array(
       z.object({

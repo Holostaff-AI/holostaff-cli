@@ -50,6 +50,8 @@ export interface CliArtifactUpload {
   components: ScanFindings['components']
   copy: ScanFindings['copy']
   brandVoice?: ScanFindings['brandVoice']
+  /** Host design tokens (colors/fonts/radius) for copilot theming (P1). */
+  designTokens?: ScanFindings['designTokens']
   /**
    * Workflows carry `risks` + `interventions` (v0.2) and now
    * `instrumentation.expected` emitSignal declarations derived from
@@ -121,6 +123,7 @@ export function mapFindingsToUpload(input: MapToArtifactInput): CliArtifactUploa
     components: findings.components,
     copy: findings.copy,
     brandVoice: findings.brandVoice,
+    ...(findings.designTokens ? { designTokens: findings.designTokens } : {}),
     workflows,
     coverageGaps: findings.coverageGaps,
     notes: findings.notes,

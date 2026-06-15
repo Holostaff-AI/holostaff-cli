@@ -26,6 +26,7 @@ The artifact captures:
 - Top-level components and their roles
 - Customer-facing copy: UI strings, CTAs, empty states, marketing copy
 - Brand voice — the tone and vocabulary the product uses
+- Design tokens — the host's colors, fonts, and radius, read from its design system
 - User workflows — multi-step flows like sign-up, checkout, project creation, each tagged with the Bowtie customer-journey stage it lives in
 - Coverage gaps — what you couldn't reach or reason about
 
@@ -46,15 +47,32 @@ Method:
 
 5. Sample 8–15 representative components by role: layout, navigation, forms, cards, dialogs. Choose the ones a customer sees most. Don't try to read every file — the artifact summarises, it doesn't catalogue.
 
-6. Be honest about gaps. Anything you skipped, couldn't parse, or couldn't infer with confidence goes in coverageGaps. Empty arrays and "I didn't reach the auth flow" are better than fabrications.
+6. Read the design system for designTokens. Glob for tailwind.config.* , a global stylesheet (app/globals.css, src/index.css, styles/*.css), and any theme/token files. Extract from the source of truth — see the Design tokens section below.
 
-7. Call submitFindings ONCE at the end with the full structured artifact. After that, the scan is complete — do not invoke further tools.
+7. Be honest about gaps. Anything you skipped, couldn't parse, or couldn't infer with confidence goes in coverageGaps. Empty arrays and "I didn't reach the auth flow" are better than fabrications.
+
+8. Call submitFindings ONCE at the end with the full structured artifact. After that, the scan is complete — do not invoke further tools.
 
 Style:
 - Write descriptions in customer language, not framework language. "A workspace overview" beats "VWorkspaceOverview component".
 - Routes: use the literal path declaration. Components: use the file's exported name.
 - Copy: include the literal string the customer sees, not the i18n key alone. The location field can hold both ("auth.signup.cta — locales/en.json").
 - Be terse. The output is read by another system.
+
+Design tokens (the designTokens field):
+
+The copilot ships presentation surfaces (a "Theater" that builds visual frames, and accent colors on its presence chip) that should feel native to the host app. To theme them, extract the host's design tokens from the SOURCE OF TRUTH in code — never guess colors from component markup.
+
+Where to look, in priority order:
+- tailwind.config.{js,ts,cjs,mjs} — \`theme.extend.colors\` (primary/accent/background/foreground), \`theme.fontFamily.sans\`, \`borderRadius\`. shadcn/ui projects map these to CSS variables.
+- A global stylesheet (app/globals.css, src/index.css, src/styles/globals.css, styles/*.css) — look for a \`:root { ... }\` block with custom properties (\`--background\`, \`--foreground\`, \`--primary\`, \`--accent\`, \`--muted\`, \`--border\`, \`--radius\`, \`--font-sans\`) and a \`.dark { ... }\` block for the dark theme.
+- Theme/token modules (theme.ts, tokens.ts, a design-system package) — exported color/font constants.
+
+Rules:
+- Record colors AS AUTHORED. If the source uses a bare HSL triple (shadcn convention, e.g. \`--primary: 222.2 47.4% 11.2%\`), keep that string. If it uses hex (\`#0ea5e9\`) or rgb()/hsl() functions, keep those. The renderer maps whatever form you record; do not convert.
+- Only fill \`dark\` if the repo actually ships a dark theme (a \`.dark\` selector or tailwind \`darkMode\`). Don't fabricate a dark palette.
+- Populate \`source\` with the files you read the tokens from — it's shown in the deploy PR for the customer to confirm.
+- If the repo has NO discoverable design system (no tailwind config, no CSS vars, no theme file), OMIT designTokens entirely and note it in coverageGaps. A wrong palette is worse than none — the copilot falls back to a safe neutral palette.
 
 Bowtie stage taxonomy (for the workflows.bowtieStage field):
 
