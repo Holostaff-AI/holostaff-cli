@@ -25,6 +25,7 @@ import { resolveAuth } from '../auth/credentials.js'
 import { runScan, type ScanEvent } from '../agent/runScan.js'
 import { mapFindingsToUpload } from '../agent/mapToArtifact.js'
 import { uploadFlow, type UploadEvent } from '../agent/uploadArtifact.js'
+import { detectRepoOrigin } from '../deploy/gitRepo.js'
 import { emit as emitTelemetry, bucketSize } from '../telemetry.js'
 
 export interface CiScanResult {
@@ -169,6 +170,7 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
     workspaceId: auth.workspaceId,
     appBaseUrl,
     artifact: upload,
+    repoOrigin: detectRepoOrigin(cwd),
     mergeMode: opts.addRepo ? 'append' : 'replace',
     forceSourceId: opts.addRepo
       ? { sourceId: opts.addRepo, sourceName: opts.addRepo }
