@@ -27,6 +27,7 @@ import { runScan, buildAgentEnv, type ScanEvent, type ScanResult } from '../../a
 import type { ScanFindings } from '../../agent/findingsSchema.js'
 import { mapFindingsToUpload, type CliArtifactUpload } from '../../agent/mapToArtifact.js'
 import { uploadFlow, type UploadEvent, type UploadResult } from '../../agent/uploadArtifact.js'
+import { detectRepoOrigin } from '../../deploy/gitRepo.js'
 import { resolveAuth } from '../../auth/credentials.js'
 import { emit, classifyError } from '../../telemetry.js'
 import { ScanProgress, reduceScanEvent, initialProgress, type ScanProgressState } from './ScanProgress.js'
@@ -266,7 +267,7 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
               workspaceId: auth.workspaceId,
               appBaseUrl,
               artifact: trustUpload,
-              repoOrigin: undefined, // surfaced in a later milestone via `git remote`
+              repoOrigin: detectRepoOrigin(cwd),
               mergeMode,
               forceSourceId: pickedSource,
               onEvent: (ev) => {

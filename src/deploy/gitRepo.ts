@@ -26,6 +26,19 @@ export function detectGithubRepoFullName(repoRoot: string): string | null {
   return parseGithubRemote(url)
 }
 
+/**
+ * Stable repo-identity marker for a scanned product — `github.com/owner/repo`,
+ * normalized so https and ssh remotes for the same repo produce the same
+ * string. The server keys repo-identity dedup on this within a workspace, so a
+ * teammate scanning the same repo converges onto one journey map. Returns
+ * undefined when there's no git / no origin / a non-GitHub remote (no dedup,
+ * same as before — the scan just creates a fresh source).
+ */
+export function detectRepoOrigin(repoRoot: string): string | undefined {
+  const fullName = detectGithubRepoFullName(repoRoot)
+  return fullName ? `github.com/${fullName}` : undefined
+}
+
 export function parseGithubRemote(url: string): string | null {
   if (!url) return null
   // https://github.com/owner/repo.git  or  https://github.com/owner/repo

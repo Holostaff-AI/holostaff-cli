@@ -7,6 +7,17 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.3.5] — 2026-06-23
+
+### Added
+- Scans now record the repo's GitHub origin (`github.com/owner/repo`) on the
+  source. The server keys repo-identity dedup on it within a workspace, so a
+  teammate scanning the same repo converges onto one journey map instead of
+  forking a duplicate. Wired into both the interactive and headless (`scan
+  --quiet`) paths; non-GitHub / origin-less repos behave as before (fresh
+  source, no dedup). Pairs with server-side scan attribution
+  (`createdBy` / `lastScannedBy`), which needs no CLI change.
+
 ## [0.3.2] — 2026-06-11
 
 ### Fixed
