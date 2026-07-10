@@ -7,6 +7,19 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-07-10
+
+### Added
+- The assembling map: as the scan reads page files (views, pages, screens,
+  routes), it streams their names to your dashboard, where they materialize
+  as skeleton nodes on a live "your journey map, assembling" board — along
+  with the agent's current activity. Pings every 8 seconds, best-effort,
+  never blocks the scan.
+
+### Fixed
+- Repeat progress pings no longer reset the scan's start time (the
+  "started N min ago" clock on the dashboard kept restarting).
+
 ## [0.3.9] — 2026-07-10
 
 ### Added

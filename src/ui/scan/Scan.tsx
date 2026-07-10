@@ -84,6 +84,16 @@ function scanDetailLine(p: ScanProgressState): string {
   return parts.join(' · ')
 }
 
+// Page-like files the agent reads become skeleton nodes on the
+// dashboard's assembling map. Conservative match: framework view dirs.
+const PAGE_FILE_RE = /(?:^|\/)(?:pages|views|screens|routes|app)\/.+\.(?:vue|tsx|jsx|svelte|astro)$/i
+const MAX_PAGES_TRACKED = 24
+
+function pageLabel(filePath: string): string {
+  const parts = filePath.split('/').filter(Boolean)
+  return parts.slice(-2).join('/')
+}
+
 export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
   const [phase, setPhase] = useState<Phase>({ kind: 'preflight' })
   const [pickedSource, setPickedSource] = useState<{ sourceId: string; sourceName: string } | undefined>(
@@ -129,6 +139,7 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
     // Drive the scan and reduce events into progress state.
     let progress = { ...initialProgress }
     let lastTelemetryAt = 0
+    const discoveredPages: string[] = []
     setPhase({ kind: 'running', progress })
 
     runScan({
@@ -137,12 +148,33 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
       onEvent: (ev: ScanEvent) => {
         progress = reduceScanEvent(progress, ev)
         setPhase({ kind: 'running', progress })
+        // Track page-like files as they're read — they become skeleton
+        // nodes on the dashboard's assembling journey map.
+        if (ev.type === 'tool_use' && ev.tool === 'Read'
+          && typeof ev.input === 'object' && ev.input !== null && 'file_path' in ev.input) {
+          const fp = String((ev.input as { file_path?: string }).file_path ?? '')
+          if (PAGE_FILE_RE.test(fp)) {
+            const label = pageLabel(fp)
+            if (label && !discoveredPages.includes(label) && discoveredPages.length < MAX_PAGES_TRACKED) {
+              discoveredPages.push(label)
+            }
+          }
+        }
         // Throttled live telemetry for the dashboard's mission control:
-        // the browser strip shows what the scan is actually finding.
+        // the browser renders what the scan is actually finding.
         const now = Date.now()
-        if (now - lastTelemetryAt > 20_000) {
+        if (now - lastTelemetryAt > 8_000) {
           lastTelemetryAt = now
-          postScanStatus({ phase: 'started', detail: scanDetailLine(progress) })
+          postScanStatus({
+            phase: 'started',
+            detail: scanDetailLine(progress),
+            progress: {
+              filesRead: progress.filesRead,
+              pagesFound: discoveredPages.length,
+              pages: [...discoveredPages],
+              current: progress.current?.slice(0, 100),
+            },
+          })
         }
       },
     }).then((result: ScanResult) => {

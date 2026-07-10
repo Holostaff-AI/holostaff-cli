@@ -12,10 +12,21 @@ import { resolveAuth } from './credentials.js'
 
 export type ScanStatusPhase = 'started' | 'uploading' | 'done' | 'failed'
 
+export interface ScanProgressPayload {
+  filesRead: number
+  pagesFound: number
+  /** Short page paths discovered so far (capped) — the dashboard renders
+   *  these as skeleton nodes while the map assembles. */
+  pages: string[]
+  /** What the agent is doing right now, one line. */
+  current?: string
+}
+
 export function postScanStatus(input: {
   phase: ScanStatusPhase
   repoName?: string
   detail?: string
+  progress?: ScanProgressPayload
 }): void {
   const auth = resolveAuth()
   if (!auth.token || auth.expired) return
