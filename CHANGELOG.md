@@ -7,6 +7,14 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.3.9] — 2026-07-10
+
+### Added
+- Live scan telemetry in the dashboard: while a scan runs, the CLI sends a
+  short progress line (files read, routes found, components mapped) every
+  20 seconds, so the mission-control strip on your home page narrates the
+  scan in real time. Best-effort, never blocks the scan.
+
 ## [0.3.8] — 2026-07-10
 
 ### Added
