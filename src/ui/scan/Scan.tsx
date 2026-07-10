@@ -21,6 +21,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Box, Text } from 'ink'
 import { mkdir, writeFile } from 'node:fs/promises'
+import { appendFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
 import { runScan, buildAgentEnv, type ScanEvent, type ScanResult } from '../../agent/runScan.js'
@@ -94,6 +95,16 @@ function pageLabel(filePath: string): string {
   return parts.slice(-2).join('/')
 }
 
+// Capture rig (env-gated, for recording the hero asset): append structured
+// scan events to a JSONL file so a replay can be authored from a real run.
+function captureEvent(kind: string, data: Record<string, unknown>): void {
+  const logPath = process.env.HOLOSTAFF_SCAN_LOG
+  if (!logPath) return
+  try {
+    appendFileSync(logPath, JSON.stringify({ t: Date.now(), kind, ...data }) + '\n')
+  } catch { /* capture is best-effort */ }
+}
+
 export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
   const [phase, setPhase] = useState<Phase>({ kind: 'preflight' })
   const [pickedSource, setPickedSource] = useState<{ sourceId: string; sourceName: string } | undefined>(
@@ -148,6 +159,11 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
       onEvent: (ev: ScanEvent) => {
         progress = reduceScanEvent(progress, ev)
         setPhase({ kind: 'running', progress })
+        if (ev.type === 'thinking') captureEvent('thinking', { text: ev.text })
+        else if (ev.type === 'tool_use') captureEvent('tool_use', { tool: ev.tool, input: ev.input })
+        else if (ev.type === 'submitted') captureEvent('submitted', {})
+        else if (ev.type === 'completed') captureEvent('completed', { ok: ev.result.ok })
+        else if (ev.type === 'failed') captureEvent('scan_failed', { error: ev.error })
         // Track page-like files as they're read — they become skeleton
         // nodes on the dashboard's assembling journey map.
         if (ev.type === 'tool_use' && ev.tool === 'Read'
@@ -196,6 +212,26 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
       })
     })
   }
+
+  // Capture rig: auto-confirm the upload at the trust gate so a headless
+  // recording can run end to end.
+  const autoConfirmedRef = useRef(false)
+  useEffect(() => {
+    if (process.env.HOLOSTAFF_AUTOCONFIRM !== '1') return
+    if (phase.kind !== 'trust' || autoConfirmedRef.current) return
+    autoConfirmedRef.current = true
+    captureEvent('trust', {
+      findingsSummary: {
+        workflows: phase.result.findings.workflows?.length ?? 0,
+        routes: phase.result.findings.routes?.length ?? 0,
+        components: phase.result.findings.components?.length ?? 0,
+      },
+      durationMs: phase.result.durationMs,
+    })
+    const t = setTimeout(() => { trustConfirmRef.current?.() }, 1500)
+    return () => clearTimeout(t)
+  }, [phase])
+  const trustConfirmRef = useRef<(() => void) | null>(null)
 
   // Exit a beat after a terminal state renders so the user sees it.
   // Upload is terminal only once its inner phase reaches 'done'; the
@@ -270,6 +306,65 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
         ? phase.upload
         : null
 
+  function confirmUpload() {
+    if (phase.kind !== 'trust') return
+    const trustResult = phase.result
+    const trustUpload = upload!
+    // Initial uploading state — UploadProgress shows a starting
+    // line until the first orchestrator event arrives.
+    setPhase({
+      kind: 'uploading',
+      result: trustResult,
+      upload: trustUpload,
+      uploadPhase: { kind: 'starting' },
+    })
+
+    const auth = resolveAuth()
+    if (auth.source === 'none' || auth.expired || !auth.workspaceId || !auth.token) {
+      setPhase({
+        kind: 'failed',
+        error: 'Not signed in. Run `holostaff login` and try again.',
+      })
+      return
+    }
+
+    postScanStatus({ phase: 'uploading' })
+
+    const events: UploadEvent[] = []
+    const appBaseUrl = process.env.HOLOSTAFF_APP_BASE_URL ?? 'https://www.holostaff.ai'
+
+    void uploadFlow({
+      cwd,
+      baseUrl: auth.baseUrl,
+      bearer: auth.token,
+      workspaceId: auth.workspaceId,
+      appBaseUrl,
+      artifact: trustUpload,
+      repoOrigin: detectRepoOrigin(cwd),
+      mergeMode,
+      forceSourceId: pickedSource,
+      onEvent: (ev) => {
+        events.push(ev)
+        captureEvent('upload_event', { ev })
+        setPhase({
+          kind: 'uploading',
+          result: trustResult,
+          upload: trustUpload,
+          uploadPhase: { kind: 'in_flight', events: [...events] },
+        })
+      },
+    }).then((result: UploadResult) => {
+      captureEvent('upload_done', { result })
+      setPhase({
+        kind: 'uploading',
+        result: trustResult,
+        upload: trustUpload,
+        uploadPhase: { kind: 'done', result },
+      })
+    })
+  }
+  trustConfirmRef.current = phase.kind === 'trust' ? confirmUpload : null
+
   switch (phase.kind) {
     case 'preflight':
       return <Centered>Preparing to scan {cwd}…</Centered>
@@ -295,60 +390,7 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
           durationMs={phase.result.durationMs}
           tokensIn={phase.result.tokens.input}
           tokensOut={phase.result.tokens.output}
-          onConfirm={() => {
-            const trustResult = phase.result
-            const trustUpload = upload!
-            // Initial uploading state — UploadProgress shows a starting
-            // line until the first orchestrator event arrives.
-            setPhase({
-              kind: 'uploading',
-              result: trustResult,
-              upload: trustUpload,
-              uploadPhase: { kind: 'starting' },
-            })
-
-            const auth = resolveAuth()
-            if (auth.source === 'none' || auth.expired || !auth.workspaceId || !auth.token) {
-              setPhase({
-                kind: 'failed',
-                error: 'Not signed in. Run `holostaff login` and try again.',
-              })
-              return
-            }
-
-            postScanStatus({ phase: 'uploading' })
-
-            const events: UploadEvent[] = []
-            const appBaseUrl = process.env.HOLOSTAFF_APP_BASE_URL ?? 'https://www.holostaff.ai'
-
-            void uploadFlow({
-              cwd,
-              baseUrl: auth.baseUrl,
-              bearer: auth.token,
-              workspaceId: auth.workspaceId,
-              appBaseUrl,
-              artifact: trustUpload,
-              repoOrigin: detectRepoOrigin(cwd),
-              mergeMode,
-              forceSourceId: pickedSource,
-              onEvent: (ev) => {
-                events.push(ev)
-                setPhase({
-                  kind: 'uploading',
-                  result: trustResult,
-                  upload: trustUpload,
-                  uploadPhase: { kind: 'in_flight', events: [...events] },
-                })
-              },
-            }).then((result: UploadResult) => {
-              setPhase({
-                kind: 'uploading',
-                result: trustResult,
-                upload: trustUpload,
-                uploadPhase: { kind: 'done', result },
-              })
-            })
-          }}
+          onConfirm={confirmUpload}
           onSaveLocal={() => {
             void saveLocally(cwd, upload!).then((path) => {
               setPhase({ kind: 'saved', path })

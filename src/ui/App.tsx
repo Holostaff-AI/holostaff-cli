@@ -52,7 +52,9 @@ export function App({
   const { exit } = useApp()
   const [auth, setAuth] = useState<ResolvedAuth>(() => resolveAuth())
   const [hasReauthed, setHasReauthed] = useState(false)
-  const [phase, setPhase] = useState<Phase>('shell')
+  const [phase, setPhase] = useState<Phase>(
+    process.env.HOLOSTAFF_AUTOSTART === 'scan' ? 'scan' : 'shell',
+  )
   const [latestVersion, setLatestVersion] = useState<string | undefined>(undefined)
 
   // Background update check. Late resolution just nudges a re-render —

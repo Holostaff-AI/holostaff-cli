@@ -7,6 +7,17 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-07-10
+
+### Fixed
+- The post-upload "View at" link now points at the journey map canvas
+  (`/journey-maps/{id}/canvas`). It previously pointed at a retired route.
+
+### Internal
+- Env-gated capture rig for recording real scans (`HOLOSTAFF_AUTOSTART`,
+  `HOLOSTAFF_AUTOCONFIRM`, `HOLOSTAFF_SCAN_LOG`) — used to author the
+  landing page's scan replay from a genuine run. No effect unless set.
+
 ## [0.4.0] — 2026-07-10
 
 ### Added
