@@ -30,6 +30,7 @@ import { Embed, type EmbedExitResult } from './embed/Embed.js'
 import { Shell, type ShellAction } from './chat/Shell.js'
 import { newId, type ShellMessage } from './chat/types.js'
 import { resolveAuth, type ResolvedAuth } from '../auth/credentials.js'
+import { readBinding } from '../binding/sourceBinding.js'
 import { detectGithubRepoFullName } from '../deploy/gitRepo.js'
 import { basename } from 'node:path'
 
@@ -120,9 +121,20 @@ export function App({
 
   function handleLoginDone() {
     setHasReauthed(true)
-    setAuth(resolveAuth())
+    const fresh = resolveAuth()
+    setAuth(fresh)
     if (exitAfterLogin) {
       setTimeout(() => exit(), 600)
+      return
+    }
+    // First run in this repo: the user came for the scan, not a menu.
+    // If nothing is bound here yet, roll straight into it.
+    const bound = fresh.workspaceId
+      ? readBinding(detection.root, fresh.workspaceId)
+      : { kind: 'missing' as const }
+    if (bound.kind !== 'found') {
+      setScanMergeMode('replace')
+      setPhase('scan')
     }
   }
 
