@@ -7,6 +7,19 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-07-10
+
+### Added
+- Two-phase scan. The agent publishes a structural skeleton of your
+  journey map (routes, components, workflows with stages) via the new
+  submitSkeleton tool the moment it is coherent — your map is live in
+  under 90 seconds — then continues the deep pass (risks, interventions,
+  signals, copy, brand voice) and finishes with the complete artifact as
+  a second version. Measured on a reference repo: map live at 81s, full
+  artifact at 290s. Pass 1 auto-uploads; opt out with --no-auto-upload.
+- Scan status gains a 'deepening' phase so the dashboard can say
+  "journey map live — deep scan continuing".
+
 ## [0.4.1] — 2026-07-10
 
 ### Fixed

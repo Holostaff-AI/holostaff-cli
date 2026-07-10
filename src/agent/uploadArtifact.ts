@@ -101,13 +101,19 @@ export interface UploadOptions {
    * .holostaff/source.json on success.
    */
   forceSourceId?: { sourceId: string; sourceName: string }
+  /**
+   * Two-phase scan Pass 1: skip the instrumentation detector and page
+   * mockups (they belong to the full upload) and mark the artifact
+   * depth so surfaces can show "deep scan in progress".
+   */
+  skeleton?: boolean
   onEvent?: (ev: UploadEvent) => void
 }
 
 export async function uploadFlow(options: UploadOptions): Promise<UploadResult> {
   const {
     cwd, baseUrl, bearer, workspaceId, appBaseUrl, artifact,
-    repoOrigin, mergeMode = 'replace', forceSourceId, onEvent,
+    repoOrigin, mergeMode = 'replace', forceSourceId, skeleton = false, onEvent,
   } = options
   const emit = onEvent ?? (() => {})
 
@@ -183,11 +189,16 @@ export async function uploadFlow(options: UploadOptions): Promise<UploadResult> 
     return { ok: false, error, step: 'resolve_source' }
   }
 
+  if (skeleton) {
+    artifact.depth = 'skeleton'
+  }
+
   // Phase 1.5 — scan reconciliation. Walk the repo for existing
   // `holostaff.*` SDK calls so the server can populate
   // `instrumentation.detected[]` (its Wave 2d merge). Fail-soft: a
   // detector error never blocks the upload; detection just stays empty.
   try {
+    if (skeleton) throw new Error('skip')
     const detected = detectInstrumentation({
       repoRoot: cwd,
       workflows: (artifact.workflows ?? []) as unknown as WorkflowLite[],
@@ -210,6 +221,7 @@ export async function uploadFlow(options: UploadOptions): Promise<UploadResult> 
   // the artifact's page steps so the canvas can show them. Mutates
   // `artifact` in place before the upload below. Fail-soft + additive.
   try {
+    if (skeleton) throw new Error('skip')
     await capturePageMockups({
       repoRoot: cwd,
       baseUrl,

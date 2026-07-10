@@ -10,7 +10,7 @@
 
 import { resolveAuth } from './credentials.js'
 
-export type ScanStatusPhase = 'started' | 'uploading' | 'done' | 'failed'
+export type ScanStatusPhase = 'started' | 'deepening' | 'uploading' | 'done' | 'failed'
 
 export interface ScanProgressPayload {
   filesRead: number

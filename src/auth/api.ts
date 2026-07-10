@@ -142,6 +142,8 @@ export interface UploadArtifactBody {
   detectedInstrumentation?: Record<string, unknown[]>
   /** Cross-workflow identify/clearIdentity calls found in the repo. */
   detectedIdentityInstrumentation?: unknown[]
+  /** Two-phase scan: 'skeleton' = fast Pass-1 artifact. */
+  depth?: 'skeleton' | 'full'
   /** Identity surfaces the scan agent declared SHOULD be instrumented
    *  (OAuth callbacks etc.) — merged with the server's heuristic. */
   declaredIdentityInstrumentation?: unknown[]

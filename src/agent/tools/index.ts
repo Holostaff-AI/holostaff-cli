@@ -17,6 +17,7 @@ const SERVER_NAME = 'holostaff'
 /** Qualified tool names as they appear to the agent after MCP registration. */
 export const DETECT_FRAMEWORK_TOOL = `mcp__${SERVER_NAME}__detectFramework`
 export const SUBMIT_FINDINGS_TOOL = `mcp__${SERVER_NAME}__submitFindings`
+export const SUBMIT_SKELETON_TOOL = `mcp__${SERVER_NAME}__submitSkeleton`
 
 /**
  * Built-in tools the scan agent is allowed to use. Passed to the SDK's
@@ -36,4 +37,5 @@ export const SCAN_ALLOWED_TOOLS: string[] = [
   ...SCAN_BUILTIN_TOOLS,
   DETECT_FRAMEWORK_TOOL,
   SUBMIT_FINDINGS_TOOL,
+  SUBMIT_SKELETON_TOOL,
 ]
