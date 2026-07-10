@@ -76,6 +76,14 @@ export interface ScanProps {
   onExit: (result?: ScanExitResult) => void
 }
 
+/** One short line of live scan telemetry for the dashboard strip. */
+function scanDetailLine(p: ScanProgressState): string {
+  const parts = [`${p.filesRead} files read`]
+  if (p.routesPreview > 0) parts.push(`${p.routesPreview} routes found`)
+  if (p.componentsPreview > 0) parts.push(`${p.componentsPreview} components mapped`)
+  return parts.join(' · ')
+}
+
 export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
   const [phase, setPhase] = useState<Phase>({ kind: 'preflight' })
   const [pickedSource, setPickedSource] = useState<{ sourceId: string; sourceName: string } | undefined>(
@@ -120,6 +128,7 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
 
     // Drive the scan and reduce events into progress state.
     let progress = { ...initialProgress }
+    let lastTelemetryAt = 0
     setPhase({ kind: 'running', progress })
 
     runScan({
@@ -128,6 +137,13 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
       onEvent: (ev: ScanEvent) => {
         progress = reduceScanEvent(progress, ev)
         setPhase({ kind: 'running', progress })
+        // Throttled live telemetry for the dashboard's mission control:
+        // the browser strip shows what the scan is actually finding.
+        const now = Date.now()
+        if (now - lastTelemetryAt > 20_000) {
+          lastTelemetryAt = now
+          postScanStatus({ phase: 'started', detail: scanDetailLine(progress) })
+        }
       },
     }).then((result: ScanResult) => {
       if (!result.ok) {
