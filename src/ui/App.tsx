@@ -30,6 +30,8 @@ import { Embed, type EmbedExitResult } from './embed/Embed.js'
 import { Shell, type ShellAction } from './chat/Shell.js'
 import { newId, type ShellMessage } from './chat/types.js'
 import { resolveAuth, type ResolvedAuth } from '../auth/credentials.js'
+import { detectGithubRepoFullName } from '../deploy/gitRepo.js'
+import { basename } from 'node:path'
 
 type Phase = 'auth' | 'shell' | 'scan' | 'refine' | 'instrument' | 'embed'
 
@@ -128,7 +130,7 @@ export function App({
     <Box flexDirection="column">
       <Welcome detection={detection} version={version} latestVersion={latestVersion} />
       {effectivePhase === 'auth' && (
-        <Login baseUrl={auth.baseUrl} onDone={handleLoginDone} />
+        <Login baseUrl={auth.baseUrl} repoName={repoNameFor(detection)} onDone={handleLoginDone} />
       )}
       {effectivePhase === 'shell' && (
         <Shell initialMessages={shellMessages} onAction={handleShellAction} />
@@ -147,6 +149,20 @@ export function App({
       )}
     </Box>
   )
+}
+
+/**
+ * Best-available repo identity for the device flow: GitHub owner/repo
+ * beats the primary package name beats the directory name. The server
+ * auto-names a brand-new account's workspace from it.
+ */
+function repoNameFor(detection: RepoDetection): string | undefined {
+  const fromGit = detectGithubRepoFullName(detection.root)
+  if (fromGit) return fromGit
+  const pkg = detection.packages[0]?.name
+  if (pkg) return pkg
+  const dir = basename(detection.root)
+  return dir || undefined
 }
 
 function scanResultMessage(result: ScanExitResult | undefined): ShellMessage[] {

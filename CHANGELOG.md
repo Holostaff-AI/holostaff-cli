@@ -7,6 +7,21 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.3.6] — 2026-07-10
+
+### Added
+- `holostaff login` now sends the repo identity (GitHub `owner/repo`, falling
+  back to the primary package name, then the directory name) when starting the
+  device flow. For brand-new accounts created from the CLI, the server names
+  the workspace after the repo (e.g. `acme/checkout-app` → "Checkout App") and
+  the browser authorization page previews it before you confirm. Existing
+  accounts and workspaces are untouched.
+
+### Changed
+- Login prompt now mentions that new users get their account and workspace
+  created in the browser in one step (the dashboard signup wizard is retired;
+  the terminal is the front door).
+
 ## [0.3.5] — 2026-06-23
 
 ### Added

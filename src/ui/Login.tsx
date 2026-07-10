@@ -7,7 +7,7 @@ import { runDeviceFlow, type FlowEvent } from '../auth/deviceFlow.js'
  * generic spinners. Tone matches PRD §4.8. On success calls onDone
  * so the parent can transition to the menu.
  */
-export function Login({ baseUrl, onDone }: { baseUrl: string; onDone: () => void }) {
+export function Login({ baseUrl, repoName, onDone }: { baseUrl: string; repoName?: string; onDone: () => void }) {
   const { exit } = useApp()
   const [phase, setPhase] = useState<Phase>('idle')
   const [info, setInfo] = useState<{ uri?: string; code?: string; expiresAt?: string }>({})
@@ -40,6 +40,7 @@ export function Login({ baseUrl, onDone }: { baseUrl: string; onDone: () => void
 
     const handle = runDeviceFlow({
       baseUrl,
+      repoName,
       onEvent: handleEvent,
     })
     setCancel(() => handle.cancel)
@@ -98,7 +99,7 @@ type Phase = 'idle' | 'starting' | 'awaiting' | 'awaiting_manual' | 'approved' |
 function IdlePrompt() {
   return (
     <Box flexDirection="column">
-      <Text>First, I need to connect to your Holostaff workspace.</Text>
+      <Text>First, I need to connect to your Holostaff workspace. New to Holostaff? Your account and workspace are created in your browser in one step.</Text>
       <Box marginTop={1}>
         <Text color="gray">Press </Text>
         <Text bold>Enter</Text>
