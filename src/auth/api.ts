@@ -74,10 +74,12 @@ async function request<T>(
 // Endpoints
 // -------------------------------------------------------------------------
 
-export async function startDeviceFlow(baseUrl: string): Promise<StartResponse> {
+export async function startDeviceFlow(baseUrl: string, repoName?: string): Promise<StartResponse> {
   return request<StartResponse>(baseUrl, '/api/cli/auth/start', {
     method: 'POST',
-    body: '{}',
+    // repoName lets the server auto-name the workspace for brand-new
+    // (CLI-born) accounts and preview it on the cli-auth page.
+    body: JSON.stringify(repoName ? { repoName } : {}),
   })
 }
 

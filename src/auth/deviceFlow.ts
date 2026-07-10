@@ -33,6 +33,11 @@ export interface DeviceFlowHandle {
 
 export interface DeviceFlowOpts {
   baseUrl: string
+  /**
+   * Repo (or owner/repo) the CLI is running in. New accounts get their
+   * workspace auto-named from it server-side.
+   */
+  repoName?: string
   /** Default 5min. */
   totalTimeoutMs?: number
   /** Default the server-suggested interval. */
@@ -56,7 +61,7 @@ export function runDeviceFlow(opts: DeviceFlowOpts): DeviceFlowHandle {
     // ─── 1. Start the flow ────────────────────────────────────────
     let start
     try {
-      start = await startDeviceFlow(opts.baseUrl)
+      start = await startDeviceFlow(opts.baseUrl, opts.repoName)
     } catch (err) {
       opts.onEvent({
         type: 'failed',
