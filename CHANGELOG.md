@@ -7,6 +7,17 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.3.8] — 2026-07-10
+
+### Added
+- The repo qualification gate: the bare `holostaff` command now checks it's
+  running inside an app repository before doing anything else. Outside one,
+  it explains what Holostaff needs and exits cleanly. (`holostaff login`
+  stays repo-independent.)
+- First-run flow: after logging in, if the repo has no Holostaff source
+  bound yet, the CLI rolls straight into the scan instead of dropping you
+  at the shell. Install, one command, sign in once, and the scan is running.
+
 ## [0.3.7] — 2026-07-10
 
 ### Added

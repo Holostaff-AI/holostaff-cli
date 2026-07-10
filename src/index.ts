@@ -90,6 +90,21 @@ async function main() {
   const cwd = process.cwd()
   const detection = detectRepo(cwd)
 
+  // The qualification gate: Holostaff maps a product from its source
+  // code, so the bare command only makes sense inside an app repo.
+  // `holostaff login` is exempt (auth is repo-independent).
+  const looksLikeAppRepo = detection.packages.length > 0 || detection.sourceFileCount > 0
+  if (args.kind !== 'login' && !looksLikeAppRepo) {
+    process.stderr.write(
+      `holostaff: this doesn't look like an app repository.\n\n`
+      + `Holostaff maps your product from its source code. cd into your app's\n`
+      + `repo (the one with your frontend or server code) and run:\n\n`
+      + `  npx @holostaff/cli\n\n`
+      + `Docs: https://holostaff.ai/docs\n`,
+    )
+    process.exit(2)
+  }
+
   const { waitUntilExit } = render(
     React.createElement(App, {
       detection,
