@@ -263,7 +263,7 @@ export async function uploadFlow(options: UploadOptions): Promise<UploadResult> 
     sourceName,
     version,
     artifactId,
-    viewUrl: `${appBaseUrl.replace(/\/+$/, '')}/knowledge-sources/${encodeURIComponent(sourceId)}`,
+    viewUrl: `${appBaseUrl.replace(/\/+$/, '')}/journey-maps/${encodeURIComponent(sourceId)}/canvas`,
     bindingPath: bindingPath(cwd),
     isNewSource,
   }
