@@ -25,6 +25,7 @@ import { appendFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
 import { runScan, buildAgentEnv, type ScanEvent, type ScanResult } from '../../agent/runScan.js'
+import { skeletonToFindings } from '../../agent/tools/submitSkeleton.js'
 import type { ScanFindings } from '../../agent/findingsSchema.js'
 import { mapFindingsToUpload, type CliArtifactUpload } from '../../agent/mapToArtifact.js'
 import { uploadFlow, type UploadEvent, type UploadResult } from '../../agent/uploadArtifact.js'
@@ -114,6 +115,7 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
   // Guard against double-fire: useEffect can run twice in dev/strict mode,
   // and the agent SDK is heavy — we only want one runScan per mount.
   const scanStartedRef = useRef(false)
+  const skeletonLiveUrlRef = useRef<string | null>(null)
   const startedAtRef = useRef(Date.now())
   const telemetryEmittedRef = useRef(false)
 
@@ -159,6 +161,35 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
       onEvent: (ev: ScanEvent) => {
         progress = reduceScanEvent(progress, ev)
         setPhase({ kind: 'running', progress })
+        if (ev.type === 'skeleton_submitted') {
+          captureEvent('skeleton_submitted', { workflows: ev.skeleton.workflows.length, routes: ev.skeleton.routes.length })
+          if (!process.argv.includes('--no-auto-upload')) {
+            // Pass-1 auto-upload: publish the structural map immediately
+            // (owner-approved default; --no-auto-upload opts out). Runs
+            // alongside the continuing deep scan; fail-soft.
+            const auth = resolveAuth()
+            if (auth.source !== 'none' && !auth.expired && auth.workspaceId && auth.token) {
+              const skeletonUpload = mapFindingsToUpload({ findings: skeletonToFindings(ev.skeleton), cliSessionId: undefined })
+              void uploadFlow({
+                cwd,
+                baseUrl: auth.baseUrl,
+                bearer: auth.token,
+                workspaceId: auth.workspaceId,
+                appBaseUrl: process.env.HOLOSTAFF_APP_BASE_URL ?? 'https://www.holostaff.ai',
+                artifact: skeletonUpload,
+                repoOrigin: detectRepoOrigin(cwd),
+                mergeMode: 'replace',
+                skeleton: true,
+              }).then((r) => {
+                captureEvent('skeleton_uploaded', { ok: r.ok, viewUrl: r.ok ? r.viewUrl : undefined })
+                if (r.ok) {
+                  skeletonLiveUrlRef.current = r.viewUrl
+                  postScanStatus({ phase: 'deepening', detail: 'journey map live — deep scan continuing' })
+                }
+              }).catch(() => { /* fail-soft: pass 2 still uploads */ })
+            }
+          }
+        }
         if (ev.type === 'thinking') captureEvent('thinking', { text: ev.text })
         else if (ev.type === 'tool_use') captureEvent('tool_use', { tool: ev.tool, input: ev.input })
         else if (ev.type === 'submitted') captureEvent('submitted', {})

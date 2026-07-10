@@ -20,12 +20,14 @@ import { fileURLToPath } from 'node:url'
 import { createSdkMcpServer, query } from '@anthropic-ai/claude-agent-sdk'
 import { makeDetectFrameworkTool } from './tools/detectFramework.js'
 import { makeSubmitFindingsTool, type FindingsSink } from './tools/submitFindings.js'
+import { makeSubmitSkeletonTool, type ScanSkeleton, type SkeletonSink } from './tools/submitSkeleton.js'
 import { SCAN_ALLOWED_TOOLS, SCAN_BUILTIN_TOOLS } from './tools/index.js'
 import type { ScanFindings } from './findingsSchema.js'
 import { SCAN_SYSTEM_PROMPT } from './scanPrompt.js'
 
 export type ScanEvent =
   | { type: 'started'; cwd: string }
+  | { type: 'skeleton_submitted'; skeleton: ScanSkeleton }
   | { type: 'thinking'; text: string }
   | { type: 'tool_use'; tool: string; input: unknown }
   | { type: 'tool_result'; tool: string; isError: boolean; preview: string }
@@ -82,7 +84,19 @@ export async function runScan(options: RunScanOptions): Promise<ScanResult> {
     isCaptured: () => captured !== undefined,
   }
 
+  // Skeleton sink — Pass 1 of the two-phase scan. Firing it does NOT
+  // end the run; the same conversation continues into the deep pass.
+  let skeletonCaptured: ScanSkeleton | undefined
+  const skeletonSink: SkeletonSink = {
+    capture: (sk) => {
+      skeletonCaptured = sk
+      onEvent?.({ type: 'skeleton_submitted', skeleton: sk })
+    },
+    isCaptured: () => skeletonCaptured !== undefined,
+  }
+
   const submitFindingsTool = makeSubmitFindingsTool(sink)
+  const submitSkeletonTool = makeSubmitSkeletonTool(skeletonSink)
   const detectFrameworkTool = makeDetectFrameworkTool(cwd)
 
   // Build the MCP server fresh per scan. detectFramework closes over
@@ -92,7 +106,7 @@ export async function runScan(options: RunScanOptions): Promise<ScanResult> {
   const mcpServer = createSdkMcpServer({
     name: 'holostaff',
     version: '0.1.0',
-    tools: [detectFrameworkTool, submitFindingsTool],
+    tools: [detectFrameworkTool, submitFindingsTool, submitSkeletonTool],
   })
 
   onEvent?.({ type: 'started', cwd })
@@ -104,7 +118,7 @@ export async function runScan(options: RunScanOptions): Promise<ScanResult> {
 
   try {
     const q = query({
-      prompt: 'Begin the scan now. Follow the method in your system prompt and call submitFindings once you have the artifact.',
+      prompt: 'Begin the scan now. Follow the method in your system prompt: submit the structural skeleton via submitSkeleton as soon as it is coherent, then continue the deep analysis and call submitFindings with the complete artifact.',
       options: {
         cwd,
         model: 'sonnet',

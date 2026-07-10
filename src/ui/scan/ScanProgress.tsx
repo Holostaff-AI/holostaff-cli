@@ -52,6 +52,12 @@ export function reduceScanEvent(prev: ScanProgressState, ev: ScanEvent): ScanPro
     }
     case 'tool_result':
       return prev
+    case 'skeleton_submitted':
+      return {
+        ...prev,
+        current: 'journey map published — deep scan continuing…',
+        ring: pushRing(prev.ring, '✓ skeleton published — map is live'),
+      }
     case 'submitted':
       return { ...prev, current: 'finalising artifact…' }
     case 'completed':
