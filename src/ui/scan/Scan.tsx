@@ -21,14 +21,15 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Box, Text } from 'ink'
 import { mkdir, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 
 import { runScan, buildAgentEnv, type ScanEvent, type ScanResult } from '../../agent/runScan.js'
 import type { ScanFindings } from '../../agent/findingsSchema.js'
 import { mapFindingsToUpload, type CliArtifactUpload } from '../../agent/mapToArtifact.js'
 import { uploadFlow, type UploadEvent, type UploadResult } from '../../agent/uploadArtifact.js'
-import { detectRepoOrigin } from '../../deploy/gitRepo.js'
+import { detectGithubRepoFullName, detectRepoOrigin } from '../../deploy/gitRepo.js'
 import { resolveAuth } from '../../auth/credentials.js'
+import { postScanStatus } from '../../auth/scanStatus.js'
 import { emit, classifyError } from '../../telemetry.js'
 import { ScanProgress, reduceScanEvent, initialProgress, type ScanProgressState } from './ScanProgress.js'
 import { SourcePicker } from './SourcePicker.js'
@@ -101,6 +102,12 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
     if (scanStartedRef.current) return
     scanStartedRef.current = true
 
+    // Let the dashboard's home hub flip to "scan in progress" live.
+    postScanStatus({
+      phase: 'started',
+      repoName: detectGithubRepoFullName(cwd) ?? basename(cwd),
+    })
+
     const env = await buildAgentEnv()
     if (!env) {
       setPhase({
@@ -151,6 +158,7 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
       if (!telemetryEmittedRef.current) {
         telemetryEmittedRef.current = true
         emit({ command: 'scan', outcome: 'canceled', durationMs: Date.now() - startedAtRef.current })
+        postScanStatus({ phase: 'failed', detail: 'cancelled' })
       }
       const t = setTimeout(() => onExit({ kind: 'cancelled' }), 1200)
       return () => clearTimeout(t)
@@ -165,6 +173,7 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
           durationMs: Date.now() - startedAtRef.current,
           errorKind: classifyError(error),
         })
+        postScanStatus({ phase: 'failed', detail: classifyError(error) })
       }
       const t = setTimeout(() => onExit({ kind: 'failed', error }), 1200)
       return () => clearTimeout(t)
@@ -174,6 +183,7 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
       if (!telemetryEmittedRef.current) {
         telemetryEmittedRef.current = true
         emit({ command: 'scan', outcome: 'success', durationMs: Date.now() - startedAtRef.current })
+        postScanStatus({ phase: 'done', detail: 'saved locally (not uploaded)' })
       }
       const t = setTimeout(() => onExit({ kind: 'saved_local', path }), 1200)
       return () => clearTimeout(t)
@@ -188,6 +198,7 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
           durationMs: Date.now() - startedAtRef.current,
           errorKind: r.ok ? undefined : classifyError(r.error),
         })
+        postScanStatus(r.ok ? { phase: 'done' } : { phase: 'failed', detail: classifyError(r.error) })
       }
       const out: ScanExitResult = r.ok
         ? {
@@ -256,6 +267,8 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
               })
               return
             }
+
+            postScanStatus({ phase: 'uploading' })
 
             const events: UploadEvent[] = []
             const appBaseUrl = process.env.HOLOSTAFF_APP_BASE_URL ?? 'https://www.holostaff.ai'
