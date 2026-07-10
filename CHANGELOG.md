@@ -7,6 +7,16 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.3.7] — 2026-07-10
+
+### Added
+- Live scan-status pings: the CLI now tells your Holostaff dashboard when a
+  scan starts, uploads, finishes, or fails (`POST /api/cli/scan-status`).
+  The home page flips to "scan in progress" the moment the terminal starts
+  working, with the repo name and elapsed time, and updates live through
+  upload and completion. Best-effort and fire-and-forget: network hiccups
+  never affect the scan itself.
+
 ## [0.3.6] — 2026-07-10
 
 ### Added
