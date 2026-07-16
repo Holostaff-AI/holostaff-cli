@@ -27,6 +27,7 @@ import {
   runWorkspace,
 } from './commands/text.js'
 import { runScanCi } from './commands/scanCi.js'
+import { runEmbedCi } from './commands/embedCi.js'
 import { runDeploy } from './deploy/index.js'
 
 // Read version from our own package.json at runtime — keeps a single
@@ -64,6 +65,10 @@ async function main() {
     case 'scan':
       // Headless CI mode — no TTY guard, no Ink.
       process.exit(await runScanCi(args.opts, process.cwd()))
+    case 'embed':
+      // Headless like scan — the interactive flow lives at /embed in
+      // the shell; this path is for CI and the deployment test rig.
+      process.exit(await runEmbedCi(args.opts, process.cwd()))
     case 'deploy': {
       // Headless like scan. The open-deploy prompt degrades to a
       // helpful error when stdin isn't a TTY (use --force in CI).
