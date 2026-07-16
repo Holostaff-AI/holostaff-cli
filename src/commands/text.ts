@@ -20,6 +20,8 @@ const COMMAND_HELP = [
   '    holostaff scan [--add-repo ID] [--quiet] [--json] Headless scan (CI-friendly)',
   '             [--out PATH]',
   '    holostaff deploy [--dry-run] [--force]            Open a deploy PR for the bound source',
+  '    holostaff embed COPILOT_ID [--quiet] [--json]     Headless embed: plan, commit, open PR',
+  '             [--out PATH] [--no-pr]',
   '    holostaff --version                               Print CLI version',
   '    holostaff --help                                  This message',
   '',

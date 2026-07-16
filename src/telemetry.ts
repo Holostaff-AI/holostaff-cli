@@ -27,6 +27,7 @@ export type TelemetryCommand =
   | 'refine'
   | 'instrument'
   | 'embed'
+  | 'embed_ci'
   | 'login'
   | 'chat'
 

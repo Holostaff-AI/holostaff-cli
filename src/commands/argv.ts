@@ -36,6 +36,19 @@ export interface DeployArgs {
   force: boolean
 }
 
+export interface EmbedArgs {
+  /** Copilot to wire the widget snippet to. */
+  copilotId: string
+  /** Suppress all stderr progress; emit only the final result. */
+  quiet: boolean
+  /** Emit the result as a single JSON object to stdout (or --out path). */
+  json: boolean
+  /** Optional file to write the JSON result to instead of stdout. */
+  out?: string
+  /** Commit the branch but skip pushing / opening a PR. */
+  noPr: boolean
+}
+
 export type ParsedArgs =
   | { kind: 'interactive' }
   | { kind: 'login' }
@@ -44,6 +57,7 @@ export type ParsedArgs =
   | { kind: 'workspace' }
   | { kind: 'scan'; opts: ScanArgs }
   | { kind: 'deploy'; opts: DeployArgs }
+  | { kind: 'embed'; opts: EmbedArgs }
   | { kind: 'help' }
   | { kind: 'version' }
   | { kind: 'unknown'; arg: string }
@@ -60,7 +74,35 @@ export function parseArgs(argv: string[]): ParsedArgs {
   if (a === 'workspace') return { kind: 'workspace' }
   if (a === 'scan') return parseScan(argv.slice(1))
   if (a === 'deploy') return parseDeploy(argv.slice(1))
+  if (a === 'embed') return parseEmbed(argv.slice(1))
   return { kind: 'unknown', arg: a }
+}
+
+function parseEmbed(rest: string[]): ParsedArgs {
+  const opts: EmbedArgs = { copilotId: '', quiet: false, json: false, noPr: false }
+  for (let i = 0; i < rest.length; i++) {
+    const tok = rest[i]!
+    if (tok === '--quiet') { opts.quiet = true; continue }
+    if (tok === '--json') { opts.json = true; continue }
+    if (tok === '--no-pr') { opts.noPr = true; continue }
+    if (tok === '--out') {
+      const v = rest[++i]
+      if (!v) return { kind: 'bad_args', reason: '--out requires a path argument' }
+      opts.out = v
+      continue
+    }
+    if (tok.startsWith('--out=')) {
+      opts.out = tok.slice('--out='.length)
+      if (!opts.out) return { kind: 'bad_args', reason: '--out requires a path argument' }
+      continue
+    }
+    if (tok.startsWith('--')) return { kind: 'bad_args', reason: `unknown embed flag: ${tok}` }
+    if (opts.copilotId) return { kind: 'bad_args', reason: `embed takes a single copilotId (got extra: ${tok})` }
+    opts.copilotId = tok
+  }
+  if (!opts.copilotId) return { kind: 'bad_args', reason: 'embed requires a copilotId argument (find yours at holostaff.ai/copilots, or run /embed interactively)' }
+  if (opts.out && !opts.json) opts.json = true
+  return { kind: 'embed', opts }
 }
 
 function parseDeploy(rest: string[]): ParsedArgs {
