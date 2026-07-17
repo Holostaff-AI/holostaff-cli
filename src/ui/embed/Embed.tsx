@@ -109,8 +109,11 @@ export function Embed({ cwd, onExit }: EmbedProps) {
 
   function startAgent() {
     setPhase({ kind: 'running', ring: [], filesRead: 0 })
+    const ctx = ctxRef.current!
     void runEmbed({
       cwd,
+      tenantId: ctx.workspaceId,
+      sourceId: ctx.sourceId,
       onEvent: (ev: EmbedEvent) => {
         switch (ev.type) {
           case 'tool_use':

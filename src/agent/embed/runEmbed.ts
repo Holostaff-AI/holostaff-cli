@@ -11,7 +11,7 @@
 import { createSdkMcpServer, query } from '@anthropic-ai/claude-agent-sdk'
 import { makeDetectFrameworkTool } from '../tools/detectFramework.js'
 import { buildAgentEnv, resolveClaudeBinary } from '../runScan.js'
-import { EMBED_SYSTEM_PROMPT } from './embedPrompt.js'
+import { buildEmbedSystemPrompt } from './embedPrompt.js'
 import {
   makeProposePlanTool,
   type InstrumentationSink,
@@ -45,13 +45,17 @@ export type EmbedResult =
 
 export interface RunEmbedOptions {
   cwd: string
+  /** The customer's workspace id — templated into the snippet's init call. */
+  tenantId: string
+  /** The repo's bound knowledge-source id — likewise templated. */
+  sourceId: string
   onEvent?: (event: EmbedEvent) => void
   abortController?: AbortController
   maxTurns?: number
 }
 
 export async function runEmbed(options: RunEmbedOptions): Promise<EmbedResult> {
-  const { cwd, onEvent, abortController, maxTurns = 20 } = options
+  const { cwd, tenantId, sourceId, onEvent, abortController, maxTurns = 20 } = options
 
   const env = await buildAgentEnv()
   if (!env) {
@@ -114,7 +118,7 @@ export async function runEmbed(options: RunEmbedOptions): Promise<EmbedResult> {
       options: {
         cwd,
         model: 'sonnet',
-        systemPrompt: EMBED_SYSTEM_PROMPT,
+        systemPrompt: buildEmbedSystemPrompt({ tenantId, sourceId }),
         mcpServers: { holostaff: mcpServer },
         tools: ['Read', 'Glob', 'Grep'],
         allowedTools,

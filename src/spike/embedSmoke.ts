@@ -97,6 +97,8 @@ async function main(): Promise<void> {
   let toolCalls = 0
   const result = await runEmbed({
     cwd: FIXTURE,
+    tenantId: 'workspace_smoke_fixture',
+    sourceId: 'ks_smoke_fixture',
     onEvent: (ev) => {
       if (ev.type === 'tool_use') {
         toolCalls++
