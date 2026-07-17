@@ -296,7 +296,22 @@ async function syncLockfile(
   const chosen = present.find((c) => c.pm === declared) ?? present[0]
   if (!chosen) return null
   emit({ type: 'lockfile_syncing', packageManager: chosen.pm })
-  await exec(chosen.pm, chosen.args, {
+  // Match the repo's pinned manager version (package.json packageManager)
+  // — lockfiles are version-sensitive (a pnpm 9 rewrite of a pnpm 11
+  // lockfile fails the repo's own --frozen-lockfile with
+  // ERR_PNPM_LOCKFILE_CONFIG_MISMATCH: deployment-rig formbricks
+  // finding). npx pins the exact version; fall back to the global tool.
+  let cmd: string = chosen.pm
+  let args = chosen.args
+  try {
+    const rootPkg = JSON.parse(readFileSync(join(cwd, 'package.json'), 'utf8')) as { packageManager?: string }
+    const m = rootPkg.packageManager?.match(/^(npm|pnpm|yarn)@([\w.-]+)/)
+    if (m && m[1] === chosen.pm) {
+      cmd = 'npx'
+      args = ['-y', `${m[1]}@${m[2]}`, ...chosen.args]
+    }
+  } catch { /* no readable root package.json — use the global tool */ }
+  await exec(cmd, args, {
     cwd,
     maxBuffer: 16 * 1024 * 1024,
     timeout: 10 * 60_000,
