@@ -78,8 +78,17 @@ export async function openPullRequest(input: OpenPrInput): Promise<PrResult> {
     return { kind: 'failed', step: 'push', error: push.stderr.trim() || 'git push failed' }
   }
 
+  // Pin the PR to the ORIGIN remote's repo. Without --repo, gh resolves
+  // fork clones to their upstream PARENT — on a fork this opened a real
+  // PR against the upstream OSS project (deployment-rig documenso
+  // finding, upstream PR closed with apologies). The branch was pushed
+  // to origin, so origin is where the PR belongs.
+  const originUrl = await tryExec('git', ['remote', 'get-url', 'origin'], input.cwd)
+  const repoSlug = originUrl.ok ? parseGithubSlug(originUrl.stdout.trim()) : null
+
   // Pipe body via stdin → avoids brittle shell escaping for multiline content.
   const args = ['pr', 'create', '--title', input.title, '--body-file', '-']
+  if (repoSlug) args.push('--repo', repoSlug, '--head', input.branch)
   if (input.base) args.push('--base', input.base)
 
   try {
@@ -98,6 +107,12 @@ export async function openPullRequest(input: OpenPrInput): Promise<PrResult> {
   } catch (err) {
     return { kind: 'failed', step: 'pr', error: (err as Error).message }
   }
+}
+
+/** owner/repo from an https or ssh GitHub remote URL; null if not GitHub. */
+function parseGithubSlug(remoteUrl: string): string | null {
+  const m = remoteUrl.match(/github\.com[:/]([^/]+\/[^/.\s]+)(?:\.git)?$/)
+  return m ? m[1]! : null
 }
 
 /**
