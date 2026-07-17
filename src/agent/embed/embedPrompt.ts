@@ -22,6 +22,10 @@
 
 /** Bumped on SDK releases the embed snippet depends on. */
 export const SDK_DEP_VERSION = '^0.10.1'
+/** The SDK's optional voice-stage peer dep — embedded apps must bundle
+ *  it or the Stage's dynamic import fails and voice silently degrades
+ *  (deployment-rig finding, 2026-07-17). */
+export const LIVEKIT_DEP_VERSION = '>=2'
 
 export interface EmbedPromptInput {
   /** The customer's workspace id — becomes init({ tenantId }). */
@@ -66,7 +70,7 @@ Method:
 3. Read the target file fully so you know its exact contents, then pick a unique anchor substring for the edit.
 
 4. Two ops minimum:
-   a. An edit to package.json adding \`"@holostaff/sdk": "${SDK_DEP_VERSION}"\` to dependencies (keep the JSON valid — mind trailing commas), plus a matching install op so the CLI reports what to install.
+   a. An edit to package.json adding BOTH \`"@holostaff/sdk": "${SDK_DEP_VERSION}"\` AND \`"livekit-client": "${LIVEKIT_DEP_VERSION}"\` to dependencies (keep the JSON valid — mind trailing commas), plus matching install ops so the CLI reports what to install. livekit-client is the SDK's voice-stage peer dependency — without it, live avatar conversations silently fail at runtime.
    b. The entry-point edit adding the import + init call shown above.
 
 5. Submit the plan with a one-sentence summary that names the files you edited, plus a brief rationale per op. Include coverageGaps for things you noticed but didn't address: SSR considerations, multiple entry points, monorepo packages you didn't touch, CSP headers that could block the runtime connection.
