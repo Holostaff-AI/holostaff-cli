@@ -88,7 +88,14 @@ export async function applyPlan(options: ApplyOptions): Promise<ApplyResult> {
   // 1) Preflight — clean tree.
   emit({ type: 'preflight' })
   try {
-    const { stdout } = await exec('git', ['status', '--porcelain'], { cwd })
+    const { stdout: rawStatus } = await exec('git', ['status', '--porcelain'], { cwd })
+    // Our own state dir (.holostaff/source.json, written by scan) must
+    // never count as customer dirt — on repos that don't gitignore it,
+    // scan → embed would always fail this preflight.
+    const stdout = rawStatus
+      .split('\n')
+      .filter((l) => l.trim().length > 0 && !/^..\s+(")?\.holostaff\//.test(l))
+      .join('\n')
     if (stdout.trim().length > 0) {
       emit({ type: 'tree_dirty', details: stdout.trim() })
       return {

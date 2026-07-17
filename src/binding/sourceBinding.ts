@@ -80,4 +80,25 @@ export function writeBinding(repoRoot: string, binding: SourceBinding): void {
   const dir = dirname(file)
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
   writeFileSync(file, JSON.stringify(binding, null, 2) + '\n', { encoding: 'utf8', mode: 0o644 })
+  excludeFromGit(repoRoot)
+}
+
+/**
+ * Register .holostaff/ in .git/info/exclude (repo-local, never
+ * committed) so our state dir doesn't dirty the customer's tree —
+ * scan → embed failed the clean-tree preflight on repos whose
+ * .gitignore doesn't list it (deployment-rig documenso finding).
+ */
+function excludeFromGit(repoRoot: string): void {
+  try {
+    const infoDir = join(repoRoot, '.git', 'info')
+    if (!existsSync(join(repoRoot, '.git'))) return
+    const excludeFile = join(infoDir, 'exclude')
+    const current = existsSync(excludeFile) ? readFileSync(excludeFile, 'utf8') : ''
+    if (current.split('\n').some((l) => l.trim() === '.holostaff/' || l.trim() === '.holostaff')) return
+    if (!existsSync(infoDir)) mkdirSync(infoDir, { recursive: true })
+    writeFileSync(excludeFile, `${current}${current.endsWith('\n') || current === '' ? '' : '\n'}.holostaff/\n`, { encoding: 'utf8' })
+  } catch {
+    /* best-effort — worst case the preflight filter below still applies */
+  }
 }
