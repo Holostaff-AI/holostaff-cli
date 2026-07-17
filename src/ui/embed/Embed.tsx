@@ -361,6 +361,8 @@ function ApplyLine({ ev }: { ev: ApplyEvent }) {
     case 'op_applying':       return <Text color="gray">· applying op {ev.index + 1}/{ev.total}</Text>
     case 'op_applied':        return <Text color="green">  ✓ op {ev.index + 1} applied</Text>
     case 'op_failed':         return <Text color="red">  ✗ op {ev.index + 1} failed: {ev.error}</Text>
+    case 'lockfile_syncing':  return <Text color="gray">· resolving {ev.packageManager} lockfile (no install)</Text>
+    case 'lockfile_synced':   return <Text color="green">✓ {ev.lockfile} updated</Text>
     case 'committing':        return <Text color="gray">· committing changes</Text>
     case 'committed':         return <Text color="green">✓ committed {ev.sha.slice(0, 7)} on {ev.branch}</Text>
     case 'rolled_back':       return <Text color="yellow">↩ branch rolled back</Text>

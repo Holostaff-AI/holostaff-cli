@@ -147,6 +147,8 @@ export async function runEmbedCi(opts: EmbedArgs, cwd: string): Promise<number> 
     copilotId: opts.copilotId,
     onEvent: (ev) => {
       if (ev.type === 'branch_created') log(`· branch ${ev.name}`)
+      if (ev.type === 'lockfile_syncing') log(`· resolving ${ev.packageManager} lockfile`)
+      if (ev.type === 'lockfile_synced') log(`✓ ${ev.lockfile} updated`)
       if (ev.type === 'committed') log(`✓ committed ${ev.sha.slice(0, 7)}`)
       if (ev.type === 'tree_dirty') log(`✗ working tree dirty:\n${ev.details}`)
     },
