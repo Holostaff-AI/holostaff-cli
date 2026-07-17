@@ -21,7 +21,7 @@
  */
 
 /** Bumped on SDK releases the embed snippet depends on. */
-export const SDK_DEP_VERSION = '^0.9.13'
+export const SDK_DEP_VERSION = '^0.10.1'
 
 export interface EmbedPromptInput {
   /** The customer's workspace id — becomes init({ tenantId }). */
