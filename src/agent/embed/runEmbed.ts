@@ -55,7 +55,13 @@ export interface RunEmbedOptions {
 }
 
 export async function runEmbed(options: RunEmbedOptions): Promise<EmbedResult> {
-  const { cwd, tenantId, sourceId, onEvent, abortController, maxTurns = 20 } = options
+  // Runaway ceiling, not a target — the agent submits when done. 20
+  // was tight for monorepos (finding the real entry point among
+  // workspaces takes exploration): deployment-rig documenso finding.
+  const {
+    cwd, tenantId, sourceId, onEvent, abortController,
+    maxTurns = Number(process.env.HOLOSTAFF_EMBED_MAX_TURNS ?? '') || 60,
+  } = options
 
   const env = await buildAgentEnv()
   if (!env) {
