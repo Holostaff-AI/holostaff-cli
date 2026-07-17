@@ -23,7 +23,7 @@
  */
 
 import { execFile } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 import { promisify } from 'node:util'
 
@@ -129,6 +129,7 @@ export async function applyPlan(options: ApplyOptions): Promise<ApplyResult> {
 
   // 3) Apply ops in order. Substitute placeholders + verify anchors.
   const filesChanged: string[] = []
+  const createdFiles: string[] = []
   const packagesToInstall: string[] = []
   let packageManager: 'npm' | 'pnpm' | 'yarn' | undefined
 
@@ -144,6 +145,7 @@ export async function applyPlan(options: ApplyOptions): Promise<ApplyResult> {
         case 'create':
           await applyCreate(cwd, op, workspaceId, sourceId, copilotId)
           filesChanged.push(op.file)
+          createdFiles.push(op.file)
           break
         case 'edit':
           await applyEdit(cwd, op, workspaceId, sourceId, copilotId)
@@ -156,7 +158,7 @@ export async function applyPlan(options: ApplyOptions): Promise<ApplyResult> {
       emit({ type: 'op_failed', index: i, error })
       // Roll the branch back: checkout main (or whatever was the parent)
       // and delete the failed branch. Customer keeps a clean tree.
-      const rolled = await rollback(cwd, branch)
+      const rolled = await rollback(cwd, branch, createdFiles)
       if (rolled) emit({ type: 'rolled_back' })
       return { ok: false, step: 'apply', error }
     }
@@ -173,7 +175,7 @@ export async function applyPlan(options: ApplyOptions): Promise<ApplyResult> {
     } catch (err) {
       const error = `lockfile sync failed: ${(err as Error).message}`
       emit({ type: 'op_failed', index: plan.ops.length, error })
-      const rolled = await rollback(cwd, branch)
+      const rolled = await rollback(cwd, branch, createdFiles)
       if (rolled) emit({ type: 'rolled_back' })
       return { ok: false, step: 'apply', error }
     }
@@ -335,11 +337,18 @@ function countOccurrences(haystack: string, needle: string): number {
 // Branch rollback (best-effort; surface but never re-throw)
 // ────────────────────────────────────────────────────────────────────────
 
-async function rollback(cwd: string, branch: string): Promise<boolean> {
+async function rollback(cwd: string, branch: string, createdFiles: string[] = []): Promise<boolean> {
   try {
     // Reset any working-tree changes our applies made; we haven't
     // committed yet so this won't lose user work.
     await exec('git', ['checkout', '.'], { cwd })
+    // `git checkout .` reverts tracked edits but leaves files our
+    // create ops added — remove exactly those (never a blanket clean
+    // on a customer repo). Deployment-rig finding: an orphaned
+    // apps/web/app/holostaff/ survived a rolled-back apply.
+    for (const f of createdFiles) {
+      try { unlinkSync(join(cwd, f)) } catch { /* already gone */ }
+    }
     // Move off the branch (try main, fall back to master, then HEAD~).
     try {
       await exec('git', ['checkout', '-'], { cwd })
