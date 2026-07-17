@@ -110,6 +110,8 @@ export async function runEmbedCi(opts: EmbedArgs, cwd: string): Promise<number> 
   let lastTool = ''
   const agentResult = await runEmbed({
     cwd,
+    tenantId: auth.workspaceId,
+    sourceId,
     onEvent: (ev: EmbedEvent) => {
       if (ev.type === 'tool_use' && ev.tool !== lastTool) {
         log(`· tool ${ev.tool}`)
