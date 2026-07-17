@@ -21,7 +21,7 @@
  */
 
 /** Bumped on SDK releases the embed snippet depends on. */
-export const SDK_DEP_VERSION = '^0.10.1'
+export const SDK_DEP_VERSION = '^0.10.2'
 /** The SDK's optional voice-stage peer dep — embedded apps must bundle
  *  it or the Stage's dynamic import fails and voice silently degrades
  *  (deployment-rig finding, 2026-07-17). */
