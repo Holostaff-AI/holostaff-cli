@@ -15,10 +15,11 @@
  * If anything fails midway, we rebase the branch back to its parent
  * and surface the error. The user's original branch is never modified.
  *
- * No npm install runs here — the install op is staged as part of the
- * commit (package.json + lockfile changes when the user runs the
- * package manager). v1 simplification; v2 should run the install on
- * the branch and commit the lockfile delta.
+ * No node_modules install runs here, but when the plan edits a
+ * package.json and the repo has a lockfile, we DO run a lockfile-only
+ * resolve and commit the delta — otherwise every `npm ci` build (CI,
+ * Docker) fails on the branch with "package.json and package-lock.json
+ * are out of sync" (found by the deployment rig's documenso target).
  */
 
 import { execFile } from 'node:child_process'
@@ -44,6 +45,8 @@ export type ApplyEvent =
   | { type: 'op_applying'; index: number; total: number; op: InstrumentOp }
   | { type: 'op_applied'; index: number }
   | { type: 'op_failed'; index: number; error: string }
+  | { type: 'lockfile_syncing'; packageManager: 'npm' | 'pnpm' | 'yarn' }
+  | { type: 'lockfile_synced'; lockfile: string }
   | { type: 'committing' }
   | { type: 'committed'; sha: string; branch: string }
   | { type: 'rolled_back' }
@@ -152,6 +155,23 @@ export async function applyPlan(options: ApplyOptions): Promise<ApplyResult> {
     }
   }
 
+  // 3b) Lockfile sync — a package.json edit without a matching lockfile
+  // update breaks every `npm ci`-style build of the branch. Resolve the
+  // lockfile (no node_modules install) and ship it in the same commit.
+  const touchedPackageJson = filesChanged.some((f) => f === 'package.json' || f.endsWith('/package.json'))
+  if (touchedPackageJson) {
+    try {
+      const lockfile = await syncLockfile(cwd, packageManager, emit)
+      if (lockfile) filesChanged.push(lockfile)
+    } catch (err) {
+      const error = `lockfile sync failed: ${(err as Error).message}`
+      emit({ type: 'op_failed', index: plan.ops.length, error })
+      const rolled = await rollback(cwd, branch)
+      if (rolled) emit({ type: 'rolled_back' })
+      return { ok: false, step: 'apply', error }
+    }
+  }
+
   // 4) Commit. There's nothing to commit if the only ops were install
   // (package manager runs writes to package.json + lockfile, but we
   // haven't run the install yet — v1 simplification). We still create
@@ -244,6 +264,38 @@ async function applyEdit(
   const newText = substitute(op.newText, workspaceId, sourceId, copilotId)
   const next = original.replace(oldText, newText)
   writeFileSync(target, next, { encoding: 'utf8' })
+}
+
+/**
+ * Bring the repo's lockfile in line with the (just-edited) package.json
+ * without installing node_modules. Returns the repo-relative lockfile
+ * path when one was resolved, null when the repo has no lockfile for
+ * the detected package manager. Throws on resolver failure — a branch
+ * with a stale lockfile is worse than a failed apply.
+ */
+async function syncLockfile(
+  cwd: string,
+  declared: 'npm' | 'pnpm' | 'yarn' | undefined,
+  emit: (ev: ApplyEvent) => void,
+): Promise<string | null> {
+  // Trust the lockfile on disk over the plan's declared manager — the
+  // agent guesses, the filesystem knows.
+  const candidates: Array<{ pm: 'npm' | 'pnpm' | 'yarn'; lockfile: string; args: string[] }> = [
+    { pm: 'npm', lockfile: 'package-lock.json', args: ['install', '--package-lock-only', '--ignore-scripts'] },
+    { pm: 'pnpm', lockfile: 'pnpm-lock.yaml', args: ['install', '--lockfile-only', '--ignore-scripts'] },
+    { pm: 'yarn', lockfile: 'yarn.lock', args: ['install', '--mode', 'update-lockfile'] },
+  ]
+  const present = candidates.filter((c) => existsSync(join(cwd, c.lockfile)))
+  const chosen = present.find((c) => c.pm === declared) ?? present[0]
+  if (!chosen) return null
+  emit({ type: 'lockfile_syncing', packageManager: chosen.pm })
+  await exec(chosen.pm, chosen.args, {
+    cwd,
+    maxBuffer: 16 * 1024 * 1024,
+    timeout: 10 * 60_000,
+  })
+  emit({ type: 'lockfile_synced', lockfile: chosen.lockfile })
+  return chosen.lockfile
 }
 
 function countOccurrences(haystack: string, needle: string): number {
