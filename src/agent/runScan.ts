@@ -59,8 +59,11 @@ export interface RunScanOptions {
   /** Cancel the scan early. */
   abortController?: AbortController
   /**
-   * Cap on agent turns. Each tool call + response is one turn. 30 is
-   * comfortable for a small/medium repo; raise for monorepos.
+   * Cap on agent turns. Each tool call + response is one turn. The
+   * agent stops on its own when the scan is complete, so this is a
+   * runaway ceiling, not a target — 120 covers monorepos (a 2.8k-file
+   * repo blew through 30: deployment-rig documenso finding).
+   * HOLOSTAFF_SCAN_MAX_TURNS overrides.
    */
   maxTurns?: number
   /**
@@ -72,7 +75,10 @@ export interface RunScanOptions {
 }
 
 export async function runScan(options: RunScanOptions): Promise<ScanResult> {
-  const { cwd, onEvent, abortController, maxTurns = 30, env } = options
+  const {
+    cwd, onEvent, abortController, env,
+    maxTurns = Number(process.env.HOLOSTAFF_SCAN_MAX_TURNS ?? '') || 120,
+  } = options
 
   // Findings sink — submitFindings handler writes here exactly once.
   let captured: ScanFindings | undefined
