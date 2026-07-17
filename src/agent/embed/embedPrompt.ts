@@ -73,7 +73,7 @@ Method:
    a. An edit to package.json adding BOTH \`"@holostaff/sdk": "${SDK_DEP_VERSION}"\` AND \`"livekit-client": "${LIVEKIT_DEP_VERSION}"\` to dependencies (keep the JSON valid — mind trailing commas), plus matching install ops so the CLI reports what to install. livekit-client is the SDK's voice-stage peer dependency — without it, live avatar conversations silently fail at runtime.
    b. The entry-point edit adding the import + init call shown above.
 
-5. Submit the plan with a one-sentence summary that names the files you edited, plus a brief rationale per op. Include coverageGaps for things you noticed but didn't address: SSR considerations, multiple entry points, monorepo packages you didn't touch, CSP headers that could block the runtime connection.
+5. Submit the plan with a one-sentence summary that names the files you edited, plus a brief rationale per op. Include coverageGaps for things you noticed but didn't address: SSR considerations, multiple entry points, monorepo packages you didn't touch, CSP headers that could block the runtime connection, and supply-chain install policies (e.g. pnpm minimumReleaseAge cooldowns) that would reject a freshly published SDK version — flag these for the customer to allowlist; do NOT edit security policy files yourself.
 
 What you should NOT do:
 - Refactor existing code beyond the minimum needed for the integration.
