@@ -24,6 +24,8 @@ export interface ScanProgressState {
   routesPreview: number
   componentsPreview: number
   elapsedMs: number
+  /** Set once the pass-1 skeleton upload lands — the map is LIVE here. */
+  liveUrl?: string
 }
 
 /**
@@ -55,7 +57,7 @@ export function reduceScanEvent(prev: ScanProgressState, ev: ScanEvent): ScanPro
     case 'skeleton_submitted':
       return {
         ...prev,
-        current: 'journey map published — deep scan continuing…',
+        current: 'deep scan continuing — your map updates live as I learn more…',
         ring: pushRing(prev.ring, '✓ skeleton published — map is live'),
       }
     case 'submitted':
@@ -135,6 +137,19 @@ export function ScanProgress({ state }: { state: ScanProgressState }) {
         <Text color="gray">  ·  </Text>
         <Text color="gray">{state.filesRead} files read</Text>
       </Box>
+
+      {state.liveUrl && (
+        // The payoff moment must not be invisible: the first mystery-shopper
+        // run gave up mid-deep-scan AFTER the map was already live, because
+        // nothing on screen pointed at it.
+        <Box flexDirection="column" marginTop={1}>
+          <Text color="green">✓ Your journey map is LIVE — open it now:</Text>
+          <Box marginLeft={4}>
+            <Text color="cyan">{state.liveUrl}</Text>
+          </Box>
+          <Text color="gray">The deep scan keeps refining it. Feel free to explore — I'll tell you here when I'm done.</Text>
+        </Box>
+      )}
 
       <Box marginTop={1}>
         <Text color="gray">{state.current}</Text>

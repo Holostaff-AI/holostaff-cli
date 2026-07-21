@@ -184,6 +184,11 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
                 captureEvent('skeleton_uploaded', { ok: r.ok, viewUrl: r.ok ? r.viewUrl : undefined })
                 if (r.ok) {
                   skeletonLiveUrlRef.current = r.viewUrl
+                  // Surface the payoff in the terminal the moment it exists —
+                  // the ref alone renders nothing and users gave up while
+                  // their map was already live.
+                  progress = { ...progress, liveUrl: r.viewUrl }
+                  setPhase({ kind: 'running', progress })
                   postScanStatus({ phase: 'deepening', detail: 'journey map live — deep scan continuing' })
                 }
               }).catch(() => { /* fail-soft: pass 2 still uploads */ })
