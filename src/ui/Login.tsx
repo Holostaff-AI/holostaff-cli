@@ -101,11 +101,10 @@ function IdlePrompt() {
     <Box flexDirection="column">
       <Text>First, I need to connect to your Holostaff workspace. New to Holostaff? Your account and workspace are created in your browser in one step.</Text>
       <Box marginTop={1}>
-        <Text color="gray">Press </Text>
-        <Text bold>Enter</Text>
-        <Text color="gray"> to open your browser, or set </Text>
-        <Text color="cyan">HOLOSTAFF_API_KEY</Text>
-        <Text color="gray"> in your shell to use a CI key.</Text>
+        {/* One Text with nested spans: sibling <Text> nodes in a row Box
+            wrap independently at the terminal edge and drop characters
+            ("PressEnte…") — nesting wraps as a single paragraph. */}
+        <Text color="gray">Press <Text bold color="white">Enter</Text> to open your browser, or set <Text color="cyan">HOLOSTAFF_API_KEY</Text> in your shell to use a CI key.</Text>
       </Box>
     </Box>
   )
@@ -123,17 +122,13 @@ function AwaitingApproval({
         <Text color="cyan">{uri}</Text>
       </Box>
       <Box marginTop={1} marginLeft={2}>
-        <Text>Code: </Text>
-        <Text bold>{code}</Text>
-        <Text color="gray"> (you'll see this on the page — it should match)</Text>
+        <Text>Code: <Text bold>{code}</Text> <Text color="gray">(you'll see this on the page — it should match)</Text></Text>
       </Box>
       <Box marginTop={1}>
         <Text color="gray">⏵ Waiting for confirmation... ({secondsElapsed}s)</Text>
       </Box>
       <Box marginTop={1}>
-        <Text color="gray">Press </Text>
-        <Text bold>Esc</Text>
-        <Text color="gray"> to cancel.</Text>
+        <Text color="gray">Press <Text bold color="white">Esc</Text> to cancel.</Text>
       </Box>
     </Box>
   )
@@ -144,11 +139,7 @@ function FailedView({ error }: { error: string }) {
     <Box flexDirection="column">
       <Text color="red">✗ {error}</Text>
       <Box marginTop={1}>
-        <Text color="gray">Press </Text>
-        <Text bold>Enter</Text>
-        <Text color="gray"> to retry, or </Text>
-        <Text bold>q</Text>
-        <Text color="gray"> to quit.</Text>
+        <Text color="gray">Press <Text bold color="white">Enter</Text> to retry, or <Text bold color="white">q</Text> to quit.</Text>
       </Box>
     </Box>
   )
