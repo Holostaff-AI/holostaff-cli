@@ -5,12 +5,16 @@
 #
 # The two Hide blocks cut the scan's work time (a few minutes each);
 # everything shown is a genuine, unedited session.
-Output assets/demo.gif
+# The raw recording is post-processed (scripts in repo history / see README
+# commit) into assets/demo.gif with one global palette and no dithering,
+# preserving per-frame delays. vhs MP4 output compresses time (deduped
+# frames at constant fps), so the GIF is the master.
+Output demo.gif
 
 Set Shell "bash"
-Set FontSize 12
-Set Width 1150
-Set Height 1000
+Set FontSize 14
+Set Width 1250
+Set Height 1150
 Set Padding 16
 Set Theme "Catppuccin Mocha"
 Set TypingSpeed 70ms
