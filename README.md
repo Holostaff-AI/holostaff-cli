@@ -4,6 +4,10 @@ Scan a codebase, instrument it with Holostaff tracking, and embed a copilot — 
 
 ![holostaff /scan demo](assets/demo.gif)
 
+We also made a small film about the 2am problem this solves:
+
+[![Every user gets a success manager — the launch film](assets/film-thumb.jpg)](https://youtu.be/AfCv10by7z0)
+
 ```
 $ holostaff
 Welcome to Holostaff. Looks like a Vue 3 + Vite app with 14 components and 13 routes.
