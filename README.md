@@ -2,6 +2,8 @@
 
 Scan a codebase, instrument it with Holostaff tracking, and embed a copilot — all from your terminal.
 
+![holostaff /scan demo](assets/demo.gif)
+
 ```
 $ holostaff
 Welcome to Holostaff. Looks like a Vue 3 + Vite app with 14 components and 13 routes.
@@ -13,9 +15,11 @@ Welcome to Holostaff. Looks like a Vue 3 + Vite app with 14 components and 13 ro
 
 ## Status
 
-**Alpha.** The flows in this README work end-to-end against the deployed Holostaff API. Distribution is a private install for now; public npm + signed releases are pending the A8 milestone.
+**Alpha, and live.** The package is on npm and every flow in this README works end-to-end against the hosted Holostaff API: sign-in, `/scan`, `/refine`, `/instrument`, `/embed`, and `holostaff deploy`. Model calls are served by your Holostaff workspace — there is nothing to configure and no model API key to bring.
 
-The `@holostaff/sdk` tracking package referenced by `/instrument` is not yet on npm — `/instrument` ships the *integration shape*; the package lands separately. Same caveat for `holostaff-widget` is not — that one is published.
+The packages `/instrument` and `/embed` wire into your app (`@holostaff/sdk`, `holostaff-widget`) are published on npm too.
+
+Alpha means: interfaces may still change between minor versions, scans of very large monorepos can be slow, and you should read the diff before merging anything the agent commits (you review every change as a branch or PR — nothing lands on its own).
 
 ## Install
 
@@ -44,7 +48,7 @@ $ holostaff
 
 The interactive shell walks you through:
 
-1. **Sign in.** Device-flow OAuth via your Holostaff workspace. Browser opens; you confirm.
+1. **Sign in.** Device-flow OAuth via your Holostaff workspace. Browser opens; you confirm. Your session is also what powers the model calls — no API keys to set up.
 2. **`/scan`.** Reads your code (read-only), produces a structured knowledge artifact, shows a trust report (what gets sent vs. what stays local), uploads on confirm.
 3. **`/instrument`.** Drafts a patch that adds the Holostaff tracking SDK to your app. Shows a per-file diff. On confirm, creates a `holostaff/instrument-<ts>` branch and commits.
 4. **`/embed`.** Same flow for the widget script tag.
@@ -86,8 +90,6 @@ You can also chat the agent — anything that doesn't start with `/` goes to a f
 ```bash
 export HOLOSTAFF_API_KEY="hsk_…"             # workspace API key
 export HOLOSTAFF_WORKSPACE_ID="workspace_…"  # the workspace it's bound to
-export AZURE_ANTHROPIC_ENDPOINT="…"          # model API
-export AZURE_ANTHROPIC_API_KEY="…"
 
 holostaff scan --quiet --json --out artifact.json
 test $? -eq 0 || exit 1
@@ -124,13 +126,13 @@ Two paths:
 
 **CI:** Set `HOLOSTAFF_API_KEY` + `HOLOSTAFF_WORKSPACE_ID` in your environment. The CLI skips the file-based path when these are set.
 
-Generate a workspace API key in the dashboard at Settings → CLI keys (lands in B3).
+Generate a workspace API key in the dashboard under Settings → CLI keys.
 
 ## Per-repo source binding
 
 After your first successful upload, the CLI writes `.holostaff/source.json` in your repo. Subsequent scans bind to the same Holostaff source and version-bump its artifact.
 
-Add `.holostaff/source.json` to your `.gitignore` if you don't want teammates' scans to land on your source automatically — multi-user shared bindings are a B3 follow-up.
+Add `.holostaff/source.json` to your `.gitignore` if you don't want teammates' scans to land on your source automatically — shared team bindings aren't supported yet.
 
 ## Environment variables
 
@@ -140,10 +142,8 @@ Add `.holostaff/source.json` to your `.gitignore` if you don't want teammates' s
 | `HOLOSTAFF_WORKSPACE_ID` | CI mode | Workspace this key is bound to |
 | `HOLOSTAFF_API_BASE_URL` | optional | Backend URL override (default: prod) |
 | `HOLOSTAFF_APP_BASE_URL` | optional | Dashboard URL for the result `viewUrl` (default: `https://www.holostaff.ai`) |
-| `AZURE_ANTHROPIC_ENDPOINT` | scan / instrument / embed / refine | Foundry endpoint |
-| `AZURE_ANTHROPIC_API_KEY` | scan / instrument / embed / refine | Foundry key |
 
-Production CLI distribution will drop the BYO `AZURE_*` requirement — the backend will issue per-session model tokens. Tracked in PRD §13 OQ10.
+Model access needs no configuration: scans run against the model deployment hosted by your Holostaff workspace, authenticated with your session. Fair-use daily limits apply per workspace; the CLI tells you if you hit one.
 
 ## Telemetry
 

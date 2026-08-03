@@ -29,8 +29,6 @@ const COMMAND_HELP = [
   '    HOLOSTAFF_API_KEY             CI: bearer token to use instead of device flow',
   '    HOLOSTAFF_WORKSPACE_ID        CI: workspace to bind the API key to',
   '    HOLOSTAFF_API_BASE_URL        Override backend URL (default: prod)',
-  '    AZURE_ANTHROPIC_ENDPOINT      Required by `holostaff scan` for the model API',
-  '    AZURE_ANTHROPIC_API_KEY       Required by `holostaff scan` for the model API',
   '',
   '  Docs:  https://docs.holostaff.ai/cli',
   '',
