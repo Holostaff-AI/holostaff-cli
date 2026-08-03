@@ -1,65 +1,65 @@
-# Holostaff CLI
+# Holostaff
 
-Scan a codebase, instrument it with Holostaff tracking, and embed a copilot — all from your terminal.
+**AI success managers that live inside your product.** They learn it from your codebase, notice when a user gets stuck, and help right in the session. This CLI is the front door: one command turns your repo into a staffed customer journey.
 
 ![holostaff /scan demo](assets/demo.gif)
 
-We also made a small film about the 2am problem this solves:
-
-[![Every user gets a success manager — the launch film](assets/film-thumb.jpg)](https://youtu.be/AfCv10by7z0)
-
+```bash
+npm install -g @holostaff/cli
+cd your-app
+holostaff
 ```
-$ holostaff
-Welcome to Holostaff. Looks like a Vue 3 + Vite app with 14 components and 13 routes.
 
-> /scan
-✓ Scan complete · 183.1s · TutorLM
-  Send to your Holostaff workspace? [Y/N/S]
-```
+No model keys. No config files. No YAML. Sign in from the terminal, type `/scan`, and watch your product turn into a map.
+
+## The 2am problem
+
+Your signup works. Your product is good. And still, trial users quietly disappear during setup: a token page that confuses them, an integration that fails silently, a form nobody finishes.
+
+Analytics tells you where they drop. It never tells you who is stuck right now, and it certainly does not help them. Docs and chatbots wait to be asked. Product tours play the same clicks for everyone. Support hears about it days later, when the user is already gone.
+
+Every company solves this the same way at small scale: a founder notices a stuck user and jumps in personally. That stops scaling around user fifty. Holostaff is that founder move, made permanent.
+
+We made a short film about it:
+
+[![Every user gets a success manager. The launch film.](assets/film-thumb.jpg)](https://youtu.be/AfCv10by7z0)
+
+## How it works
+
+**1. It reads your product like an engineer.** `/scan` sends an agent through your codebase and draws your real customer journey: the routes, the workflows, the exact steps where users can stall. The skeleton of the map is live about 90 seconds in; the deep pass keeps working while you explore it.
+
+![A scanned workflow on the journey map canvas](assets/journey-map.jpg)
+
+**2. You staff it.** In the dashboard you hire a copilot: a name, a face, a voice, and one journey stage to own. Onboarding, adoption, expansion. Each copilot knows the product because the scan taught it.
+
+**3. It rehearses before meeting anyone.** Simulated users run your real flows in real browsers and get stuck on purpose. The copilot has to notice and help. Every run is graded, and a copilot that fails rehearsal does not go live.
+
+![The evaluations board: scenarios generated from the scan, with verdicts](assets/evaluations.jpg)
+
+**4. It steps in when a real user struggles.** A small nudge at the right moment. A voice conversation if the user wants one. And when someone is truly stuck, the copilot can take the stuck step together with them, on their screen, with their permission, hands visible the whole time.
+
+![A copilot finishing a guided rescue of a stuck setup](assets/rescue.jpg)
+
+**5. It ships like code, not like a widget.** `/embed` and `holostaff deploy` produce a branch and a pull request: SDK init, journey stage markers, the embed. Your team reviews the diff like any other change. Merging is going live. Reverting is rollback. Nothing lands on its own.
+
+## What leaves your machine (and what never does)
+
+`/scan` reads your source with read-only tools, and before anything uploads, a trust report shows you exactly what is about to be sent. The artifact contains only:
+
+- Product identity: name, one-line description, framework, language
+- Routes (paths and descriptions) and component names with roles
+- Customer-facing copy strings (the literal text users see, with locations)
+- Brand voice (tone, keywords)
+- Workflows and their steps
+- Coverage gaps the scan flagged
+
+Your source code, file contents beyond the excerpted UI strings, `.env` files, secrets, and git history never leave your machine.
 
 ## Status
 
-**Alpha, and live.** The package is on npm and every flow in this README works end-to-end against the hosted Holostaff API: sign-in, `/scan`, `/refine`, `/instrument`, `/embed`, and `holostaff deploy`. Model calls are served by your Holostaff workspace — there is nothing to configure and no model API key to bring.
+**Alpha, and live.** The package is on npm and every flow in this README works end-to-end against the hosted Holostaff API: sign-in, `/scan`, `/refine`, `/instrument`, `/embed`, and `holostaff deploy`. Model calls are served by your Holostaff workspace. Fair-use daily limits apply per workspace, and the CLI tells you if you hit one.
 
-The packages `/instrument` and `/embed` wire into your app (`@holostaff/sdk`, `holostaff-widget`) are published on npm too.
-
-Alpha means: interfaces may still change between minor versions, scans of very large monorepos can be slow, and you should read the diff before merging anything the agent commits (you review every change as a branch or PR — nothing lands on its own).
-
-## Install
-
-```bash
-# From npm:
-npm install -g @holostaff/cli
-
-# Or from source:
-git clone https://github.com/Holostaff-AI/holostaff-cli
-cd holostaff-cli
-npm install
-npm run build
-npm link
-```
-
-Requires Node 20+.
-
-## Quickstart
-
-In a repo you want to add a copilot to:
-
-```bash
-$ cd ~/code/your-app
-$ holostaff
-```
-
-The interactive shell walks you through:
-
-1. **Sign in.** Device-flow OAuth via your Holostaff workspace. Browser opens; you confirm. Your session is also what powers the model calls — no API keys to set up.
-2. **`/scan`.** Reads your code (read-only), produces a structured knowledge artifact, shows a trust report (what gets sent vs. what stays local), uploads on confirm.
-3. **`/instrument`.** Drafts a patch that adds the Holostaff tracking SDK to your app. Shows a per-file diff. On confirm, creates a `holostaff/instrument-<ts>` branch and commits.
-4. **`/embed`.** Same flow for the widget script tag.
-5. **`/refine`.** Edits the artifact's identity (product name, description, notes) without re-scanning. Survives re-scans.
-6. **`/help`.** Lists every slash command.
-
-You can also chat the agent — anything that doesn't start with `/` goes to a free-form conversation.
+Alpha means: interfaces may still change between minor versions, scans of very large monorepos can be slow, and you should read the diff before merging anything the agent commits.
 
 ## Commands
 
@@ -107,21 +107,6 @@ Exit codes:
 - `2` bad args or preflight (missing env)
 - `3` auth not configured for CI
 
-## What stays on your machine
-
-`/scan` reads your source code with read-only tools, but the artifact it sends to your workspace contains only:
-- Product identity: name, one-line description, framework, language
-- Routes (paths + descriptions)
-- Component names + roles
-- Customer-facing copy strings (the literal text users see, with file/i18n locations)
-- Brand voice (tone, keywords)
-- Workflows (multi-step user flows + steps)
-- Coverage gaps the scan flagged
-
-Your source code, file contents (beyond the excerpted UI strings), `.env` files, secrets, and git history never leave your machine.
-
-The trust report shows you exactly what's about to be sent before you confirm.
-
 ## Auth
 
 Two paths:
@@ -136,7 +121,7 @@ Generate a workspace API key in the dashboard under Settings → CLI keys.
 
 After your first successful upload, the CLI writes `.holostaff/source.json` in your repo. Subsequent scans bind to the same Holostaff source and version-bump its artifact.
 
-Add `.holostaff/source.json` to your `.gitignore` if you don't want teammates' scans to land on your source automatically — shared team bindings aren't supported yet.
+Add `.holostaff/source.json` to your `.gitignore` if you don't want teammates' scans to land on your source automatically. Shared team bindings aren't supported yet.
 
 ## Environment variables
 
@@ -155,7 +140,7 @@ Anonymous, opt-out. The CLI emits typed events for command starts, completions, 
 
 What's collected (per event):
 - `cli_version`, `node_version`, `os`
-- Hashed `workspace_id` (SHA-256 — never the raw ID)
+- Hashed `workspace_id` (SHA-256, never the raw ID)
 - `command` (`scan` / `instrument` / etc.)
 - `duration_ms`, `outcome`
 - `framework_detected`, `repo_size_bucket`
@@ -171,7 +156,7 @@ Apache-2.0. See [LICENSE](./LICENSE).
 
 ## Contributing
 
-PRs welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md) for dev setup, smoke spikes, and the release flow. Release notes live in [CHANGELOG.md](./CHANGELOG.md).
+PRs welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for dev setup, smoke spikes, and the release flow. Release notes live in [CHANGELOG.md](./CHANGELOG.md).
 
 ## Reporting issues
 
