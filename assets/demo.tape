@@ -8,9 +8,9 @@
 Output assets/demo.gif
 
 Set Shell "bash"
-Set FontSize 14
-Set Width 1000
-Set Height 600
+Set FontSize 12
+Set Width 1150
+Set Height 1000
 Set Padding 16
 Set Theme "Catppuccin Mocha"
 Set TypingSpeed 70ms
@@ -32,10 +32,10 @@ Show
 Sleep 3.5s
 
 Hide
-Wait+Screen@25m /Send this to your Holostaff workspace/
+Wait+Screen@25m /Yes, upload now/
 Show
 Sleep 4s
 
 Type "y"
-Wait+Screen@3m /View at https/
+Wait+Screen@3m /View at/
 Sleep 5s
