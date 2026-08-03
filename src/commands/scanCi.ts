@@ -117,7 +117,7 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
       ok: false,
       phase: 'env',
       error:
-        'Couldn\'t resolve model credentials. CI mode mints them from /api/cli/model-session via HOLOSTAFF_API_KEY; or set AZURE_ANTHROPIC_ENDPOINT + AZURE_ANTHROPIC_API_KEY for BYO-key.',
+        'Not authenticated. Set HOLOSTAFF_API_KEY (Settings -> CLI keys in the dashboard) so the scan can use your workspace\'s hosted model.',
     }, log, 2)
   }
 

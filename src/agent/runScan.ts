@@ -301,92 +301,53 @@ function findPackageRoot(start: string): string | undefined {
 
 /**
  * Build the env dict the Agent SDK forwards to its Claude Code
- * subprocess. Resolves Azure Foundry credentials from one of:
- *   1. local env vars (BYO key — preserved for development)
- *   2. POST /api/cli/model-session against the user's authed workspace
- *      (production path — server holds the Foundry key as a Cloud Run
- *      secret and hands a 1h-TTL bundle to authed callers, cached in
- *      memory for the rest of the process).
+ * subprocess. Two transports:
  *
- * Returns null only if BOTH sources are unavailable — in which case
- * the caller surfaces a targeted error before kicking off a long
- * scan.
+ *   1. Hosted (default): the Holostaff API proxies the Messages API to
+ *      our model deployment. Auth is the CLI session the user already
+ *      has (device-flow sign-in, or HOLOSTAFF_API_KEY in CI). No model
+ *      configuration, and no model credentials on this machine at all.
+ *   2. BYO endpoint (internal development): AZURE_ANTHROPIC_ENDPOINT +
+ *      AZURE_ANTHROPIC_API_KEY select a Foundry deployment directly.
+ *
+ * Returns null when neither transport is available — the caller
+ * surfaces "sign in first" before kicking off a long scan.
  */
 export async function buildAgentEnv(): Promise<Record<string, string | undefined> | null> {
-  const session = await resolveModelSession()
-  if (!session) return null
-
-  return {
-    ...process.env,
-    CLAUDE_CODE_USE_FOUNDRY: '1',
-    ANTHROPIC_FOUNDRY_BASE_URL: session.endpoint,
-    ANTHROPIC_FOUNDRY_API_KEY: session.apiKey,
-    ANTHROPIC_DEFAULT_SONNET_MODEL: session.model,
-    CLAUDE_AGENT_SDK_CLIENT_APP: 'holostaff-cli',
-    // Make absolutely sure no stray non-Foundry creds confuse the adapter.
-    ANTHROPIC_API_KEY: undefined,
-    ANTHROPIC_AUTH_TOKEN: undefined,
-    ANTHROPIC_BASE_URL: undefined,
-  }
-}
-
-interface ModelSession {
-  endpoint: string
-  apiKey: string
-  model: string
-  /** ms-since-epoch when the cached session expires; 0 for env-source. */
-  expiresAtMs: number
-}
-
-let cachedSession: ModelSession | null = null
-
-/**
- * Resolve a Foundry creds bundle. Prefers env (developer mode) and
- * falls back to a server-minted session. Caches the server result
- * with a 10-minute safety margin against the server-stamped TTL.
- */
-async function resolveModelSession(): Promise<ModelSession | null> {
-  // 1. BYO env — local development takes precedence so devs aren't
-  //    blocked by network or auth state.
+  // BYO endpoint escape hatch — takes precedence so internal devs are
+  // never blocked by auth state.
   const envEndpoint = process.env.AZURE_ANTHROPIC_ENDPOINT?.replace(/\/+$/, '')
   const envApiKey = process.env.AZURE_ANTHROPIC_API_KEY
   if (envEndpoint && envApiKey) {
     return {
-      endpoint: envEndpoint,
-      apiKey: envApiKey,
-      model: process.env.AZURE_ANTHROPIC_MODEL ?? 'claude-sonnet-4-6',
-      expiresAtMs: 0,
+      ...process.env,
+      CLAUDE_CODE_USE_FOUNDRY: '1',
+      ANTHROPIC_FOUNDRY_BASE_URL: envEndpoint,
+      ANTHROPIC_FOUNDRY_API_KEY: envApiKey,
+      ANTHROPIC_DEFAULT_SONNET_MODEL: process.env.AZURE_ANTHROPIC_MODEL ?? 'claude-sonnet-4-6',
+      CLAUDE_AGENT_SDK_CLIENT_APP: 'holostaff-cli',
+      ANTHROPIC_API_KEY: undefined,
+      ANTHROPIC_AUTH_TOKEN: undefined,
+      ANTHROPIC_BASE_URL: undefined,
     }
   }
 
-  // 2. Cached session — refresh if within 10 minutes of the server-
-  //    stamped expiry, since a long scan can outlive a tight TTL.
-  const now = Date.now()
-  if (cachedSession && cachedSession.expiresAtMs - now > 10 * 60 * 1000) {
-    return cachedSession
-  }
-
-  // 3. Mint from the server. Requires an authed CLI session.
+  // Hosted transport: authenticate with the existing CLI session.
   const { resolveAuth } = await import('../auth/credentials.js')
   const auth = resolveAuth()
   if (auth.source === 'none' || auth.expired || !auth.token) return null
 
-  try {
-    const res = await fetch(`${auth.baseUrl}/api/cli/model-session`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${auth.token}` },
-    })
-    if (!res.ok) return null
-    const body = (await res.json()) as { endpoint?: string; apiKey?: string; model?: string; expiresAt?: string }
-    if (!body.endpoint || !body.apiKey || !body.model) return null
-    cachedSession = {
-      endpoint: body.endpoint.replace(/\/+$/, ''),
-      apiKey: body.apiKey,
-      model: body.model,
-      expiresAtMs: body.expiresAt ? Date.parse(body.expiresAt) : now + 60 * 60 * 1000,
-    }
-    return cachedSession
-  } catch {
-    return null
+  return {
+    ...process.env,
+    ANTHROPIC_BASE_URL: `${auth.baseUrl.replace(/\/+$/, '')}/api/cli/model`,
+    ANTHROPIC_AUTH_TOKEN: auth.token,
+    CLAUDE_AGENT_SDK_CLIENT_APP: 'holostaff-cli',
+    // The proxy pins the served model; these only keep client-side
+    // bookkeeping consistent.
+    ANTHROPIC_API_KEY: undefined,
+    CLAUDE_CODE_USE_FOUNDRY: undefined,
+    ANTHROPIC_FOUNDRY_BASE_URL: undefined,
+    ANTHROPIC_FOUNDRY_API_KEY: undefined,
   }
 }
+

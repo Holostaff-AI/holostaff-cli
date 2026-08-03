@@ -103,7 +103,7 @@ export async function runEmbedCi(opts: EmbedArgs, cwd: string): Promise<number> 
     return fail({
       ok: false,
       phase: 'env',
-      error: 'Couldn\'t resolve model credentials. CI mode mints them from /api/cli/model-session via HOLOSTAFF_API_KEY; or set AZURE_ANTHROPIC_ENDPOINT + AZURE_ANTHROPIC_API_KEY.',
+      error: 'Not authenticated. Set HOLOSTAFF_API_KEY (Settings -> CLI keys in the dashboard) so the embed agent can use your workspace\'s hosted model.',
     }, 2, 'env_missing')
   }
 
