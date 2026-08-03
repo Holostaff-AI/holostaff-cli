@@ -7,6 +7,24 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-08-03
+
+### Changed
+- **Zero-config model access.** `/scan`, `/refine`, `/instrument`, and
+  `/embed` now use the model deployment hosted by your Holostaff
+  workspace, authenticated with your existing session (device-flow
+  sign-in, or `HOLOSTAFF_API_KEY` in CI). The `AZURE_ANTHROPIC_*`
+  variables are no longer required or documented; fair-use daily limits
+  apply per workspace.
+- README: current install/status, demo GIF, `assets/demo.tape` checked
+  in for re-rendering.
+
+### Removed
+- The client no longer requests raw model credentials from the backend
+  (`/api/cli/model-session`); model traffic goes through an
+  authenticated proxy instead.
+
+
 ## [0.5.0] — 2026-07-10
 
 ### Added
