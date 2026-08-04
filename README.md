@@ -1,5 +1,7 @@
 # Holostaff
 
+[holostaff.ai](https://www.holostaff.ai) · [Docs](https://docs.holostaff.ai) · [Pricing](https://www.holostaff.ai/pricing) · [The launch film](https://youtu.be/AfCv10by7z0)
+
 **AI success managers that live inside your product.** They learn it from your codebase, notice when a user gets stuck, and help right in the session. This CLI is the front door: one command turns your repo into a staffed customer journey.
 
 ![holostaff /scan demo](assets/demo.gif)
@@ -30,7 +32,7 @@ We made a short film about it:
 
 ![A scanned workflow on the journey map canvas](assets/journey-map.jpg)
 
-**2. You staff it.** In the dashboard you hire a copilot: a name, a face, a voice, and one journey stage to own. Onboarding, adoption, expansion. Each copilot knows the product because the scan taught it.
+**2. You staff it.** In the [dashboard](https://www.holostaff.ai) you hire a copilot: a name, a face, a voice, and one journey stage to own. Onboarding, adoption, expansion. Each copilot knows the product because the scan taught it.
 
 ![Hiring a copilot: identity, avatar catalog, and the stages it owns](assets/copilot.jpg)
 
@@ -41,6 +43,8 @@ We made a short film about it:
 ![The evaluations board: scenarios generated from the scan, with verdicts](assets/evaluations.jpg)
 
 **4. It steps in when a real user struggles.** A small nudge at the right moment. A voice conversation if the user wants one. And when someone is truly stuck, the copilot can take the stuck step together with them, on their screen, with their permission, hands visible the whole time.
+
+Here is exactly what "hands visible" means. The copilot acts inside your page through the SDK, in the user's own session, one small action at a time. Every target is highlighted on screen before anything happens. Consequential clicks (pay, submit, delete) wait for the user to press an inline Allow button, and no answer means no. It will never type into password or payment fields. The user can stop it at any moment.
 
 ![A copilot finishing a guided rescue of a stuck setup](assets/rescue.jpg)
 
@@ -64,6 +68,8 @@ Your source code, file contents beyond the excerpted UI strings, `.env` files, s
 **Alpha, and live.** The package is on npm and every flow in this README works end-to-end against the hosted Holostaff API: sign-in, `/scan`, `/refine`, `/instrument`, `/embed`, and `holostaff deploy`. Model calls are served by your Holostaff workspace. Fair-use daily limits apply per workspace, and the CLI tells you if you hit one.
 
 Alpha means: interfaces may still change between minor versions, scans of very large monorepos can be slow, and you should read the diff before merging anything the agent commits.
+
+What it costs: the scan and your journey map are free. Taking a copilot live starts a free trial, and after that [pricing](https://www.holostaff.ai/pricing) bills on engagement. Nudges your users ignore are free.
 
 ## Commands
 
