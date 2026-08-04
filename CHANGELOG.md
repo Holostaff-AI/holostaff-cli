@@ -7,6 +7,20 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.7.1] — 2026-08-04
+
+### Security
+- Cleared all open dependency advisories: transitive overrides for
+  `hono` 4.13, `@hono/node-server` 2.1, `ws` 8.21.2, `fast-uri` 3.1.5,
+  `ip-address` 10.4, `qs` 6.15.3, `body-parser` 2.3, `esbuild` 0.28.1;
+  `@anthropic-ai/claude-agent-sdk` bumped to 0.2.141 (patched
+  `@anthropic-ai/sdk`). `npm audit`: 0 vulnerabilities.
+
+### Changed
+- README rewritten as a first-visit landing page: live demo map link
+  (holostaff.ai/demo), how-it-works with screenshots, privacy inventory,
+  cost answer, launch film.
+
 ## [0.7.0] — 2026-08-03
 
 ### Changed
