@@ -32,6 +32,8 @@ We made a short film about it:
 
 **2. You staff it.** In the dashboard you hire a copilot: a name, a face, a voice, and one journey stage to own. Onboarding, adoption, expansion. Each copilot knows the product because the scan taught it.
 
+![Hiring a copilot: identity, avatar catalog, and the stages it owns](assets/copilot.jpg)
+
 **3. It rehearses before meeting anyone.** Simulated users run your real flows in real browsers and get stuck on purpose. The copilot has to notice and help. Every run is graded, and a copilot that fails rehearsal does not go live.
 
 ![The evaluations board: scenarios generated from the scan, with verdicts](assets/evaluations.jpg)
