@@ -1,6 +1,6 @@
 # Holostaff
 
-[holostaff.ai](https://www.holostaff.ai) · [Docs](https://docs.holostaff.ai) · [Pricing](https://www.holostaff.ai/pricing) · [The launch film](https://youtu.be/AfCv10by7z0)
+[holostaff.ai](https://www.holostaff.ai) · [Live demo](https://www.holostaff.ai/demo) · [Docs](https://docs.holostaff.ai) · [Pricing](https://www.holostaff.ai/pricing) · [The launch film](https://youtu.be/AfCv10by7z0)
 
 **AI success managers that live inside your product.** They learn it from your codebase, notice when a user gets stuck, and help right in the session. This CLI is the front door: one command turns your repo into a staffed customer journey.
 
@@ -13,6 +13,8 @@ holostaff
 ```
 
 No model keys. No config files. No YAML. Sign in from the terminal, type `/scan`, and watch your product turn into a map.
+
+Want proof before installing anything? **[Explore a live map](https://www.holostaff.ai/demo)**. It is Documenso, the open-source document signing platform, scanned by this CLI. Every workflow, risk, and intervention on that canvas is the unedited output of `/scan`. No sign-up needed.
 
 ## Users don't complain. They leave.
 
