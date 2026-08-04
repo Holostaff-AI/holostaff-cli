@@ -12,7 +12,7 @@ holostaff
 
 No model keys. No config files. No YAML. Sign in from the terminal, type `/scan`, and watch your product turn into a map.
 
-## The 2am problem
+## Users don't complain. They leave.
 
 Your signup works. Your product is good. And still, trial users quietly disappear during setup: a token page that confuses them, an integration that fails silently, a form nobody finishes.
 
@@ -35,6 +35,8 @@ We made a short film about it:
 ![Hiring a copilot: identity, avatar catalog, and the stages it owns](assets/copilot.jpg)
 
 **3. It rehearses before meeting anyone.** Simulated users run your real flows in real browsers and get stuck on purpose. The copilot has to notice and help. Every run is graded, and a copilot that fails rehearsal does not go live.
+
+![A rehearsal in progress: a simulated user inside a real browser session, with the run timeline](assets/eval-run.jpg)
 
 ![The evaluations board: scenarios generated from the scan, with verdicts](assets/evaluations.jpg)
 
