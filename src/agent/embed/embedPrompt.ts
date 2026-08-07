@@ -21,7 +21,7 @@
  */
 
 /** Bumped on SDK releases the embed snippet depends on. */
-export const SDK_DEP_VERSION = '^0.10.2'
+export const SDK_DEP_VERSION = '^0.10.9'
 /** The SDK's optional voice-stage peer dep — embedded apps must bundle
  *  it or the Stage's dynamic import fails and voice silently degrades
  *  (deployment-rig finding, 2026-07-17). */
@@ -58,22 +58,26 @@ Method:
 
 1. Call detectFramework first. The structured summary tells you which package is the user-facing app, the framework, and the language.
 
-2. Find the app's JS/TS entry point — init must run once, at startup, in browser code:
+2. Read the repo's own conventions before you write anything in its style. Check for AGENTS.md, CLAUDE.md, .cursor/rules/*, CONTRIBUTING.md, and .editorconfig, and read any that exist (the repo root file first, then any deeper one covering the directory you are editing). They tell you things the file tree cannot: whether the project is JavaScript or TypeScript by default, which component and import idioms it uses, promise-chaining vs async/await, quote and semicolon style. Follow them. A patch in the wrong language or the wrong idiom reads as a stranger's code no matter how correct it is. A real customer's AGENTS.md said "JavaScript, not TypeScript by default" and we handed them a .ts plugin.
+
+   When no such file exists, infer the same things from the neighbouring files you are about to sit beside, and match them.
+
+3. Find the app's JS/TS entry point — init must run once, at startup, in browser code:
    - Vue 3 / Vite: src/main.js or src/main.ts (before or after createApp — either is fine).
    - React / Vite / CRA: src/main.tsx / src/main.jsx / src/index.tsx.
    - Next.js (app router): a small 'use client' component imported from app/layout.tsx, or an existing client-side providers file.
    - Next.js (pages router): pages/_app.tsx.
-   - Nuxt: a plugins/holostaff.client.ts plugin (create op).
+   - Nuxt: a plugins/holostaff.client.{ts,js} plugin (create op) — match the repo's default language.
    - SvelteKit: src/routes/+layout.svelte (browser-only guard) or a client hooks file.
    Server-only files are wrong — init touches window.
 
-3. Read the target file fully so you know its exact contents, then pick a unique anchor substring for the edit.
+4. Read the target file fully so you know its exact contents, then pick a unique anchor substring for the edit.
 
-4. Two ops minimum:
+5. Two ops minimum:
    a. An edit to package.json adding BOTH \`"@holostaff/sdk": "${SDK_DEP_VERSION}"\` AND \`"livekit-client": "${LIVEKIT_DEP_VERSION}"\` to dependencies (keep the JSON valid — mind trailing commas), plus matching install ops so the CLI reports what to install. livekit-client is the SDK's voice-stage peer dependency — without it, live avatar conversations silently fail at runtime.
    b. The entry-point edit adding the import + init call shown above.
 
-5. Submit the plan with a one-sentence summary that names the files you edited, plus a brief rationale per op. Include coverageGaps for things you noticed but didn't address: SSR considerations, multiple entry points, monorepo packages you didn't touch, CSP headers that could block the runtime connection, and supply-chain install policies (e.g. pnpm minimumReleaseAge cooldowns) that would reject a freshly published SDK version — flag these for the customer to allowlist; do NOT edit security policy files yourself.
+6. Submit the plan with a one-sentence summary that names the files you edited, plus a brief rationale per op. Include coverageGaps for things you noticed but didn't address: SSR considerations, multiple entry points, monorepo packages you didn't touch, CSP headers that could block the runtime connection, and supply-chain install policies (e.g. pnpm minimumReleaseAge cooldowns) that would reject a freshly published SDK version — flag these for the customer to allowlist; do NOT edit security policy files yourself.
 
 What you should NOT do:
 - Refactor existing code beyond the minimum needed for the integration.

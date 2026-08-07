@@ -10,6 +10,7 @@
  *   holostaff whoami                    print account + workspace
  *   holostaff workspace                 list workspaces
  *   holostaff scan [--add-repo <id>] [--quiet] [--json] [--out PATH]
+ *                  [--from <path|https url>]   import a published map, no agent run
  *                                       headless scan; CI-friendly
  *   holostaff --version                 print version + exit
  *   holostaff -v
@@ -27,6 +28,12 @@ export interface ScanArgs {
   out?: string
   /** Existing source id to merge into; switches to mergeMode='append'. */
   addRepo?: string
+  /**
+   * Import a published journey map instead of scanning. Path or https
+   * URL to an artifact JSON. Used for open-source products we have
+   * already scanned: no agent run, no wait, same result.
+   */
+  from?: string
 }
 
 export interface DeployArgs {
@@ -141,6 +148,17 @@ function parseScan(rest: string[]): ParsedArgs {
     if (tok.startsWith('--add-repo=')) {
       opts.addRepo = tok.slice('--add-repo='.length)
       if (!opts.addRepo) return { kind: 'bad_args', reason: '--add-repo requires a sourceId argument' }
+      continue
+    }
+    if (tok === '--from') {
+      const v = rest[++i]
+      if (!v) return { kind: 'bad_args', reason: '--from requires a path or https URL' }
+      opts.from = v
+      continue
+    }
+    if (tok.startsWith('--from=')) {
+      opts.from = tok.slice('--from='.length)
+      if (!opts.from) return { kind: 'bad_args', reason: '--from requires a path or https URL' }
       continue
     }
     return { kind: 'bad_args', reason: `unknown scan flag: ${tok}` }

@@ -19,6 +19,8 @@ const COMMAND_HELP = [
   '    holostaff workspace                               List workspaces',
   '    holostaff scan [--add-repo ID] [--quiet] [--json] Headless scan (CI-friendly)',
   '             [--out PATH]',
+  '    holostaff scan --from PATH|URL                    Import a published journey map',
+  '                                                      instead of scanning',
   '    holostaff deploy [--dry-run] [--force]            Open a deploy PR for the bound source',
   '    holostaff embed COPILOT_ID [--quiet] [--json]     Headless embed: plan, commit, open PR',
   '             [--out PATH] [--no-pr]',

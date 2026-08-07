@@ -1,0 +1,1158 @@
+{
+  "productName": "OpnForm",
+  "oneLineDescription": "An open-source form builder that lets teams create forms, surveys, and workflows with unlimited responses, embeddable anywhere.",
+  "primaryFramework": "nuxt",
+  "language": "typescript",
+  "routes": [
+    {
+      "path": "/",
+      "description": "Marketing landing page with hero, feature overview, social proof, and CTAs",
+      "file": "client/pages/index.vue"
+    },
+    {
+      "path": "/home",
+      "description": "Authenticated dashboard listing the user's forms with search and tag filtering",
+      "file": "client/pages/home.vue"
+    },
+    {
+      "path": "/login",
+      "description": "Login page with email/password and OAuth options",
+      "file": "client/pages/login.vue"
+    },
+    {
+      "path": "/register",
+      "description": "Account registration with workspace invitation support",
+      "file": "client/pages/register.vue"
+    },
+    {
+      "path": "/pricing",
+      "description": "Plan comparison (Free, Pro, Business, Enterprise) with monthly/yearly toggle",
+      "file": "client/pages/pricing.vue"
+    },
+    {
+      "path": "/forms/create",
+      "description": "Authenticated form creation with AI generation, import, and blank options",
+      "file": "client/pages/forms/create/index.vue"
+    },
+    {
+      "path": "/forms/create/guest",
+      "description": "Guest form creation allowing unauthenticated users to build a form before signing up",
+      "file": "client/pages/forms/create/guest.vue"
+    },
+    {
+      "path": "/forms/:slug/edit",
+      "description": "Form editor for modifying an existing form",
+      "file": "client/pages/forms/[slug]/edit.vue"
+    },
+    {
+      "path": "/forms/:slug/show",
+      "description": "Form management hub with sidebar navigation to submissions, stats, share, integrations",
+      "file": "client/pages/forms/[slug]/show.vue"
+    },
+    {
+      "path": "/forms/:slug/show/submissions",
+      "description": "View and manage form submissions table",
+      "file": "client/pages/forms/[slug]/show/submissions.vue"
+    },
+    {
+      "path": "/forms/:slug/show/stats",
+      "description": "Form analytics: views, submissions, completion rate, bounce rate",
+      "file": "client/pages/forms/[slug]/show/stats.vue"
+    },
+    {
+      "path": "/forms/:slug/show/share",
+      "description": "Share link and embed code settings for the form",
+      "file": "client/pages/forms/[slug]/show/share.vue"
+    },
+    {
+      "path": "/forms/:slug/show/integrations",
+      "description": "Configure integrations (Slack, webhooks, Discord, email) for the form",
+      "file": "client/pages/forms/[slug]/show/integrations/index.vue"
+    },
+    {
+      "path": "/forms/:slug/show/summary",
+      "description": "AI-generated summary of form responses",
+      "file": "client/pages/forms/[slug]/show/summary.vue"
+    },
+    {
+      "path": "/forms/:slug/show/pdf-templates",
+      "description": "PDF template configuration for form submissions",
+      "file": "client/pages/forms/[slug]/show/pdf-templates.vue"
+    },
+    {
+      "path": "/ai-form-builder",
+      "description": "Marketing page for AI-powered form generation feature",
+      "file": "client/pages/ai-form-builder.vue"
+    },
+    {
+      "path": "/templates",
+      "description": "Template gallery for pre-built form templates",
+      "file": "client/pages/templates/index.vue"
+    },
+    {
+      "path": "/templates/my-templates",
+      "description": "User's saved form templates",
+      "file": "client/pages/templates/my-templates.vue"
+    },
+    {
+      "path": "/integrations",
+      "description": "Overview of available integrations",
+      "file": "client/pages/integrations/index.vue"
+    },
+    {
+      "path": "/enterprise",
+      "description": "Enterprise offering with self-hosting and EU data residency",
+      "file": "client/pages/enterprise.vue"
+    },
+    {
+      "path": "/subscriptions/success",
+      "description": "Post-checkout confirmation that verifies subscription activation",
+      "file": "client/pages/subscriptions/success.vue"
+    },
+    {
+      "path": "/oauth/:provider/callback",
+      "description": "OAuth sign-in callback handler with 2FA support",
+      "file": "client/pages/oauth/[provider]/callback.vue"
+    },
+    {
+      "path": "/password/email",
+      "description": "Forgot password \u2014 request reset email",
+      "file": "client/pages/password/email.vue"
+    },
+    {
+      "path": "/password/reset/:token",
+      "description": "Password reset form",
+      "file": "client/pages/password/reset/[token].vue"
+    }
+  ],
+  "components": [
+    {
+      "name": "OpenForm",
+      "role": "Renders a published form for respondents to fill out",
+      "file": "client/components/open/forms/OpenForm.vue"
+    },
+    {
+      "name": "FormEditor",
+      "role": "Core drag-and-drop form builder/editor with field management, styling, and publish actions",
+      "file": "client/components/open/forms/components/FormEditor.vue"
+    },
+    {
+      "name": "FormSidebar",
+      "role": "Navigation sidebar for form management views (submissions, stats, share, integrations)",
+      "file": "client/components/layouts/FormSidebar.vue"
+    },
+    {
+      "name": "AppSidebar",
+      "role": "Main app navigation sidebar with workspace selector and upgrade CTA",
+      "file": "client/components/layouts/AppSidebar.vue"
+    },
+    {
+      "name": "LoginForm",
+      "role": "Login form with email/password, OIDC, Google OAuth, and 2FA support",
+      "file": "client/components/pages/auth/components/LoginForm.vue"
+    },
+    {
+      "name": "RegisterForm",
+      "role": "Registration form with name/email/password, captcha, terms agreement, and Google OAuth",
+      "file": "client/components/pages/auth/components/RegisterForm.vue"
+    },
+    {
+      "name": "CreateFormBaseModal",
+      "role": "Multi-step modal for choosing form style (Classic/Focused) and creation method (AI/import/blank)",
+      "file": "client/components/pages/forms/create/CreateFormBaseModal.vue"
+    },
+    {
+      "name": "FormSubmissions",
+      "role": "Table view of form responses with export, filter, and inline view/edit",
+      "file": "client/components/open/forms/components/FormSubmissions.vue"
+    },
+    {
+      "name": "FirstSubmissionModal",
+      "role": "Celebration modal shown after first form submission with sharing and integration prompts",
+      "file": "client/components/open/forms/components/FirstSubmissionModal.vue"
+    },
+    {
+      "name": "QuickRegister",
+      "role": "Inline login/register modal triggered when guest session expires or unauthenticated user tries to save",
+      "file": "client/components/pages/auth/components/QuickRegister.vue"
+    },
+    {
+      "name": "UpgradeBanner",
+      "role": "Dismissible banner prompting free-tier users to upgrade to Pro",
+      "file": "client/components/dashboard/UpgradeBanner.vue"
+    },
+    {
+      "name": "DashboardEmptyState",
+      "role": "Empty state card with icon, title, and action slot for zero-data views",
+      "file": "client/components/dashboard/states/DashboardEmptyState.vue"
+    },
+    {
+      "name": "Navbar",
+      "role": "Global top navigation bar",
+      "file": "client/components/global/Navbar.vue"
+    },
+    {
+      "name": "WorkspaceDropdown",
+      "role": "Workspace selector dropdown in the dashboard sidebar",
+      "file": "client/components/dashboard/WorkspaceDropdown.vue"
+    }
+  ],
+  "copy": [
+    {
+      "text": "Beautiful forms. Unlimited responses. Full control.",
+      "location": "Hero headline \u2014 client/pages/index.vue"
+    },
+    {
+      "text": "OpnForm helps you create forms, surveys, and workflows fast, without response caps or platform lock-in. Use our cloud, EU hosting, or self-host when you need full ownership.",
+      "location": "Hero subheadline \u2014 client/pages/index.vue"
+    },
+    {
+      "text": "Create a free form",
+      "location": "Primary CTA \u2014 client/pages/index.vue"
+    },
+    {
+      "text": "Get started. It's FREE!",
+      "location": "Footer CTA \u2014 client/components/pages/OpenFormFooter.vue"
+    },
+    {
+      "text": "Get started for free",
+      "location": "AI form builder CTA \u2014 client/pages/ai-form-builder.vue"
+    },
+    {
+      "text": "Simple pricing based on your needs",
+      "location": "Pricing headline \u2014 client/pages/pricing.vue"
+    },
+    {
+      "text": "No locked-in contracts. Upgrade or cancel anytime.",
+      "location": "Pricing subheadline \u2014 client/pages/pricing.vue"
+    },
+    {
+      "text": "Start collecting unlimited responses with no friction.",
+      "location": "Free plan tagline \u2014 client/pages/pricing.vue"
+    },
+    {
+      "text": "Log in to OpnForm",
+      "location": "Login page heading \u2014 client/pages/login.vue"
+    },
+    {
+      "text": "Create your account",
+      "location": "Register page heading \u2014 client/pages/register.vue"
+    },
+    {
+      "text": "Start in a few minutes and begin building forms right away.",
+      "location": "Register subtext \u2014 client/pages/register.vue"
+    },
+    {
+      "text": "Create your first form",
+      "location": "Dashboard empty state heading \u2014 client/pages/home.vue"
+    },
+    {
+      "text": "Get started by creating a new form to collect responses.",
+      "location": "Dashboard empty state description \u2014 client/pages/home.vue"
+    },
+    {
+      "text": "Your first submission!",
+      "location": "First submission celebration modal \u2014 client/components/open/forms/components/FirstSubmissionModal.vue"
+    },
+    {
+      "text": "Congratulations! Your form is now live and ready for action. Share it with others or check your submissions below.",
+      "location": "First submission modal body \u2014 client/components/open/forms/components/FirstSubmissionModal.vue"
+    },
+    {
+      "text": "Discover our Pro plan",
+      "location": "Upgrade banner title \u2014 client/components/dashboard/UpgradeBanner.vue"
+    },
+    {
+      "text": "Remove OpnForm branding, customize forms further, use your custom domain, integrate with your favorite tools, invite users, and more!",
+      "location": "Upgrade banner description \u2014 client/components/dashboard/UpgradeBanner.vue"
+    },
+    {
+      "text": "Secure forms for teams that need control",
+      "location": "Enterprise page headline \u2014 client/pages/enterprise.vue"
+    },
+    {
+      "text": "Easily generate a fully working form in seconds with just a simple description.",
+      "location": "AI form builder subheadline \u2014 client/pages/ai-form-builder.vue"
+    },
+    {
+      "text": "Submit",
+      "location": "Form submit button \u2014 client/i18n/lang/en.json (forms.buttons.submit)"
+    },
+    {
+      "text": "Submit another response",
+      "location": "Post-submission re-fill button \u2014 client/i18n/lang/en.json (forms.buttons.re_fill)"
+    },
+    {
+      "text": "Your session has expired. Please log in again to continue.",
+      "location": "Session-expired inline alert \u2014 client/components/pages/auth/components/QuickRegister.vue"
+    },
+    {
+      "text": "An error occurred while saving the form, please try again.",
+      "location": "Form save error \u2014 client/components/open/forms/components/FormEditor.vue"
+    },
+    {
+      "text": "Draft Form \u2014 Only you can visit the form link while logged in. Visitors won't be able to access this form.",
+      "location": "Draft status alert \u2014 client/pages/forms/[slug]/show/share.vue"
+    }
+  ],
+  "brandVoice": {
+    "tone": "Friendly, direct, and benefit-led. Emphasises freedom (unlimited, no lock-in, full ownership) and simplicity (fast, a few minutes, no friction). Avoids jargon \u2014 speaks to a non-technical audience building forms for their team or business.",
+    "keywords": [
+      "unlimited",
+      "free",
+      "full control",
+      "no lock-in",
+      "self-host",
+      "open-source",
+      "fast",
+      "simple",
+      "secure",
+      "get started"
+    ],
+    "avoidTerms": [
+      "enterprise-grade",
+      "synergy",
+      "leverage",
+      "cutting-edge",
+      "revolutionize"
+    ]
+  },
+  "workflows": [
+    {
+      "name": "Sign Up",
+      "entryPages": [
+        {
+          "route": "/",
+          "text": "Create a free form"
+        },
+        {
+          "route": "/pricing",
+          "text": "Get started free"
+        },
+        {
+          "route": "/register",
+          "text": "Create your account"
+        }
+      ],
+      "steps": [
+        {
+          "kind": "page",
+          "text": "Visitor lands on the marketing homepage or pricing page.",
+          "route": "/",
+          "visualRef": {
+            "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/ce73eb809081ece3cd2c30f2851deae1.png",
+            "w": 1440,
+            "h": 900
+          }
+        },
+        {
+          "kind": "step",
+          "text": "Visitor clicks 'Create a free form' or 'Get started free' CTA."
+        },
+        {
+          "kind": "page",
+          "text": "Visitor arrives at the registration page.",
+          "route": "/register",
+          "visualRef": {
+            "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/c75ceed3bcb00badcb59e5e1be6c2dd0.png",
+            "w": 1440,
+            "h": 900
+          }
+        },
+        {
+          "kind": "step",
+          "text": "Visitor enters name, email, selects 'How did you hear about us?', and creates a password."
+        },
+        {
+          "kind": "step",
+          "text": "Visitor accepts terms & conditions and submits the registration form."
+        },
+        {
+          "kind": "page",
+          "text": "User lands on the authenticated dashboard.",
+          "route": "/home",
+          "visualRef": {
+            "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/ea579529764af20001f7d63b6649b4fd.png",
+            "w": 1440,
+            "h": 900
+          }
+        },
+        {
+          "kind": "outcome",
+          "label": "Account created",
+          "result": "converted"
+        }
+      ],
+      "bowtieStage": "mutual_commit",
+      "risks": [
+        {
+          "id": "risk_4b_stall_form_length",
+          "kind": "stall",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 3
+          },
+          "signal": "Field abandonment \u2014 user focuses first input then idles > 20s without completing remaining fields",
+          "label": "Registration form friction: 5 fields + captcha before account creation",
+          "subStep": "4b"
+        },
+        {
+          "id": "risk_4b_error_password",
+          "kind": "error",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 4
+          },
+          "signal": "Error banner visible after form submit \u2014 password validation fails",
+          "label": "Password strength requirements cause repeated failed submissions",
+          "subStep": "4b"
+        },
+        {
+          "id": "risk_4e_stall_empty",
+          "kind": "stall",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 5
+          },
+          "signal": "Dwell > 15s on dashboard with no clicks \u2014 empty state visible",
+          "label": "New user lands on empty dashboard and doesn't know what to do next",
+          "subStep": "4e"
+        }
+      ],
+      "interventions": [
+        {
+          "id": "int_4b_text",
+          "riskId": "risk_4b_stall_form_length",
+          "modality": "text",
+          "content": "You're almost there \u2014 just a name, email, and password. Takes under a minute.",
+          "goal": "Reduce perceived effort to complete the registration form"
+        },
+        {
+          "id": "int_4b_error_text",
+          "riskId": "risk_4b_error_password",
+          "modality": "text",
+          "content": "Your password needs at least 8 characters with a mix of letters and numbers. Try a phrase you'll remember.",
+          "goal": "Resolve password validation failure on first retry"
+        },
+        {
+          "id": "int_4e_text",
+          "riskId": "risk_4e_stall_empty",
+          "modality": "text",
+          "content": "Welcome! Click 'Create Form' to build your first form \u2014 you can start with AI, a template, or from scratch.",
+          "goal": "Bridge the empty-state gap and direct user to their first action"
+        }
+      ],
+      "instrumentation": {
+        "expected": [
+          {
+            "kind": "markStageEntry",
+            "anchor": {
+              "kind": "entry_page",
+              "route": "/"
+            },
+            "file": "client/pages/index.vue",
+            "stage": "mutual_commit"
+          },
+          {
+            "kind": "markStageEntry",
+            "anchor": {
+              "kind": "entry_page",
+              "route": "/pricing"
+            },
+            "file": "client/pages/pricing.vue",
+            "stage": "mutual_commit"
+          },
+          {
+            "kind": "markStageEntry",
+            "anchor": {
+              "kind": "entry_page",
+              "route": "/register"
+            },
+            "file": "client/pages/register.vue",
+            "stage": "mutual_commit"
+          },
+          {
+            "kind": "emitSignal",
+            "anchor": {
+              "kind": "step",
+              "stepIndex": 5
+            },
+            "file": "client/composables/useAuthFlow.js",
+            "signalName": "sign_up_completed"
+          }
+        ],
+        "detected": []
+      }
+    },
+    {
+      "name": "Create a Form",
+      "entryPages": [
+        {
+          "route": "/home",
+          "text": "Create Form"
+        },
+        {
+          "route": "/forms/create",
+          "text": "Create a new Form"
+        }
+      ],
+      "steps": [
+        {
+          "kind": "page",
+          "text": "User clicks 'Create Form' from the dashboard.",
+          "route": "/forms/create",
+          "visualRef": {
+            "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/3ba87ea2e58697ca6196ab05828be802.png",
+            "w": 1440,
+            "h": 900
+          }
+        },
+        {
+          "kind": "modal",
+          "text": "Form style modal: choose Classic (multi-page) or Focused (one question at a time)."
+        },
+        {
+          "kind": "modal",
+          "text": "Creation method modal: AI generation, import from URL/file, template, or blank contact form."
+        },
+        {
+          "kind": "step",
+          "text": "User builds the form in the editor \u2014 adds fields, configures logic, customises styling."
+        },
+        {
+          "kind": "step",
+          "text": "User clicks 'Publish' to save and make the form live."
+        },
+        {
+          "kind": "page",
+          "text": "User is redirected to the Share page for the newly created form.",
+          "route": "/forms/:slug/show/share",
+          "visualRef": {
+            "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/3b36e32eb934b5397cb6d2605847a4f2.png",
+            "w": 1440,
+            "h": 900
+          }
+        },
+        {
+          "kind": "outcome",
+          "label": "Form published",
+          "result": "converted"
+        }
+      ],
+      "bowtieStage": "adoption",
+      "risks": [
+        {
+          "id": "risk_6b_stall_style_choice",
+          "kind": "stall",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 1
+          },
+          "signal": "Dwell > 20s on style selection modal with no click",
+          "label": "User unsure whether to pick Classic or Focused form style",
+          "subStep": "6b"
+        },
+        {
+          "id": "risk_6a_stall_editor_idle",
+          "kind": "stall",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 3
+          },
+          "signal": "Editor page loaded but no field added within 30s",
+          "label": "User opens editor but doesn't know how to start adding fields",
+          "subStep": "6a"
+        },
+        {
+          "id": "risk_6a_error_save",
+          "kind": "error",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 4
+          },
+          "signal": "Error banner visible after save attempt \u2014 422 validation error",
+          "label": "Form save fails due to validation error the user can't resolve",
+          "subStep": "6a"
+        }
+      ],
+      "interventions": [
+        {
+          "id": "int_6b_text_style",
+          "riskId": "risk_6b_stall_style_choice",
+          "modality": "text",
+          "content": "Classic is great for longer forms with sections. Focused works best for surveys and lead capture \u2014 one question at a time keeps completion rates high.",
+          "goal": "Help user pick a form style confidently"
+        },
+        {
+          "id": "int_6a_text_editor",
+          "riskId": "risk_6a_stall_editor_idle",
+          "modality": "text",
+          "content": "Click the + button on the left to add your first field. Try a short text or email field to start.",
+          "goal": "Unblock user from editor paralysis"
+        },
+        {
+          "id": "int_6a_text_save_error",
+          "riskId": "risk_6a_error_save",
+          "modality": "text",
+          "content": "There's an issue with one of your fields \u2014 check the highlighted sections above and fix the validation errors, then try saving again.",
+          "goal": "Help user resolve validation error on their own"
+        }
+      ],
+      "instrumentation": {
+        "expected": [
+          {
+            "kind": "markStageEntry",
+            "anchor": {
+              "kind": "entry_page",
+              "route": "/home"
+            },
+            "file": "client/pages/home.vue",
+            "stage": "adoption"
+          },
+          {
+            "kind": "markStageEntry",
+            "anchor": {
+              "kind": "entry_page",
+              "route": "/forms/create"
+            },
+            "file": "client/pages/forms/create/index.vue",
+            "stage": "adoption"
+          },
+          {
+            "kind": "emitSignal",
+            "anchor": {
+              "kind": "step",
+              "stepIndex": 4
+            },
+            "file": "client/components/open/forms/components/FormEditor.vue",
+            "signalName": "resource_created"
+          },
+          {
+            "kind": "emitSignal",
+            "anchor": {
+              "kind": "step",
+              "stepIndex": 3
+            },
+            "file": "client/components/open/forms/components/FormEditor.vue",
+            "signalName": "feature_used"
+          }
+        ],
+        "detected": []
+      }
+    },
+    {
+      "name": "Guest Form Creation",
+      "entryPages": [
+        {
+          "route": "/forms/create/guest",
+          "text": "Create a free form (unauthenticated)"
+        },
+        {
+          "route": "/",
+          "text": "Create a free form"
+        }
+      ],
+      "steps": [
+        {
+          "kind": "page",
+          "text": "Unauthenticated visitor arrives at the guest form builder.",
+          "route": "/forms/create/guest",
+          "visualRef": {
+            "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/52093a707e645249fa31d26e0f689ce3.png",
+            "w": 1440,
+            "h": 900
+          }
+        },
+        {
+          "kind": "modal",
+          "text": "Creation modal appears to choose form style and creation method (AI/import/blank)."
+        },
+        {
+          "kind": "step",
+          "text": "Visitor builds the form using the editor without an account."
+        },
+        {
+          "kind": "step",
+          "text": "Visitor attempts to save/publish \u2014 guest save triggers registration prompt."
+        },
+        {
+          "kind": "modal",
+          "text": "Quick-register modal appears inline without leaving the editor."
+        },
+        {
+          "kind": "step",
+          "text": "Visitor completes registration within the modal."
+        },
+        {
+          "kind": "page",
+          "text": "Form is saved and user is redirected to the share page.",
+          "route": "/forms/:slug/show/share",
+          "visualRef": {
+            "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/3b36e32eb934b5397cb6d2605847a4f2.png",
+            "w": 1440,
+            "h": 900
+          }
+        },
+        {
+          "kind": "outcome",
+          "label": "Form saved under new account",
+          "result": "converted"
+        }
+      ],
+      "bowtieStage": "onboarding",
+      "risks": [
+        {
+          "id": "risk_5c_stall_guest_editor",
+          "kind": "stall",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 2
+          },
+          "signal": "Editor dwell > 60s with no field added",
+          "label": "Guest user engaged but confused in editor without prior orientation",
+          "subStep": "5c"
+        },
+        {
+          "id": "risk_5c_churn_register_wall",
+          "kind": "churn",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 4
+          },
+          "signal": "Quick-register modal opened then closed without submission within 10s",
+          "label": "User abandons when registration modal unexpectedly appears at save time",
+          "subStep": "5c"
+        },
+        {
+          "id": "risk_5d_stall_post_save",
+          "kind": "stall",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 6
+          },
+          "signal": "Share page loaded but no copy-link or embed action within 20s",
+          "label": "User created form but doesn't realise they need to share/embed it",
+          "subStep": "5d"
+        }
+      ],
+      "interventions": [
+        {
+          "id": "int_5c_text_editor",
+          "riskId": "risk_5c_stall_guest_editor",
+          "modality": "text",
+          "content": "Try describing your form in the AI prompt \u2014 you'll get a working draft in seconds that you can tweak.",
+          "goal": "Reduce blank-canvas paralysis for guest users"
+        },
+        {
+          "id": "int_5c_text_register",
+          "riskId": "risk_5c_churn_register_wall",
+          "modality": "text",
+          "content": "Create a free account to save your work \u2014 your form is safe and won't be lost.",
+          "goal": "Reassure user their form won't vanish and lower registration resistance"
+        },
+        {
+          "id": "int_5d_text_share",
+          "riskId": "risk_5d_stall_post_save",
+          "modality": "text",
+          "content": "Your form is live! Copy the link below to share it, or grab the embed code to put it on your website.",
+          "goal": "Guide user to the natural next step after publishing"
+        }
+      ],
+      "instrumentation": {
+        "expected": [
+          {
+            "kind": "markStageEntry",
+            "anchor": {
+              "kind": "entry_page",
+              "route": "/forms/create/guest"
+            },
+            "file": "client/pages/forms/create/guest.vue",
+            "stage": "onboarding"
+          },
+          {
+            "kind": "markStageEntry",
+            "anchor": {
+              "kind": "entry_page",
+              "route": "/"
+            },
+            "file": "client/pages/index.vue",
+            "stage": "onboarding"
+          },
+          {
+            "kind": "emitSignal",
+            "anchor": {
+              "kind": "step",
+              "stepIndex": 5
+            },
+            "file": "client/composables/useAuthFlow.js",
+            "signalName": "sign_up_completed"
+          },
+          {
+            "kind": "emitSignal",
+            "anchor": {
+              "kind": "step",
+              "stepIndex": 6
+            },
+            "file": "client/components/open/forms/components/FormEditor.vue",
+            "signalName": "resource_created"
+          }
+        ],
+        "detected": []
+      }
+    },
+    {
+      "name": "Manage Submissions",
+      "entryPages": [
+        {
+          "route": "/forms/:slug/show/submissions",
+          "text": "Submissions tab in form sidebar"
+        },
+        {
+          "route": "/forms/:slug/show",
+          "text": "Form overview"
+        }
+      ],
+      "steps": [
+        {
+          "kind": "page",
+          "text": "User navigates to the submissions tab from the form sidebar.",
+          "route": "/forms/:slug/show/submissions",
+          "visualRef": {
+            "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/7020a1e3c147b250b7e5887fd9dd2ef4.png",
+            "w": 1440,
+            "h": 900
+          }
+        },
+        {
+          "kind": "step",
+          "text": "User views the submissions table with response data."
+        },
+        {
+          "kind": "step",
+          "text": "User filters, exports, or views individual submission details."
+        },
+        {
+          "kind": "outcome",
+          "label": "Submissions reviewed",
+          "result": "converted"
+        }
+      ],
+      "bowtieStage": "adoption",
+      "risks": [
+        {
+          "id": "risk_6a_stall_empty_subs",
+          "kind": "stall",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 0
+          },
+          "signal": "Submissions page loaded with 0 rows \u2014 empty state visible",
+          "label": "No submissions yet \u2014 user may think form isn't working",
+          "subStep": "6a"
+        },
+        {
+          "id": "risk_6c_stall_export",
+          "kind": "stall",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 2
+          },
+          "signal": "User hovers export button multiple times without clicking",
+          "label": "User unsure how export works or which format to choose",
+          "subStep": "6c"
+        }
+      ],
+      "interventions": [
+        {
+          "id": "int_6a_text_empty_subs",
+          "riskId": "risk_6a_stall_empty_subs",
+          "modality": "text",
+          "content": "No responses yet \u2014 share your form link to start collecting submissions. You can also submit a test response yourself.",
+          "goal": "Reassure user the form works and direct them to share it"
+        },
+        {
+          "id": "int_6c_silence_export",
+          "riskId": "risk_6c_stall_export",
+          "modality": "silence",
+          "content": "Export is straightforward \u2014 tooltip already explains the options. Intervening here would be patronising.",
+          "goal": "Respect user autonomy on a well-labelled UI action"
+        }
+      ],
+      "instrumentation": {
+        "expected": [
+          {
+            "kind": "markStageEntry",
+            "anchor": {
+              "kind": "entry_page",
+              "route": "/forms/:slug/show/submissions"
+            },
+            "file": "client/pages/forms/[slug]/show/submissions.vue",
+            "stage": "adoption"
+          },
+          {
+            "kind": "markStageEntry",
+            "anchor": {
+              "kind": "entry_page",
+              "route": "/forms/:slug/show"
+            },
+            "file": "client/pages/forms/[slug]/show.vue",
+            "stage": "adoption"
+          },
+          {
+            "kind": "emitSignal",
+            "anchor": {
+              "kind": "step",
+              "stepIndex": 2
+            },
+            "file": "client/components/open/forms/components/FormSubmissions.vue",
+            "signalName": "feature_used"
+          }
+        ],
+        "detected": []
+      }
+    },
+    {
+      "name": "Upgrade Plan",
+      "entryPages": [
+        {
+          "route": "/pricing",
+          "text": "View Pricing"
+        },
+        {
+          "route": "/home",
+          "text": "Upgrade banner on dashboard"
+        }
+      ],
+      "steps": [
+        {
+          "kind": "page",
+          "text": "User visits the pricing page or sees the upgrade banner on the dashboard.",
+          "route": "/pricing",
+          "visualRef": {
+            "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/a7b4a82487eb843a2a1587759716868b.png",
+            "w": 1440,
+            "h": 900
+          }
+        },
+        {
+          "kind": "step",
+          "text": "User compares Free, Pro, Business, and Enterprise plans; toggles monthly/yearly billing."
+        },
+        {
+          "kind": "step",
+          "text": "User clicks the 'Get started free' CTA on their chosen paid plan."
+        },
+        {
+          "kind": "step",
+          "text": "User is redirected to Stripe checkout to enter payment details."
+        },
+        {
+          "kind": "page",
+          "text": "User returns to the subscription success page while status is verified.",
+          "route": "/subscriptions/success",
+          "visualRef": {
+            "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/e06e5a9507cb529ed40ff468476a3895.png",
+            "w": 1440,
+            "h": 900
+          }
+        },
+        {
+          "kind": "outcome",
+          "label": "Subscription activated",
+          "result": "converted"
+        }
+      ],
+      "bowtieStage": "expansion",
+      "risks": [
+        {
+          "id": "risk_7a_stall_pricing_dwell",
+          "kind": "stall",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 1
+          },
+          "signal": "Pricing page dwell > 45s with interaction on plan toggles but no CTA click",
+          "label": "Decision fatigue \u2014 user comparing plans but can't commit",
+          "subStep": "7a"
+        },
+        {
+          "id": "risk_7e_churn_checkout",
+          "kind": "churn",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 3
+          },
+          "signal": "Redirect to Stripe triggered but no return to success page within 5 minutes",
+          "label": "User abandons at Stripe checkout",
+          "subStep": "7e"
+        },
+        {
+          "id": "risk_7a_stall_success_poll",
+          "kind": "stall",
+          "anchor": {
+            "kind": "step",
+            "stepIndex": 4
+          },
+          "signal": "Success page polling for > 20s without subscription confirmed",
+          "label": "Webhook delay makes user think payment failed",
+          "subStep": "7a"
+        }
+      ],
+      "interventions": [
+        {
+          "id": "int_7a_text_pricing",
+          "riskId": "risk_7a_stall_pricing_dwell",
+          "modality": "text",
+          "content": "Most teams start with Pro \u2014 it removes branding and unlocks custom domains. You can upgrade to Business later if you need advanced integrations.",
+          "goal": "Collapse the decision to a recommended plan"
+        },
+        {
+          "id": "int_7e_email_checkout",
+          "riskId": "risk_7e_churn_checkout",
+          "modality": "email",
+          "content": "You were checking out the {{plan}} plan \u2014 your form builder is waiting. Complete checkout to unlock all features: {{checkout_link}}",
+          "goal": "Recover abandoned checkout via async nudge"
+        },
+        {
+          "id": "int_7a_silence_poll",
+          "riskId": "risk_7a_stall_success_poll",
+          "modality": "silence",
+          "content": "The page already shows a spinner and 'checking status' message. Additional intervention would be redundant \u2014 let the polling resolve.",
+          "goal": "Avoid interrupting an expected technical delay"
+        }
+      ],
+      "instrumentation": {
+        "expected": [
+          {
+            "kind": "markStageEntry",
+            "anchor": {
+              "kind": "entry_page",
+              "route": "/pricing"
+            },
+            "file": "client/pages/pricing.vue",
+            "stage": "expansion"
+          },
+          {
+            "kind": "markStageEntry",
+            "anchor": {
+              "kind": "entry_page",
+              "route": "/home"
+            },
+            "file": "client/pages/home.vue",
+            "stage": "expansion"
+          },
+          {
+            "kind": "emitSignal",
+            "anchor": {
+              "kind": "step",
+              "stepIndex": 0
+            },
+            "file": "client/pages/pricing.vue",
+            "signalName": "plan_viewed"
+          },
+          {
+            "kind": "emitSignal",
+            "anchor": {
+              "kind": "step",
+              "stepIndex": 2
+            },
+            "file": "client/composables/useStripeCheckout.js",
+            "signalName": "checkout_started"
+          },
+          {
+            "kind": "emitSignal",
+            "anchor": {
+              "kind": "step",
+              "stepIndex": 4
+            },
+            "file": "client/pages/subscriptions/success.vue",
+            "signalName": "payment_succeeded"
+          }
+        ],
+        "detected": []
+      }
+    }
+  ],
+  "designTokens": {
+    "fontFamily": "euclid-circular-b, sans-serif",
+    "radius": "10px",
+    "light": {
+      "primary": "blue-600",
+      "primaryForeground": "white",
+      "accent": "blue-500",
+      "background": "white",
+      "foreground": "neutral-800",
+      "muted": "neutral-50",
+      "border": "neutral-200"
+    },
+    "dark": {
+      "primary": "blue-500",
+      "primaryForeground": "white",
+      "accent": "blue-400",
+      "background": "#191919",
+      "foreground": "white",
+      "muted": "#2e2e2e",
+      "border": "neutral-600"
+    },
+    "source": [
+      "client/css/app.css",
+      "client/css/fonts.css",
+      "client/app.config.ts"
+    ]
+  },
+  "identityInstrumentation": {
+    "expected": [
+      {
+        "kind": "identify",
+        "anchor": {
+          "kind": "sign_in_complete",
+          "component": "client/pages/login.vue"
+        },
+        "file": "client/pages/login.vue"
+      },
+      {
+        "kind": "identify",
+        "anchor": {
+          "kind": "sign_in_complete",
+          "component": "proceedWithAuthSuccess"
+        },
+        "file": "client/composables/useAuthFlow.js"
+      },
+      {
+        "kind": "identify",
+        "anchor": {
+          "kind": "sign_in_complete",
+          "component": "OAuthCallback"
+        },
+        "file": "client/pages/oauth/[provider]/callback.vue"
+      },
+      {
+        "kind": "identify",
+        "anchor": {
+          "kind": "sign_in_complete",
+          "component": "GoogleOneTap"
+        },
+        "file": "client/components/vendor/GoogleOneTap.vue"
+      },
+      {
+        "kind": "clearIdentity",
+        "anchor": {
+          "kind": "sign_out",
+          "component": "QuickRegister (logout button)"
+        },
+        "file": "client/components/pages/auth/components/QuickRegister.vue"
+      }
+    ],
+    "detected": []
+  },
+  "coverageGaps": [
+    "Backend API (api/ directory) was not deeply analysed \u2014 only referenced where composables call endpoints",
+    "i18n file only covers form-respondent strings (submit, file upload); dashboard/admin copy is inline in Vue templates",
+    "Admin panel (client/pages/admin.vue) was not explored \u2014 assumed internal/operator-only",
+    "Self-hosted license flow (client/pages/self-hosted/) was not analysed in detail",
+    "Comparison pages (opnform-vs-*.vue) are SEO/marketing and were not individually read",
+    "No tailwind.config file exists \u2014 using Nuxt UI v4 with @theme block in CSS; some token resolution may be imprecise",
+    "Dark mode tokens inferred from CSS :where(.dark) selectors \u2014 the app defaults to light mode (colorMode.preference: 'light')"
+  ],
+  "notes": "OpnForm uses Nuxt UI (v3/@nuxt/ui) for the component library and Tailwind CSS v4 via @theme directives instead of a traditional tailwind.config. The primary color is blue, configured in app.config.ts. The app supports feature flags (useFeatureFlag) for billing, AI features, self-hosted mode, and Google auth. Analytics are tracked through Amplitude, Google Tag Manager, and Crisp. Forms can be embedded via iframe with postMessage communication for submission events. The guest form creation flow is a key conversion mechanism \u2014 users build value before being asked to sign up."
+}
