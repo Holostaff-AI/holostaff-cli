@@ -4,7 +4,7 @@ A scan of an open-source product, published so the next person does not
 have to run it again.
 
 ```bash
-npx @holostaff/cli scan --from https://raw.githubusercontent.com/Holostaff-AI/holostaff-cli/main/presets/opnform.json
+npx @holostaff/cli scan --from https://raw.githubusercontent.com/Holostaff-AI/holostaff-cli/master/presets/opnform.json
 ```
 
 That creates the map in your workspace in about a second: no agent run,
