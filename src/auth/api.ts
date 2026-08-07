@@ -121,7 +121,7 @@ export interface CliSourceFull extends CliSourceSummary {
 export interface UploadArtifactBody {
   /** Mirrors CliArtifactInput on the server, minus tenantId/sourceId. */
   runId: string
-  ingestedVia: 'cli_scan'
+  ingestedVia: 'cli_scan' | 'cli_preset'
   ingestedAt: string
   productName: string
   oneLineDescription: string

@@ -38,7 +38,7 @@ type WireWorkflow = Omit<ScanFindings['workflows'][number], 'signals'> & {
 
 export interface CliArtifactUpload {
   runId: string
-  ingestedVia: 'cli_scan'
+  ingestedVia: 'cli_scan' | 'cli_preset'
   ingestedAt: string
 
   productName: string

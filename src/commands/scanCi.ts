@@ -23,6 +23,7 @@ import { writeFileSync } from 'node:fs'
 import type { ScanArgs } from './argv.js'
 import { resolveAuth } from '../auth/credentials.js'
 import { runScan, type ScanEvent } from '../agent/runScan.js'
+import { loadPreset, PresetError } from '../agent/loadPreset.js'
 import { mapFindingsToUpload } from '../agent/mapToArtifact.js'
 import { uploadFlow, type UploadEvent } from '../agent/uploadArtifact.js'
 import { detectRepoOrigin } from '../deploy/gitRepo.js'
@@ -102,6 +103,98 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
 
   log(`· authed as workspace ${auth.workspaceId} via ${auth.source === 'env' ? 'env' : 'local credentials'}`)
   log(`· running scan on ${cwd}`)
+
+  // 2a. Preset import — no agent, no model spend, no wait. The map of
+  // a public product does not need re-deriving per customer.
+  if (opts.from) {
+    log(`· importing journey map from ${opts.from}`)
+    let preset
+    try {
+      preset = await loadPreset(opts.from)
+    } catch (err) {
+      emitTelemetry({
+        command: 'scan_ci',
+        outcome: 'error',
+        errorKind: 'preset_load',
+        durationMs: Date.now() - t0,
+      })
+      return emitFailure(opts, {
+        ok: false,
+        phase: 'scan',
+        error: err instanceof PresetError ? err.message : (err as Error).message,
+      }, log, 1)
+    }
+    const a = preset.artifact
+    log(`· ${a.productName}: ${a.workflows.length} workflow(s), ${a.routes.length} route(s)`)
+    log(`· uploading artifact${opts.addRepo ? ` (merge into ${opts.addRepo})` : ''}`)
+    const presetUpload = await uploadFlow({
+      cwd,
+      baseUrl: auth.baseUrl,
+      bearer: auth.token,
+      workspaceId: auth.workspaceId,
+      appBaseUrl: process.env.HOLOSTAFF_APP_BASE_URL ?? 'https://www.holostaff.ai',
+      artifact: a,
+      repoOrigin: detectRepoOrigin(cwd),
+      mergeMode: opts.addRepo ? 'append' : 'replace',
+      forceSourceId: opts.addRepo
+        ? { sourceId: opts.addRepo, sourceName: opts.addRepo }
+        : undefined,
+      onEvent: (ev: UploadEvent) => {
+        if (ev.type === 'creating_source') log(`  · creating source ${ev.name}`)
+        if (ev.type === 'source_created') log(`  ✓ source created ${ev.sourceId}`)
+        if (ev.type === 'reusing_source') log(`  · reusing source ${ev.sourceId}`)
+        if (ev.type === 'uploaded') log(`  ✓ uploaded v${ev.version}`)
+        if (ev.type === 'failed') log(`  ✗ ${ev.error}`)
+      },
+    })
+    if (!presetUpload.ok) {
+      emitTelemetry({
+        command: 'scan_ci',
+        outcome: 'error',
+        errorKind: `upload_${presetUpload.step}`,
+        durationMs: Date.now() - t0,
+        frameworkDetected: a.primaryFramework,
+      })
+      return emitFailure(opts, {
+        ok: false,
+        phase: 'upload',
+        error: `upload failed (${presetUpload.step}): ${presetUpload.error}`,
+      }, log, 1)
+    }
+    log(`✓ ${presetUpload.viewUrl}`)
+    emitTelemetry({
+      command: 'scan_ci',
+      outcome: 'success',
+      durationMs: Date.now() - t0,
+      frameworkDetected: a.primaryFramework,
+    })
+    return emitResult(opts, {
+      ok: true,
+      scan: { durationMs: Date.now() - t0, sessionId: undefined, tokens: { input: 0, output: 0 } },
+      upload: {
+        sourceId: presetUpload.sourceId,
+        sourceName: presetUpload.sourceName,
+        version: presetUpload.version,
+        artifactId: presetUpload.artifactId,
+        viewUrl: presetUpload.viewUrl,
+        isNewSource: presetUpload.isNewSource,
+      },
+      findings: {
+        productName: a.productName,
+        oneLineDescription: a.oneLineDescription,
+        primaryFramework: a.primaryFramework,
+        language: a.language,
+        counts: {
+          routes: a.routes.length,
+          components: a.components.length,
+          copy: a.copy.length,
+          workflows: a.workflows.length,
+          coverageGaps: a.coverageGaps.length,
+        },
+        coverageGaps: a.coverageGaps,
+      },
+    }, log, 0)
+  }
 
   // 2. Run scan.
   const { buildAgentEnv } = await import('../agent/runScan.js')
