@@ -1,0 +1,9 @@
+{
+  "presets": [
+    {
+      "name": "opnform",
+      "product": "OpnForm, open source form builder",
+      "description": "scanned from OpnForm/OpnForm main @ 3a1b5abd, 2026-08-07"
+    }
+  ]
+}
