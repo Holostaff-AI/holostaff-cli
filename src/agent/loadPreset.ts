@@ -37,7 +37,51 @@ export interface LoadedPreset {
 
 export class PresetError extends Error {}
 
+/** Where named presets live. The CLI's own repo, so presets version with
+ *  the tool, are open source themselves, and adding one needs no release
+ *  and no server. `import opnform` resolves against this. */
+const REGISTRY_BASE =
+  'https://raw.githubusercontent.com/Holostaff-AI/holostaff-cli/master/presets'
+
+/** A bare product name: no path separator, no extension, no scheme. */
+function isBareName(from: string): boolean {
+  return !/[/\\.:]/.test(from)
+}
+
+export interface PresetListing {
+  name: string
+  product: string
+  description?: string
+}
+
+/** Fetch the registry index for `holostaff import` with no argument. */
+export async function listPresets(): Promise<PresetListing[]> {
+  const res = await fetch(`${REGISTRY_BASE}/index.json`).catch((err: Error) => {
+    throw new PresetError(`could not reach the preset registry: ${err.message}`)
+  })
+  if (!res.ok) throw new PresetError(`preset registry: HTTP ${res.status}`)
+  const parsed = await res.json() as { presets?: PresetListing[] }
+  return parsed.presets ?? []
+}
+
 async function readSource(from: string): Promise<string> {
+  if (isBareName(from)) {
+    const url = `${REGISTRY_BASE}/${from}.json`
+    const res = await fetch(url, { redirect: 'follow' }).catch((err: Error) => {
+      throw new PresetError(`could not fetch preset '${from}': ${err.message}`)
+    })
+    if (res.status === 404) {
+      const known = await listPresets().then(
+        (l) => l.map((p) => p.name).join(', '),
+        () => null,
+      )
+      throw new PresetError(
+        `no preset named '${from}'${known ? ` (available: ${known})` : ''}`,
+      )
+    }
+    if (!res.ok) throw new PresetError(`could not fetch preset '${from}': HTTP ${res.status}`)
+    return await res.text()
+  }
   if (/^https?:\/\//i.test(from)) {
     if (!/^https:\/\//i.test(from)) {
       throw new PresetError('--from over plain http is refused; use https or a local path')

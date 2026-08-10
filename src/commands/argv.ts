@@ -63,6 +63,7 @@ export type ParsedArgs =
   | { kind: 'whoami' }
   | { kind: 'workspace' }
   | { kind: 'scan'; opts: ScanArgs }
+  | { kind: 'import_list' }
   | { kind: 'deploy'; opts: DeployArgs }
   | { kind: 'embed'; opts: EmbedArgs }
   | { kind: 'help' }
@@ -80,6 +81,15 @@ export function parseArgs(argv: string[]): ParsedArgs {
   if (a === 'whoami') return { kind: 'whoami' }
   if (a === 'workspace') return { kind: 'workspace' }
   if (a === 'scan') return parseScan(argv.slice(1))
+  if (a === 'import') {
+    // `import opnform` is sugar for `scan --from opnform`. Bare
+    // `import` lists the available presets.
+    const rest = argv.slice(1)
+    if (rest.length === 0 || rest[0]!.startsWith('--')) {
+      return { kind: 'import_list' }
+    }
+    return parseScan(['--from', rest[0]!, ...rest.slice(1)])
+  }
   if (a === 'deploy') return parseDeploy(argv.slice(1))
   if (a === 'embed') return parseEmbed(argv.slice(1))
   return { kind: 'unknown', arg: a }

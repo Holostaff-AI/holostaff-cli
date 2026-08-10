@@ -65,6 +65,21 @@ async function main() {
     case 'scan':
       // Headless CI mode — no TTY guard, no Ink.
       process.exit(await runScanCi(args.opts, process.cwd()))
+    case 'import_list': {
+      // `holostaff import` with no name: show what can be imported.
+      const { listPresets, PresetError } = await import('./agent/loadPreset.js')
+      try {
+        const presets = await listPresets()
+        process.stdout.write('Available presets (holostaff import <name>):\n')
+        for (const pr of presets) {
+          process.stdout.write(`  ${pr.name.padEnd(14)} ${pr.product}${pr.description ? ` · ${pr.description}` : ''}\n`)
+        }
+        process.exit(0)
+      } catch (err) {
+        process.stderr.write(`holostaff: ${err instanceof PresetError ? err.message : String(err)}\n`)
+        process.exit(1)
+      }
+    }
     case 'embed':
       // Headless like scan — the interactive flow lives at /embed in
       // the shell; this path is for CI and the deployment test rig.
