@@ -1,0 +1,1320 @@
+{
+ "brandVoice": {
+  "avoidTerms": [
+   "proprietary",
+   "enterprise-only",
+   "complex setup",
+   "vendor lock-in"
+  ],
+  "keywords": [
+   "open-source",
+   "experience management",
+   "feedback",
+   "surveys",
+   "workspace",
+   "insights",
+   "responses",
+   "craft irresistible experiences",
+   "connect",
+   "get started"
+  ],
+  "tone": "Friendly, direct, and encouraging. Uses casual language with occasional emojis (🤗🎉💃) for celebratory moments. Technical when needed but avoids jargon in customer-facing copy. Favours short, action-oriented phrases."
+ },
+ "components": [
+  {
+   "file": "apps/web/modules/survey/editor/components/survey-editor.tsx",
+   "name": "SurveyEditor",
+   "role": "Full-featured survey builder with question types, logic, styling, and targeting."
+  },
+  {
+   "file": "apps/web/modules/survey/list/components/survey-list.tsx",
+   "name": "SurveysList",
+   "role": "Paginated list of surveys with status, actions, and creation CTAs."
+  },
+  {
+   "file": "apps/web/modules/auth/login/components/login-form.tsx",
+   "name": "LoginForm",
+   "role": "Sign-in form supporting email, OAuth providers, and SSO."
+  },
+  {
+   "file": "apps/web/modules/auth/signup/components/signup-form.tsx",
+   "name": "SignupForm",
+   "role": "Account registration form with multi-provider support."
+  },
+  {
+   "file": "apps/web/modules/ee/analysis/dashboards/pages/dashboards-list-page.tsx",
+   "name": "DashboardsListPage",
+   "role": "Displays analytics dashboards with charts and insights."
+  },
+  {
+   "file": "apps/web/modules/ui/components/data-table/index.tsx",
+   "name": "DataTable",
+   "role": "Reusable data table with sorting, filtering, and row selection."
+  },
+  {
+   "file": "apps/web/modules/ui/components/button/index.tsx",
+   "name": "Button",
+   "role": "Primary action button component used across all surfaces."
+  },
+  {
+   "file": "apps/web/modules/ui/components/dialog/index.tsx",
+   "name": "Dialog",
+   "role": "Modal dialog component for confirmations and forms."
+  },
+  {
+   "file": "apps/web/modules/ui/components/header/index.tsx",
+   "name": "Header",
+   "role": "Page-level header with title and subtitle."
+  },
+  {
+   "file": "apps/web/modules/auth/components/form-wrapper.tsx",
+   "name": "FormWrapper",
+   "role": "Centered card wrapper for authentication forms."
+  },
+  {
+   "file": "apps/web/app/(app)/workspaces/[workspaceId]/components/workspace-and-org-switch.tsx",
+   "name": "WorkspaceAndOrgSwitch",
+   "role": "Breadcrumb navigation to switch between workspaces and organizations."
+  },
+  {
+   "file": "apps/web/app/(app)/(onboarding)/organizations/[organizationId]/workspaces/new/plan/components/select-plan-onboarding.tsx",
+   "name": "SelectPlanOnboarding",
+   "role": "Plan selection screen with trial/free/pro tier options."
+  },
+  {
+   "file": "apps/web/app/(app)/(onboarding)/organizations/[organizationId]/workspaces/new/survey/components/create-first-survey.tsx",
+   "name": "CreateFirstSurvey",
+   "role": "Onboarding component to create the first survey from a template or AI."
+  }
+ ],
+ "copy": [
+  {
+   "location": "setup.intro.welcome_to_formbricks — locales/en-US.json",
+   "text": "Welcome to Formbricks!"
+  },
+  {
+   "location": "setup.intro.paragraph_1 — locales/en-US.json",
+   "text": "Formbricks is an Experience Management Suite built on the fastest growing open-source survey platform worldwide."
+  },
+  {
+   "location": "setup.intro.paragraph_2 — locales/en-US.json",
+   "text": "Run targeted surveys on websites, in apps or anywhere online. Gather valuable insights to craft irresistible experiences for customers, users and employees."
+  },
+  {
+   "location": "setup.intro.get_started — locales/en-US.json",
+   "text": "Get started"
+  },
+  {
+   "location": "auth.signup.title — locales/en-US.json",
+   "text": "Create your Formbricks account"
+  },
+  {
+   "location": "auth.login.login_to_your_account — locales/en-US.json",
+   "text": "Log in to your account"
+  },
+  {
+   "location": "auth.login.new_to_formbricks — locales/en-US.json",
+   "text": "New to Formbricks?"
+  },
+  {
+   "location": "organizations.workspaces.new.survey.title — locales/en-US.json",
+   "text": "Create your first survey"
+  },
+  {
+   "location": "organizations.settings.billing.select_plan_cta — locales/en-US.json",
+   "text": "Build my first survey"
+  },
+  {
+   "location": "organizations.settings.billing.select_plan_header — locales/en-US.json",
+   "text": "You're on Pro for the next 14 days"
+  },
+  {
+   "location": "organizations.settings.billing.select_plan_subheader — locales/en-US.json",
+   "text": "Everything below is unlocked, for free."
+  },
+  {
+   "location": "surveys.summary.congrats — locales/en-US.json",
+   "text": "Congrats! Your survey is live."
+  },
+  {
+   "location": "surveys.summary.connect_your_website_or_app_with_formbricks_to_get_started — locales/en-US.json",
+   "text": "Connect your website or app with Formbricks to get started."
+  },
+  {
+   "location": "common.no_surveys_found — locales/en-US.json",
+   "text": "No surveys found."
+  },
+  {
+   "location": "surveys.default_ending_card_headline + subheader — locales/en-US.json",
+   "text": "Thank you! We appreciate your feedback."
+  },
+  {
+   "location": "billing_confirmation.thanks_for_upgrading — locales/en-US.json",
+   "text": "Thanks a lot for upgrading your Formbricks subscription."
+  },
+  {
+   "location": "common.mobile_overlay_title + detail — locales/en-US.json",
+   "text": "Oops, tiny screen detected! Formbricks works best on a bigger screen."
+  },
+  {
+   "location": "Root layout metadata description — apps/web/app/layout.tsx",
+   "text": "Open-Source Survey Suite"
+  },
+  {
+   "location": "organizations.analysis.dashboards.upgrade_prompt_title — locales/en-US.json",
+   "text": "Upgrade to unlock Dashboards"
+  },
+  {
+   "location": "common.you_have_reached_your_monthly_response_limit_of_count — locales/en-US.json",
+   "text": "You have reached your monthly response limit of {count}."
+  }
+ ],
+ "coverageGaps": [
+  "Did not analyze the full packages/surveys or packages/survey-ui bundles (compiled UMD — not user-facing routing).",
+  "Backend API routes under apps/web/app/api/ were not catalogued — only user-facing pages were scanned.",
+  "No explicit font-family declaration found in the web app's CSS or layout; the product likely inherits the Tailwind v4 default sans stack (no custom font token extracted).",
+  "Enterprise-edition modules (ee/) were sampled but not exhaustively scanned — RBAC, SSO config, and advanced billing internals not fully traced.",
+  "Workspace-level integrations (Slack, Notion, Airtable, Google Sheets) were noted as routes but the per-integration flows were not deeply mapped.",
+  "The docs site (apps/docs) was not analyzed — it has its own Mintlify-based framework."
+ ],
+ "designTokens": {
+  "dark": {
+   "accent": "#394258",
+   "background": "#0f172a",
+   "border": "#394258",
+   "foreground": "#fefefe",
+   "muted": "#394258",
+   "primary": "#0f172a",
+   "primaryForeground": "#fefefe"
+  },
+  "light": {
+   "accent": "#f4f6f8",
+   "background": "#fefefe",
+   "border": "#e0e0e0",
+   "foreground": "#0f172a",
+   "muted": "#f1f5f9",
+   "primary": "#0f172a",
+   "primaryForeground": "#fefefe"
+  },
+  "radius": "8px",
+  "source": [
+   "apps/web/modules/ui/globals.css"
+  ]
+ },
+ "identityInstrumentation": {
+  "expected": [
+   {
+    "anchor": {
+     "component": "apps/web/modules/auth/login/page.tsx",
+     "kind": "sign_in_complete"
+    },
+    "file": "apps/web/modules/auth/login/page.tsx",
+    "kind": "identify"
+   },
+   {
+    "anchor": {
+     "component": "apps/web/modules/auth/signup/page.tsx",
+     "kind": "sign_in_complete"
+    },
+    "file": "apps/web/modules/auth/signup/page.tsx",
+    "kind": "identify"
+   },
+   {
+    "anchor": {
+     "component": "LoginForm",
+     "kind": "sign_in_complete"
+    },
+    "file": "apps/web/modules/auth/login/components/login-form.tsx",
+    "kind": "identify"
+   },
+   {
+    "anchor": {
+     "component": "authClient (signIn.social)",
+     "kind": "sign_in_complete"
+    },
+    "file": "apps/web/modules/auth/lib/auth-client.ts",
+    "kind": "identify"
+   },
+   {
+    "anchor": {
+     "component": "useSignOut",
+     "kind": "sign_out"
+    },
+    "file": "apps/web/modules/auth/hooks/use-sign-out.ts",
+    "kind": "clearIdentity"
+   }
+  ]
+ },
+ "language": "typescript",
+ "notes": "Formbricks uses Better Auth (migrated from NextAuth) for authentication with support for email/password, Google, GitHub, Azure, OIDC, and SAML SSO. The i18n system uses Lingo.dev with en-US.json as the source of truth. The product has three plan tiers on cloud: Hobby (free), Pro, and Scale with A/B tested onboarding copy for trial conversion. The survey-ui package compiles to a UMD bundle served from public/js for embedding surveys in customer sites.",
+ "oneLineDescription": "An open-source experience management platform for creating surveys, collecting feedback, and analyzing responses across web and app channels.",
+ "primaryFramework": "next",
+ "productName": "Formbricks",
+ "routes": [
+  {
+   "description": "User sign-in page with email, OAuth, and SSO options.",
+   "file": "apps/web/modules/auth/login/page.tsx",
+   "path": "/auth/login"
+  },
+  {
+   "description": "New account registration with email or OAuth.",
+   "file": "apps/web/modules/auth/signup/page.tsx",
+   "path": "/auth/signup"
+  },
+  {
+   "description": "Password reset request form.",
+   "file": "apps/web/modules/auth/forgot-password/page.tsx",
+   "path": "/auth/forgot-password"
+  },
+  {
+   "description": "Email verification pending interstitial.",
+   "file": "apps/web/modules/auth/verification-requested/page.tsx",
+   "path": "/auth/verification-requested"
+  },
+  {
+   "description": "Fresh instance welcome intro for first-time setup.",
+   "file": "apps/web/modules/setup/(fresh-instance)/intro/page.tsx",
+   "path": "/setup/intro"
+  },
+  {
+   "description": "Create the first organization after sign-up.",
+   "file": "apps/web/modules/setup/organization/create/page.tsx",
+   "path": "/setup/organization/create"
+  },
+  {
+   "description": "Organization landing when no workspaces exist yet.",
+   "file": "apps/web/app/(app)/(onboarding)/organizations/[organizationId]/landing/page.tsx",
+   "path": "/organizations/[organizationId]/landing"
+  },
+  {
+   "description": "Plan selection during onboarding (cloud only).",
+   "file": "apps/web/app/(app)/(onboarding)/organizations/[organizationId]/workspaces/new/plan/page.tsx",
+   "path": "/organizations/[organizationId]/workspaces/new/plan"
+  },
+  {
+   "description": "Create first survey during onboarding.",
+   "file": "apps/web/app/(app)/(onboarding)/organizations/[organizationId]/workspaces/new/survey/page.tsx",
+   "path": "/organizations/[organizationId]/workspaces/new/survey"
+  },
+  {
+   "description": "AI-assisted survey creation during onboarding.",
+   "file": "apps/web/app/(app)/(onboarding)/organizations/[organizationId]/workspaces/new/ai/page.tsx",
+   "path": "/organizations/[organizationId]/workspaces/new/ai"
+  },
+  {
+   "description": "Choose from XM survey templates during onboarding.",
+   "file": "apps/web/app/(app)/(onboarding)/organizations/[organizationId]/workspaces/new/templates/page.tsx",
+   "path": "/organizations/[organizationId]/workspaces/new/templates"
+  },
+  {
+   "description": "List of all surveys in the workspace.",
+   "file": "apps/web/modules/survey/list/page.tsx",
+   "path": "/workspaces/[workspaceId]/surveys"
+  },
+  {
+   "description": "Survey editor — build and configure survey questions.",
+   "file": "apps/web/modules/survey/editor/page.tsx",
+   "path": "/workspaces/[workspaceId]/surveys/[surveyId]/edit"
+  },
+  {
+   "description": "Survey results summary and analytics.",
+   "file": "apps/web/app/(app)/workspaces/[workspaceId]/surveys/[surveyId]/(analysis)/summary/page.tsx",
+   "path": "/workspaces/[workspaceId]/surveys/[surveyId]/summary"
+  },
+  {
+   "description": "Individual response viewer for a survey.",
+   "file": "apps/web/app/(app)/workspaces/[workspaceId]/surveys/[surveyId]/(analysis)/responses/page.tsx",
+   "path": "/workspaces/[workspaceId]/surveys/[surveyId]/responses"
+  },
+  {
+   "description": "Dashboards list with charts and insights.",
+   "file": "apps/web/app/(app)/workspaces/[workspaceId]/(analysis)/dashboards/page.tsx",
+   "path": "/workspaces/[workspaceId]/dashboards"
+  },
+  {
+   "description": "Unified feedback records from multiple sources.",
+   "file": "apps/web/app/(app)/workspaces/[workspaceId]/unify/feedback-records/page.tsx",
+   "path": "/workspaces/[workspaceId]/unify/feedback-records"
+  },
+  {
+   "description": "Contact list management.",
+   "file": "apps/web/modules/ee/contacts/page.tsx",
+   "path": "/workspaces/[workspaceId]/contacts"
+  },
+  {
+   "description": "Audience segment definitions for targeting.",
+   "file": "apps/web/modules/ee/contacts/segments/page.tsx",
+   "path": "/workspaces/[workspaceId]/segments"
+  },
+  {
+   "description": "General workspace settings.",
+   "file": "apps/web/modules/workspaces/settings/general/page.tsx",
+   "path": "/workspaces/[workspaceId]/settings/workspace/general"
+  },
+  {
+   "description": "Integrations hub (Slack, Notion, Google Sheets, etc).",
+   "file": "apps/web/app/(app)/workspaces/[workspaceId]/settings/workspace/integrations/page.tsx",
+   "path": "/workspaces/[workspaceId]/settings/workspace/integrations"
+  },
+  {
+   "description": "SDK connection setup for website/app surveys.",
+   "file": "apps/web/modules/workspaces/settings/(setup)/app-connection/page.tsx",
+   "path": "/workspaces/[workspaceId]/settings/workspace/app-connection"
+  },
+  {
+   "description": "Organization billing and plan management.",
+   "file": "apps/web/modules/ee/billing/page.tsx",
+   "path": "/organizations/[organizationId]/settings/billing"
+  },
+  {
+   "description": "Organization general settings.",
+   "file": "apps/web/app/(app)/organizations/[organizationId]/settings/general/page.tsx",
+   "path": "/organizations/[organizationId]/settings/general"
+  },
+  {
+   "description": "Team management within the organization.",
+   "file": "apps/web/modules/organization/settings/teams/page.tsx",
+   "path": "/organizations/[organizationId]/settings/teams"
+  },
+  {
+   "description": "Public link survey page for respondents.",
+   "file": "apps/web/modules/survey/link/page.tsx",
+   "path": "/s/[surveyId]"
+  },
+  {
+   "description": "User profile and account settings.",
+   "file": "apps/web/app/(app)/account/settings/profile/page.tsx",
+   "path": "/account/settings/profile"
+  },
+  {
+   "description": "Accept a team invite.",
+   "file": "apps/web/modules/auth/invite/page.tsx",
+   "path": "/invite"
+  }
+ ],
+ "workflows": [
+  {
+   "bowtieStage": "mutual_commit",
+   "entryPages": [
+    {
+     "route": "/auth/signup",
+     "text": "Create an account"
+    },
+    {
+     "route": "/invite",
+     "text": "Accept invite and create account"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/auth/signup"
+      },
+      "file": "apps/web/modules/auth/signup/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "mutual_commit"
+     },
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/invite"
+      },
+      "file": "apps/web/modules/auth/invite/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "mutual_commit"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 5
+      },
+      "file": "apps/web/modules/auth/lib/auth.ts",
+      "kind": "emitSignal",
+      "signalName": "sign_up_completed"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 5
+      },
+      "file": "apps/web/modules/auth/lib/better-auth-email-verification.ts",
+      "kind": "emitSignal",
+      "signalName": "email_verified"
+     }
+    ]
+   },
+   "interventions": [
+    {
+     "content": "Try signing up with Google or GitHub — it's one click and skips the password step entirely.",
+     "goal": "Reduce perceived cost of identifying by surfacing the OAuth shortcut.",
+     "id": "int_4b_text",
+     "modality": "text",
+     "riskId": "risk_4b_stall_form_friction"
+    },
+    {
+     "content": "That password was found in a public breach. Try a passphrase like three random words joined together — easy to remember, hard to crack.",
+     "goal": "Help user create a valid password on the next attempt.",
+     "id": "int_4b_error_text",
+     "modality": "text",
+     "riskId": "risk_4b_error_password_breach"
+    },
+    {
+     "content": "Didn't get the verification email? Check your spam folder, or reply to this email and we'll sort it out.",
+     "goal": "Recover users who stall at the email verification wall.",
+     "id": "int_4c_email",
+     "modality": "email",
+     "riskId": "risk_4c_stall_verification_wall"
+    }
+   ],
+   "name": "Sign Up",
+   "risks": [
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "id": "risk_4b_stall_form_friction",
+     "kind": "stall",
+     "label": "Password requirements or company-email restriction frustrates user",
+     "signal": "Form field abandonment; field dwell > 20s without submit",
+     "subStep": "4b"
+    },
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "id": "risk_4b_error_password_breach",
+     "kind": "error",
+     "label": "HIBP breach check rejects chosen password",
+     "signal": "Error toast: 'This password has appeared in a data breach'",
+     "subStep": "4b"
+    },
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 4
+     },
+     "id": "risk_4c_stall_verification_wall",
+     "kind": "stall",
+     "label": "User doesn't receive verification email or doesn't check inbox",
+     "signal": "Dwell on verification-requested page > 60s; no click on resend",
+     "subStep": "4c"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "route": "/auth/signup",
+     "text": "Visitor arrives at the signup page.",
+     "visualRef": {
+      "h": 900,
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/28512768e102bc89e87499923202d030.png",
+      "w": 1440
+     }
+    },
+    {
+     "kind": "decision",
+     "outcomes": [
+      {
+       "goesTo": 2,
+       "label": "Email"
+      },
+      {
+       "goesTo": 3,
+       "label": "OAuth (Google/GitHub/Azure/OIDC)"
+      }
+     ],
+     "question": "Which sign-up method does the user choose?"
+    },
+    {
+     "kind": "step",
+     "text": "User fills in name, email, and password, then submits the form."
+    },
+    {
+     "kind": "step",
+     "text": "OAuth provider authenticates and redirects back."
+    },
+    {
+     "kind": "page",
+     "route": "/auth/verification-requested",
+     "text": "Email verification requested interstitial shown.",
+     "visualRef": {
+      "h": 900,
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/122355458f0a241923b7f679024e01c9.png",
+      "w": 1440
+     }
+    },
+    {
+     "kind": "step",
+     "text": "User confirms email via link in inbox."
+    },
+    {
+     "kind": "page",
+     "route": "/setup/organization/create",
+     "text": "Redirected to organization creation."
+    },
+    {
+     "kind": "outcome",
+     "label": "Account created and organization set up",
+     "result": "converted"
+    }
+   ]
+  },
+  {
+   "bowtieStage": "adoption",
+   "entryPages": [
+    {
+     "route": "/auth/login",
+     "text": "Log in to your account"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/auth/login"
+      },
+      "file": "apps/web/modules/auth/login/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "adoption"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 2
+      },
+      "file": "apps/web/modules/auth/login/components/login-form.tsx",
+      "kind": "emitSignal",
+      "signalName": "sign_in_completed"
+     }
+    ]
+   },
+   "interventions": [
+    {
+     "content": "Last time you signed in with {lastMethod}. Want to use that again?",
+     "goal": "Restore continuity by reminding the user of their previous auth method.",
+     "id": "int_6a_text",
+     "modality": "text",
+     "riskId": "risk_6a_stall_return"
+    }
+   ],
+   "name": "Login",
+   "risks": [
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 0
+     },
+     "id": "risk_6a_stall_return",
+     "kind": "stall",
+     "label": "User forgot which auth method they used previously",
+     "signal": "Returning visitor; gap between sessions > 7 days; dwell on login page > 15s",
+     "subStep": "6a"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "route": "/auth/login",
+     "text": "User lands on the login page.",
+     "visualRef": {
+      "h": 900,
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/695cba5f0e342eba835161815dd85846.png",
+      "w": 1440
+     }
+    },
+    {
+     "kind": "step",
+     "text": "User enters credentials or selects an OAuth provider."
+    },
+    {
+     "kind": "step",
+     "text": "System validates credentials and creates session."
+    },
+    {
+     "kind": "page",
+     "route": "/workspaces/[workspaceId]/surveys",
+     "text": "User is redirected to their workspace survey list.",
+     "visualRef": {
+      "h": 900,
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/b7a0af31e335d445a2d69a0bfe7d0882.png",
+      "w": 1440
+     }
+    },
+    {
+     "kind": "outcome",
+     "label": "Logged in and viewing surveys",
+     "result": "converted"
+    }
+   ]
+  },
+  {
+   "bowtieStage": "onboarding",
+   "entryPages": [
+    {
+     "route": "/organizations/[organizationId]/workspaces/new/plan",
+     "text": "Select a plan"
+    },
+    {
+     "route": "/organizations/[organizationId]/workspaces/new/survey",
+     "text": "Create your first survey"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/organizations/[organizationId]/workspaces/new/plan"
+      },
+      "file": "apps/web/app/(app)/(onboarding)/organizations/[organizationId]/workspaces/new/plan/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "onboarding"
+     },
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/organizations/[organizationId]/workspaces/new/survey"
+      },
+      "file": "apps/web/app/(app)/(onboarding)/organizations/[organizationId]/workspaces/new/survey/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "onboarding"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 0
+      },
+      "file": "apps/web/app/(app)/(onboarding)/organizations/[organizationId]/workspaces/new/plan/page.tsx",
+      "kind": "emitSignal",
+      "signalName": "onboarding_step_completed"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 5
+      },
+      "file": "apps/web/modules/survey/editor/page.tsx",
+      "kind": "emitSignal",
+      "signalName": "resource_created"
+     }
+    ]
+   },
+   "interventions": [
+    {
+     "content": "No pressure — you're on Pro for 14 days free. You can always switch later. Hit 'Build my first survey' to jump in.",
+     "goal": "Collapse decision fatigue by reinforcing the trial is risk-free.",
+     "id": "int_5a_text",
+     "modality": "text",
+     "riskId": "risk_5a_stall_plan_paralysis"
+    },
+    {
+     "content": "Most teams start with an NPS or CSAT template — they take under a minute to set up. Want me to walk you through it?",
+     "goal": "Spotlight the single most valuable next action to break paralysis.",
+     "id": "int_5c_text",
+     "modality": "text",
+     "riskId": "risk_5c_stall_first_survey"
+    },
+    {
+     "content": "Try something like: 'I want to know how satisfied my customers are after onboarding.' The AI will turn it into a proper survey.",
+     "goal": "Provide a concrete example to unblock the AI prompt input.",
+     "id": "int_5c_ai_text",
+     "modality": "text",
+     "riskId": "risk_5c_stall_ai_prompt"
+    }
+   ],
+   "name": "Onboarding — Create First Workspace & Survey",
+   "risks": [
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 0
+     },
+     "id": "risk_5a_stall_plan_paralysis",
+     "kind": "stall",
+     "label": "User unsure which plan to pick; decision fatigue at trial screen",
+     "signal": "Dwell on plan page > 45s; no plan selection interaction",
+     "subStep": "5a"
+    },
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "id": "risk_5c_stall_first_survey",
+     "kind": "stall",
+     "label": "User doesn't know what kind of survey to create first",
+     "signal": "Dwell on survey creation page > 30s without choosing method",
+     "subStep": "5c"
+    },
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 3
+     },
+     "id": "risk_5c_stall_ai_prompt",
+     "kind": "stall",
+     "label": "User doesn't know how to describe their survey to the AI",
+     "signal": "AI prompt field empty for > 20s; cursor clicks in and out",
+     "subStep": "5c"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "route": "/organizations/[organizationId]/workspaces/new/plan",
+     "text": "User selects a plan tier (cloud) or skips to survey creation (self-hosted).",
+     "visualRef": {
+      "h": 900,
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/5969663690913a645d373e44e878bbaf.png",
+      "w": 1440
+     }
+    },
+    {
+     "kind": "page",
+     "route": "/organizations/[organizationId]/workspaces/new/survey",
+     "text": "User chooses how to create their first survey: template, AI, or from scratch.",
+     "visualRef": {
+      "h": 900,
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/aaad8da85f613e08f98789377f13b0e1.png",
+      "w": 1440
+     }
+    },
+    {
+     "kind": "decision",
+     "outcomes": [
+      {
+       "goesTo": 3,
+       "label": "Use AI"
+      },
+      {
+       "goesTo": 4,
+       "label": "Pick a template"
+      },
+      {
+       "goesTo": 5,
+       "label": "From scratch"
+      }
+     ],
+     "question": "How does the user want to create their first survey?"
+    },
+    {
+     "kind": "page",
+     "route": "/organizations/[organizationId]/workspaces/new/ai",
+     "text": "User describes their survey goal and AI generates questions.",
+     "visualRef": {
+      "h": 900,
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/59b0de5b977c9856bb133dec061c031d.png",
+      "w": 1440
+     }
+    },
+    {
+     "kind": "page",
+     "route": "/organizations/[organizationId]/workspaces/new/templates",
+     "text": "User browses and selects from XM survey templates.",
+     "visualRef": {
+      "h": 900,
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/b52cb13e9ad62a7bab7f07621bacfef8.png",
+      "w": 1440
+     }
+    },
+    {
+     "kind": "page",
+     "route": "/workspaces/[workspaceId]/surveys/[surveyId]/edit",
+     "text": "Survey editor opens with a blank or pre-filled survey."
+    },
+    {
+     "kind": "outcome",
+     "label": "First survey created, workspace active",
+     "result": "converted"
+    }
+   ]
+  },
+  {
+   "bowtieStage": "adoption",
+   "entryPages": [
+    {
+     "route": "/workspaces/[workspaceId]/surveys",
+     "text": "View all surveys and create new one"
+    },
+    {
+     "route": "/workspaces/[workspaceId]/surveys/[surveyId]/edit",
+     "text": "Edit existing survey"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/workspaces/[workspaceId]/surveys"
+      },
+      "file": "apps/web/modules/survey/list/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "adoption"
+     },
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/workspaces/[workspaceId]/surveys/[surveyId]/edit"
+      },
+      "file": "apps/web/modules/survey/editor/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "adoption"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 0
+      },
+      "file": "apps/web/modules/survey/list/page.tsx",
+      "kind": "emitSignal",
+      "signalName": "resource_created"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 2
+      },
+      "file": "apps/web/modules/survey/editor/components/survey-editor.tsx",
+      "kind": "emitSignal",
+      "signalName": "resource_edited"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 3
+      },
+      "kind": "emitSignal",
+      "signalName": "work_saved"
+     }
+    ]
+   },
+   "interventions": [
+    {
+     "content": "Start simple: add one question that gets you the answer you need most. You can always add more later.",
+     "goal": "Reduce overwhelm by focusing attention on the single next action.",
+     "id": "int_6b_text",
+     "modality": "text",
+     "riskId": "risk_6b_stall_editor_complexity"
+    },
+    {
+     "content": "Looks like something needs fixing before you can publish. Check the highlighted field — I can help if you're stuck.",
+     "goal": "Direct user attention to the specific validation issue.",
+     "id": "int_6b_error_text",
+     "modality": "text",
+     "riskId": "risk_6b_error_publish"
+    }
+   ],
+   "name": "Create & Edit Survey",
+   "risks": [
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "id": "risk_6b_stall_editor_complexity",
+     "kind": "stall",
+     "label": "Editor is overwhelming — too many options visible at once",
+     "signal": "Dwell on editor > 3 min without adding a question; no interactions with panels",
+     "subStep": "6b"
+    },
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 3
+     },
+     "id": "risk_6b_error_publish",
+     "kind": "error",
+     "label": "Validation error prevents survey from going live",
+     "signal": "Error banner visible after publish attempt",
+     "subStep": "6b"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "route": "/workspaces/[workspaceId]/surveys",
+     "text": "User views the surveys list and clicks 'Create Survey' or opens an existing one.",
+     "visualRef": {
+      "h": 900,
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/b7a0af31e335d445a2d69a0bfe7d0882.png",
+      "w": 1440
+     }
+    },
+    {
+     "kind": "page",
+     "route": "/workspaces/[workspaceId]/surveys/[surveyId]/edit",
+     "text": "Survey editor loads with question builder, logic, styling, and targeting panels.",
+     "visualRef": {
+      "h": 900,
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/e171f42973cff072741f4e72f9972188.png",
+      "w": 1440
+     }
+    },
+    {
+     "kind": "step",
+     "text": "User adds questions, configures logic branches, and sets targeting rules."
+    },
+    {
+     "kind": "step",
+     "text": "User publishes or updates the survey."
+    },
+    {
+     "kind": "outcome",
+     "label": "Survey live and collecting responses",
+     "result": "converted"
+    }
+   ]
+  },
+  {
+   "bowtieStage": "adoption",
+   "entryPages": [
+    {
+     "route": "/workspaces/[workspaceId]/surveys/[surveyId]/summary",
+     "text": "View survey summary"
+    },
+    {
+     "route": "/workspaces/[workspaceId]/surveys/[surveyId]/responses",
+     "text": "View individual responses"
+    },
+    {
+     "route": "/workspaces/[workspaceId]/dashboards",
+     "text": "View dashboards"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/workspaces/[workspaceId]/surveys/[surveyId]/summary"
+      },
+      "file": "apps/web/app/(app)/workspaces/[workspaceId]/surveys/[surveyId]/(analysis)/summary/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "adoption"
+     },
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/workspaces/[workspaceId]/surveys/[surveyId]/responses"
+      },
+      "file": "apps/web/app/(app)/workspaces/[workspaceId]/surveys/[surveyId]/(analysis)/responses/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "adoption"
+     },
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/workspaces/[workspaceId]/dashboards"
+      },
+      "file": "apps/web/app/(app)/workspaces/[workspaceId]/(analysis)/dashboards/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "adoption"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 3
+      },
+      "kind": "emitSignal",
+      "signalName": "feature_used"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 3
+      },
+      "kind": "emitSignal",
+      "signalName": "search_performed"
+     }
+    ]
+   },
+   "interventions": [
+    {
+     "content": "No responses yet? Share the survey link or connect the SDK to start collecting. Here's how to get your first response in under 5 minutes.",
+     "goal": "Bridge the empty state by offering a concrete next step to get data flowing.",
+     "id": "int_6c_empty_text",
+     "modality": "text",
+     "riskId": "risk_6c_stall_no_responses"
+    },
+    {
+     "content": "User is scanning data — this is normal analytical behavior. No intervention needed until they leave without taking any action.",
+     "goal": "Respect the analytical moment; avoid interrupting data review.",
+     "id": "int_6c_insight_silence",
+     "modality": "silence",
+     "riskId": "risk_6c_stall_no_insight"
+    }
+   ],
+   "name": "Analyze Responses",
+   "risks": [
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 0
+     },
+     "id": "risk_6c_stall_no_responses",
+     "kind": "stall",
+     "label": "Survey is live but hasn't collected responses yet — empty state",
+     "signal": "Summary page loads with zero responses; dwell > 15s",
+     "subStep": "6c"
+    },
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "id": "risk_6c_stall_no_insight",
+     "kind": "stall",
+     "label": "User sees data but doesn't know what to do with it",
+     "signal": "Scroll through charts quickly; no filter or export interaction",
+     "subStep": "6c"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "route": "/workspaces/[workspaceId]/surveys/[surveyId]/summary",
+     "text": "User navigates to the survey summary for aggregated analytics."
+    },
+    {
+     "kind": "step",
+     "text": "User reviews charts, completion rates, and drop-off data."
+    },
+    {
+     "kind": "page",
+     "route": "/workspaces/[workspaceId]/surveys/[surveyId]/responses",
+     "text": "User drills into individual responses for qualitative detail."
+    },
+    {
+     "kind": "step",
+     "text": "User filters, tags, or exports responses."
+    },
+    {
+     "kind": "outcome",
+     "label": "Insights extracted from survey data",
+     "result": "converted"
+    }
+   ]
+  },
+  {
+   "bowtieStage": "expansion",
+   "entryPages": [
+    {
+     "route": "/organizations/[organizationId]/settings/billing",
+     "text": "Manage billing and plan"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/organizations/[organizationId]/settings/billing"
+      },
+      "file": "apps/web/modules/ee/billing/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "expansion"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 0
+      },
+      "kind": "emitSignal",
+      "signalName": "plan_viewed"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 2
+      },
+      "kind": "emitSignal",
+      "signalName": "checkout_started"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 3
+      },
+      "kind": "emitSignal",
+      "signalName": "payment_succeeded"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 3
+      },
+      "file": "apps/web/modules/ee/billing/page.tsx",
+      "kind": "emitSignal",
+      "signalName": "plan_upgraded"
+     }
+    ]
+   },
+   "interventions": [
+    {
+     "content": "You've hit your response limit for this month. Your surveys are paused — upgrade to Pro to keep collecting feedback without interruption.",
+     "goal": "Connect the current friction (paused surveys) to its specific resolution (upgrade).",
+     "id": "int_7a_email",
+     "modality": "email",
+     "riskId": "risk_7a_stall_limit_dismiss"
+    },
+    {
+     "content": "Payment didn't go through. You can try a different card, or contact us at hola@formbricks.com and we'll sort it out.",
+     "goal": "Provide immediate recovery path for failed payment.",
+     "id": "int_7e_text",
+     "modality": "text",
+     "riskId": "risk_7e_stall_payment_fail"
+    }
+   ],
+   "name": "Billing & Plan Upgrade",
+   "risks": [
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "id": "risk_7a_stall_limit_dismiss",
+     "kind": "stall",
+     "label": "User hits response limit but leaves billing without upgrading",
+     "signal": "Limit-reached banner dismissed; billing page dwell < 10s then exit",
+     "subStep": "7a"
+    },
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "id": "risk_7e_stall_payment_fail",
+     "kind": "error",
+     "label": "Payment fails — 3DS challenge abandoned or card declined",
+     "signal": "Error: 'Payment authentication was not completed'",
+     "subStep": "7e"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "route": "/organizations/[organizationId]/settings/billing",
+     "text": "User navigates to organization billing settings."
+    },
+    {
+     "kind": "step",
+     "text": "User reviews current plan usage and available tiers."
+    },
+    {
+     "kind": "step",
+     "text": "User selects a higher plan and enters payment details."
+    },
+    {
+     "kind": "step",
+     "text": "Payment confirmed and plan upgraded."
+    },
+    {
+     "kind": "outcome",
+     "label": "Plan upgraded successfully",
+     "result": "converted"
+    }
+   ]
+  },
+  {
+   "bowtieStage": "onboarding",
+   "entryPages": [
+    {
+     "route": "/workspaces/[workspaceId]/settings/workspace/app-connection",
+     "text": "App Connection settings"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/workspaces/[workspaceId]/settings/workspace/app-connection"
+      },
+      "file": "apps/web/modules/workspaces/settings/(setup)/app-connection/page.tsx",
+      "kind": "markStageEntry",
+      "stage": "onboarding"
+     },
+     {
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 3
+      },
+      "kind": "emitSignal",
+      "signalName": "first_setup_completed"
+     }
+    ]
+   },
+   "interventions": [
+    {
+     "content": "Your Workspace ID is already copied above. Paste it into your app's initialization code. Need help? Here's the 5-minute setup guide.",
+     "goal": "Bridge the gap between 'what to paste' and 'where to find it'.",
+     "id": "int_5b_text",
+     "modality": "text",
+     "riskId": "risk_5b_stall_sdk_keys"
+    },
+    {
+     "content": "It looks like the SDK isn't connecting yet. Let me walk you through the most common causes — usually it's a missing initialization call or a Content Security Policy blocking the request.",
+     "goal": "Unblock specific SDK integration friction with guided troubleshooting.",
+     "id": "int_5c_voice",
+     "modality": "voice_presentation",
+     "riskId": "risk_5c_error_sdk_not_connecting"
+    }
+   ],
+   "name": "Connect App/Website SDK",
+   "risks": [
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "id": "risk_5b_stall_sdk_keys",
+     "kind": "stall",
+     "label": "User unsure where to paste the SDK code or how to find workspace ID",
+     "signal": "Dwell on connection page > 30s; repeated tab-switching to docs",
+     "subStep": "5b"
+    },
+    {
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 3
+     },
+     "id": "risk_5c_error_sdk_not_connecting",
+     "kind": "error",
+     "label": "SDK integration fails — wrong environment, CSP block, or code placement error",
+     "signal": "Re-check button clicked multiple times; SDK status remains 'Not connected'",
+     "subStep": "5c"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "route": "/workspaces/[workspaceId]/settings/workspace/app-connection",
+     "text": "User opens the App Connection settings page."
+    },
+    {
+     "kind": "step",
+     "text": "User copies the workspace ID and SDK connection URL."
+    },
+    {
+     "kind": "step",
+     "text": "User integrates the Formbricks SDK snippet into their app or website."
+    },
+    {
+     "kind": "step",
+     "text": "SDK connects and 'Receiving data' confirmation appears."
+    },
+    {
+     "kind": "outcome",
+     "label": "SDK connected and ready for in-app surveys",
+     "result": "converted"
+    }
+   ]
+  }
+ ]
+}

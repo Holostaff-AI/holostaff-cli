@@ -4,6 +4,11 @@
       "name": "opnform",
       "product": "OpnForm, open source form builder",
       "description": "scanned from OpnForm/OpnForm main @ 3a1b5abd, 2026-08-07"
+    },
+    {
+      "name": "formbricks",
+      "product": "Formbricks, open source surveys & experience management",
+      "description": "scanned from formbricks/formbricks main @ fd6bc93, 2026-08-06"
     }
   ]
 }
