@@ -9,6 +9,11 @@
       "name": "formbricks",
       "product": "Formbricks, open source surveys & experience management",
       "description": "scanned from formbricks/formbricks main @ fd6bc93, 2026-08-06"
+    },
+    {
+      "name": "atlas-cmms",
+      "product": "Atlas CMMS, open source maintenance management",
+      "description": "scanned from Grashjs/cmms main @ 5c8e395c, 2026-08-11"
     }
   ]
 }

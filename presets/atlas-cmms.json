@@ -1,0 +1,1140 @@
+{
+ "productName": "Atlas CMMS",
+ "oneLineDescription": "A free, open-source computerized maintenance management system for managing work orders, preventive maintenance, assets, inventory, and facilities.",
+ "primaryFramework": "react",
+ "language": "typescript",
+ "routes": [
+  {
+   "path": "/",
+   "description": "Redirects to /app/work-orders (the main dashboard)"
+  },
+  {
+   "path": "/account/login",
+   "description": "Sign-in page for existing users",
+   "file": "frontend/src/content/pages/Auth/Login/Cover/index.tsx"
+  },
+  {
+   "path": "/account/register",
+   "description": "Registration page for new users",
+   "file": "frontend/src/content/pages/Auth/Register/Cover/index.tsx"
+  },
+  {
+   "path": "/account/recover-password",
+   "description": "Password recovery flow"
+  },
+  {
+   "path": "/account/verify",
+   "description": "Email verification page"
+  },
+  {
+   "path": "/oauth2/success",
+   "description": "OAuth callback on successful authentication",
+   "file": "frontend/src/content/pages/Oauth/OauthSuccess.tsx"
+  },
+  {
+   "path": "/app/work-orders",
+   "description": "Work order management — list, create, assign, and track maintenance tasks",
+   "file": "frontend/src/content/own/WorkOrders/index.tsx"
+  },
+  {
+   "path": "/app/preventive-maintenances",
+   "description": "Scheduled preventive maintenance management",
+   "file": "frontend/src/content/own/PreventiveMaintenance/index.tsx"
+  },
+  {
+   "path": "/app/assets",
+   "description": "Asset registry — track equipment, view maintenance history",
+   "file": "frontend/src/content/own/Assets/index.tsx"
+  },
+  {
+   "path": "/app/locations",
+   "description": "Location hierarchy for organizing facilities and sites",
+   "file": "frontend/src/content/own/Locations/index.tsx"
+  },
+  {
+   "path": "/app/inventory/parts",
+   "description": "Spare parts inventory tracking with stock levels",
+   "file": "frontend/src/content/own/Inventory/index.tsx"
+  },
+  {
+   "path": "/app/requests",
+   "description": "Incoming maintenance work requests",
+   "file": "frontend/src/content/own/Requests/index.tsx"
+  },
+  {
+   "path": "/app/meters",
+   "description": "Meter readings for condition-based maintenance triggers",
+   "file": "frontend/src/content/own/Meters/index.tsx"
+  },
+  {
+   "path": "/app/purchase-orders",
+   "description": "Purchase order creation and tracking",
+   "file": "frontend/src/content/own/PurchaseOrders/index.tsx"
+  },
+  {
+   "path": "/app/analytics/work-orders/status",
+   "description": "Work order analytics — status, aging, time & cost"
+  },
+  {
+   "path": "/app/analytics/assets/reliability",
+   "description": "Asset reliability and cost analytics"
+  },
+  {
+   "path": "/app/people-teams/people",
+   "description": "Team member and role management",
+   "file": "frontend/src/content/own/PeopleAndTeams/index.tsx"
+  },
+  {
+   "path": "/app/vendors-customers/vendors",
+   "description": "Vendor and contractor directory"
+  },
+  {
+   "path": "/app/settings",
+   "description": "General settings, feature toggles, and configuration"
+  },
+  {
+   "path": "/app/settings/integrations",
+   "description": "API keys, webhooks, and third-party connectors"
+  },
+  {
+   "path": "/app/subscription/plans",
+   "description": "Subscription plan management and billing",
+   "file": "frontend/src/content/own/Subscription/Plans/index.tsx"
+  },
+  {
+   "path": "/app/upgrade",
+   "description": "Plan upgrade flow"
+  },
+  {
+   "path": "/app/imports/work-orders",
+   "description": "CSV/Excel data import for work orders, assets, etc."
+  },
+  {
+   "path": "/request-portal/:uuid",
+   "description": "Public work request submission portal (QR code accessible)"
+  },
+  {
+   "path": "/pricing",
+   "description": "Pricing page with plan comparison (home site)",
+   "file": "home/app/[locale]/pricing/page.tsx"
+  }
+ ],
+ "components": [
+  {
+   "name": "ExtendedSidebarLayout",
+   "role": "Main authenticated app shell with sidebar navigation",
+   "file": "frontend/src/layouts/ExtendedSidebarLayout"
+  },
+  {
+   "name": "WorkOrders",
+   "role": "Work order list with calendar, column, and list views",
+   "file": "frontend/src/content/own/WorkOrders/index.tsx"
+  },
+  {
+   "name": "Assets",
+   "role": "Asset registry with tree hierarchy and detail views",
+   "file": "frontend/src/content/own/Assets/index.tsx"
+  },
+  {
+   "name": "PreventiveMaintenances",
+   "role": "Preventive maintenance schedules and triggers",
+   "file": "frontend/src/content/own/PreventiveMaintenance/index.tsx"
+  },
+  {
+   "name": "Inventory",
+   "role": "Parts and sets inventory with stock tracking",
+   "file": "frontend/src/content/own/Inventory/index.tsx"
+  },
+  {
+   "name": "Requests",
+   "role": "Incoming work request management",
+   "file": "frontend/src/content/own/Requests/index.tsx"
+  },
+  {
+   "name": "RegisterJWT",
+   "role": "Registration form with email, password, company name fields",
+   "file": "frontend/src/content/pages/Auth/Register/RegisterJWT.tsx"
+  },
+  {
+   "name": "LoginCover",
+   "role": "Sign-in page with branded sidebar",
+   "file": "frontend/src/content/pages/Auth/Login/Cover/index.tsx"
+  },
+  {
+   "name": "SubscriptionPlans",
+   "role": "Plan selection and billing management",
+   "file": "frontend/src/content/own/Subscription/Plans/index.tsx"
+  },
+  {
+   "name": "WOAnalytics",
+   "role": "Work order analytics dashboards",
+   "file": "frontend/src/content/own/Analytics/WorkOrder/index.tsx"
+  },
+  {
+   "name": "PeopleAndTeams",
+   "role": "People and team management with invite dialog",
+   "file": "frontend/src/content/own/PeopleAndTeams/index.tsx"
+  },
+  {
+   "name": "RequestPortalPublicPage",
+   "role": "Public-facing request submission form (QR-accessible)",
+   "file": "frontend/src/content/own/Settings/Features/RequestPortal/PublicPage/RequestPortalPublicPage.tsx"
+  },
+  {
+   "name": "Locations",
+   "role": "Location hierarchy and facility management",
+   "file": "frontend/src/content/own/Locations/index.tsx"
+  },
+  {
+   "name": "InviteUserDialog",
+   "role": "Modal dialog for inviting team members by email",
+   "file": "frontend/src/content/own/PeopleAndTeams/components/InviteUserDialog.tsx"
+  }
+ ],
+ "copy": [
+  {
+   "text": "Free & Open-Source CMMS You Can Self-Host or Use in the Cloud",
+   "location": "home.h1 — home/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Powerful Maintenance at a Low Cost",
+   "location": "home.h2 — home/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Stop relying on spreadsheets and whiteboards. {brandName} helps maintenance teams plan interventions, track equipment, and stay compliant.",
+   "location": "home.h3 — home/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Try for free",
+   "location": "try_for_free — home/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Start a Free trial",
+   "location": "start_trial — home/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "No credit card required",
+   "location": "no_credit_card — home/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Choose your plan and get started",
+   "location": "pricing_1.choose_plan_and_get_started — home/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Fill in the fields below to sign up for an account.",
+   "location": "signup_description — frontend/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Please check your email to activate your account",
+   "location": "verify_email — frontend/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Work Orders are tasks or jobs, that can be scheduled or assigned to someone",
+   "location": "noRows.wo.message — frontend/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Press the '+' button to create a Work Order",
+   "location": "noRows.wo.action — frontend/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Schedule Work Orders with custom triggers",
+   "location": "noRows.pm.message — frontend/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Locations let you manage more efficiently assets and workers",
+   "location": "noRows.location.message — frontend/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Assets are resources on which your company can intervene",
+   "location": "noRows.asset.message — home/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Meter readings give you the ability to monitor assets and trigger new work orders based on defined conditions",
+   "location": "noRows.meter.message — home/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "You don't have access to Work Orders. Please contact your administrator if you should have access",
+   "location": "no_access_wo — frontend/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "The Work Order has been created successfully",
+   "location": "wo_create_success — frontend/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Payment Successful! Your payment was processed successfully. Please check your email for your license details.",
+   "location": "payment_success_title + payment_success_description — frontend/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "You can delete demo data from General Settings",
+   "location": "DemoCleaningAlert inline — frontend/src/App.tsx"
+  },
+  {
+   "text": "Join thousands of maintenance professionals using the world's most intuitive free CMMS.",
+   "location": "free_cmms.features.join_thousands — home/src/i18n/translations/en.ts"
+  },
+  {
+   "text": "Manage Work Orders and Assets - Free Forever",
+   "location": "free_cmms.hero.title — home/src/i18n/translations/en.ts"
+  }
+ ],
+ "brandVoice": {
+  "tone": "Direct, practical, and empowering — speaks to maintenance professionals who are frustrated with disorganization and want reliable, no-nonsense tools that just work. Slightly informal, uses second-person address, and emphasizes ease of use and efficiency gains.",
+  "keywords": [
+   "work orders",
+   "preventive maintenance",
+   "assets",
+   "maintenance team",
+   "technicians",
+   "CMMS",
+   "free",
+   "open-source",
+   "easily",
+   "track",
+   "manage",
+   "automate",
+   "schedule",
+   "inventory",
+   "QR code"
+  ],
+  "avoidTerms": [
+   "AI-powered",
+   "revolutionary",
+   "disrupt",
+   "cutting-edge",
+   "leverage (as marketing)",
+   "synergy"
+  ]
+ },
+ "workflows": [
+  {
+   "name": "Sign Up",
+   "entryPages": [
+    {
+     "route": "/account/register",
+     "text": "Create account page"
+    },
+    {
+     "route": "/pricing",
+     "text": "Pricing page with CTA to register"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "Visitor lands on the registration page.",
+     "route": "/account/register",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/66845515de1c7e10ea0bd7fb6e355b2b.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "Fills in first name, last name, email, phone, company name, and password."
+    },
+    {
+     "kind": "step",
+     "text": "Accepts terms and conditions and clicks 'Create your account'."
+    },
+    {
+     "kind": "page",
+     "text": "Email verification page instructs user to check inbox.",
+     "route": "/account/verify"
+    },
+    {
+     "kind": "step",
+     "text": "User clicks verification link in email."
+    },
+    {
+     "kind": "page",
+     "text": "User arrives at the work orders dashboard (first entry).",
+     "route": "/app/work-orders",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/cd8f41dacd7a33b6519b82599b70b099.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "outcome",
+     "label": "Account created and verified",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "mutual_commit",
+   "risks": [
+    {
+     "id": "risk_4b_stall_formfriction",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "signal": "Form-field interactions; field abandonment; dwell > 30s on registration form without submit",
+     "label": "Registration form feels too long (6 fields minimum)",
+     "subStep": "4b"
+    },
+    {
+     "id": "risk_4c_stall_emailverify",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 3
+     },
+     "signal": "Dwell on email-verification page > 60s; no redirect to dashboard",
+     "label": "Verification email not received or lost in spam",
+     "subStep": "4c"
+    },
+    {
+     "id": "risk_4e_stall_emptystate",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 5
+     },
+     "signal": "First app_home page load; no clicks within 15s; scroll without action",
+     "label": "Empty dashboard with demo data — no clear first action",
+     "subStep": "4e"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_4b_text",
+     "riskId": "risk_4b_stall_formfriction",
+     "modality": "text",
+     "content": "You're almost there! Just a few more fields and your maintenance hub will be ready.",
+     "goal": "Reduce perceived effort and encourage form completion"
+    },
+    {
+     "id": "int_4c_email",
+     "riskId": "risk_4c_stall_emailverify",
+     "modality": "email",
+     "content": "Your Atlas CMMS account is waiting — click here to verify your email and start managing your maintenance operations.",
+     "goal": "Re-engage users who haven't completed email verification within 10 minutes"
+    },
+    {
+     "id": "int_4e_text",
+     "riskId": "risk_4e_stall_emptystate",
+     "modality": "text",
+     "content": "Start by creating your first Work Order — tap the '+' button or try importing your existing data from Settings > Imports.",
+     "goal": "Spotlight the single most valuable next action from the empty state"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/account/register"
+      },
+      "file": "frontend/src/content/pages/Auth/Register/Cover/index.tsx",
+      "stage": "mutual_commit"
+     },
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/pricing"
+      },
+      "file": "home/app/[locale]/pricing/page.tsx",
+      "stage": "mutual_commit"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 2
+      },
+      "file": "frontend/src/contexts/JWTAuthContext.tsx",
+      "signalName": "sign_up_completed"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 4
+      },
+      "file": "frontend/src/content/pages/Auth/VerifyEmail/index.tsx",
+      "signalName": "email_verified"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Create Work Order",
+   "entryPages": [
+    {
+     "route": "/app/work-orders",
+     "text": "Work Orders list page"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "User navigates to the Work Orders page.",
+     "route": "/app/work-orders",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/cd8f41dacd7a33b6519b82599b70b099.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "Clicks 'Create Work Order' button."
+    },
+    {
+     "kind": "step",
+     "text": "Fills in title, description, priority, assigns worker/team, selects asset and location."
+    },
+    {
+     "kind": "step",
+     "text": "Optionally attaches files, sets due date, adds checklist tasks."
+    },
+    {
+     "kind": "step",
+     "text": "Submits the new work order."
+    },
+    {
+     "kind": "outcome",
+     "label": "Work order created and assigned",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "adoption",
+   "risks": [
+    {
+     "id": "risk_6b_stall_formcomplexity",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "signal": "Dwell > 45s on work order form; repeated tab-switching between form fields and asset/location selectors",
+     "label": "Too many fields to fill for a quick work order",
+     "subStep": "6b"
+    },
+    {
+     "id": "risk_6b_error_createfail",
+     "kind": "error",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 4
+     },
+     "signal": "Error banner visible: 'The Work Order couldn't be created'",
+     "label": "API error on work order submission",
+     "subStep": "6b"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_6b_text_form",
+     "riskId": "risk_6b_stall_formcomplexity",
+     "modality": "text",
+     "content": "Only Title is required — you can always add details later. Submit now and update when you have more info.",
+     "goal": "Reduce friction by clarifying minimum viable input"
+    },
+    {
+     "id": "int_6b_text_error",
+     "riskId": "risk_6b_error_createfail",
+     "modality": "text",
+     "content": "That didn't go through. Check your network connection and try again — your form data is preserved.",
+     "goal": "Prevent abandonment after a failed submission"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/app/work-orders"
+      },
+      "file": "frontend/src/content/own/WorkOrders/index.tsx",
+      "stage": "adoption"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 4
+      },
+      "file": "frontend/src/content/own/WorkOrders/index.tsx",
+      "signalName": "resource_created"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 4
+      },
+      "file": "frontend/src/content/own/WorkOrders/index.tsx",
+      "signalName": "error_shown"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Set Up Preventive Maintenance",
+   "entryPages": [
+    {
+     "route": "/app/preventive-maintenances",
+     "text": "Preventive Maintenance list page"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "User navigates to the Preventive Maintenance section.",
+     "route": "/app/preventive-maintenances",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/64b9c95eac06876ac65c156cedf4d8db.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "Clicks to create a new preventive maintenance schedule."
+    },
+    {
+     "kind": "step",
+     "text": "Configures trigger (time-based or meter-based), assigns asset, sets recurrence."
+    },
+    {
+     "kind": "step",
+     "text": "Assigns worker/team, attaches checklist."
+    },
+    {
+     "kind": "step",
+     "text": "Saves the preventive maintenance schedule."
+    },
+    {
+     "kind": "outcome",
+     "label": "PM schedule active and generating work orders",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "onboarding",
+   "risks": [
+    {
+     "id": "risk_5b_stall_triggerconfig",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "signal": "Dwell > 60s on trigger configuration form; repeated back-button presses; tab-switching to docs",
+     "label": "Unclear how to configure frequency and trigger conditions",
+     "subStep": "5b"
+    },
+    {
+     "id": "risk_5c_error_schedule",
+     "kind": "error",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 4
+     },
+     "signal": "Error banner visible: 'The Work Order couldn't be scheduled'",
+     "label": "PM creation fails due to validation errors",
+     "subStep": "5c"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_5b_text",
+     "riskId": "risk_5b_stall_triggerconfig",
+     "modality": "text",
+     "content": "Start simple: set a daily or weekly frequency. You can always refine the trigger later or switch to meter-based once readings are flowing.",
+     "goal": "Unblock users stuck deciding on trigger configuration"
+    },
+    {
+     "id": "int_5c_text",
+     "riskId": "risk_5c_error_schedule",
+     "modality": "text",
+     "content": "Check that the trigger name and frequency are filled in — frequency must be at least 1 day.",
+     "goal": "Surface the specific validation requirement blocking submission"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/app/preventive-maintenances"
+      },
+      "file": "frontend/src/content/own/PreventiveMaintenance/index.tsx",
+      "stage": "onboarding"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 4
+      },
+      "file": "frontend/src/content/own/PreventiveMaintenance/index.tsx",
+      "signalName": "resource_created"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Import Assets",
+   "entryPages": [
+    {
+     "route": "/app/imports/assets",
+     "text": "Asset import page"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "User navigates to the Imports section for assets.",
+     "route": "/app/imports/assets"
+    },
+    {
+     "kind": "step",
+     "text": "Uploads a CSV/Excel file with asset data."
+    },
+    {
+     "kind": "step",
+     "text": "Maps columns to asset fields."
+    },
+    {
+     "kind": "step",
+     "text": "Reviews and confirms the import."
+    },
+    {
+     "kind": "outcome",
+     "label": "Assets imported into the registry",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "onboarding",
+   "risks": [
+    {
+     "id": "risk_5b_stall_fileformat",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "signal": "Repeated file upload attempts; error banners after upload; dwell > 30s without successful upload",
+     "label": "File format or column structure doesn't match expected template",
+     "subStep": "5b"
+    },
+    {
+     "id": "risk_5c_stall_columnmap",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "signal": "Idle on column mapping screen > 45s; repeated field reassignments",
+     "label": "Unclear which CSV columns map to which asset fields",
+     "subStep": "5c"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_5b_text_import",
+     "riskId": "risk_5b_stall_fileformat",
+     "modality": "text",
+     "content": "Download our template CSV from the import page to see the expected format. Your file just needs columns for Name, Location, and any custom fields you use.",
+     "goal": "Provide the direct path to the correct file format"
+    },
+    {
+     "id": "int_5c_text_mapping",
+     "riskId": "risk_5c_stall_columnmap",
+     "modality": "text",
+     "content": "Only 'Asset Name' is required — unmatched columns can be skipped and added manually later.",
+     "goal": "Reduce mapping anxiety by clarifying minimum required fields"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/app/imports/assets"
+      },
+      "stage": "onboarding"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 3
+      },
+      "signalName": "resource_created"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Submit Work Request (Public Portal)",
+   "entryPages": [
+    {
+     "route": "/request-portal/:uuid",
+     "text": "Public request portal accessible via QR code or URL"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "Requester scans QR code or visits the public portal URL.",
+     "route": "/request-portal/:uuid"
+    },
+    {
+     "kind": "step",
+     "text": "Fills in the request form describing the maintenance issue."
+    },
+    {
+     "kind": "step",
+     "text": "Submits the request."
+    },
+    {
+     "kind": "outcome",
+     "label": "Request submitted and visible to maintenance team",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "adoption",
+   "risks": [
+    {
+     "id": "risk_6a_stall_portalform",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "signal": "Dwell > 30s on request form; no field interactions after page load",
+     "label": "Public requester unsure what to fill in or which fields are required",
+     "subStep": "6a"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_6a_text_portal",
+     "riskId": "risk_6a_stall_portalform",
+     "modality": "text",
+     "content": "Just describe the problem in a sentence or two — the maintenance team will follow up if they need more details.",
+     "goal": "Lower the perceived effort for non-technical requesters"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/request-portal/:uuid"
+      },
+      "stage": "adoption"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 2
+      },
+      "signalName": "resource_created"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Upgrade Plan",
+   "entryPages": [
+    {
+     "route": "/app/subscription/plans",
+     "text": "Subscription plans page"
+    },
+    {
+     "route": "/app/upgrade",
+     "text": "Upgrade prompt page"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "User encounters upgrade prompt or navigates to subscription plans.",
+     "route": "/app/subscription/plans",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/eadedc85e5e7d97c936ee1be4a98e335.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "Compares plan tiers and selects a higher plan."
+    },
+    {
+     "kind": "step",
+     "text": "Enters payment details via Paddle checkout."
+    },
+    {
+     "kind": "step",
+     "text": "Confirms the subscription upgrade."
+    },
+    {
+     "kind": "page",
+     "text": "Payment success confirmation page.",
+     "route": "/payment/success"
+    },
+    {
+     "kind": "outcome",
+     "label": "Plan upgraded successfully",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "expansion",
+   "risks": [
+    {
+     "id": "risk_7a_stall_plandecision",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "signal": "Dwell > 60s on plan comparison; repeated hover on different plans without selection; plan-modal interaction without confirm",
+     "label": "Decision fatigue between Starter, Professional, and Business tiers",
+     "subStep": "7a"
+    },
+    {
+     "id": "risk_7e_stall_internalapproval",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "signal": "Paddle checkout opened then abandoned; return-to-plans loop within same session",
+     "label": "User needs internal approval before committing payment",
+     "subStep": "7e"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_7a_text",
+     "riskId": "risk_7a_stall_plandecision",
+     "modality": "text",
+     "content": "Based on your team size and current usage, Professional gives you advanced analytics and a customizable request portal — the features most teams upgrade for.",
+     "goal": "Collapse the choice to a single recommended plan"
+    },
+    {
+     "id": "int_7e_email",
+     "riskId": "risk_7e_stall_internalapproval",
+     "modality": "email",
+     "content": "Still deciding on your Atlas CMMS upgrade? Here's a one-page summary of what your team gains with the Professional plan — share it with your finance team.",
+     "goal": "Enable the champion to defend the upgrade internally with a shareable asset"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/app/subscription/plans"
+      },
+      "file": "frontend/src/content/own/Subscription/Plans/index.tsx",
+      "stage": "expansion"
+     },
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/app/upgrade"
+      },
+      "stage": "expansion"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 0
+      },
+      "file": "frontend/src/content/own/Subscription/Plans/index.tsx",
+      "signalName": "plan_viewed"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 4
+      },
+      "file": "frontend/src/content/pages/Payment/Success.tsx",
+      "signalName": "payment_succeeded"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 3
+      },
+      "file": "frontend/src/contexts/JWTAuthContext.tsx",
+      "signalName": "plan_upgraded"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Invite Team Members",
+   "entryPages": [
+    {
+     "route": "/app/people-teams/people",
+     "text": "People & Teams page"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "Admin navigates to People & Teams.",
+     "route": "/app/people-teams/people",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/0429e05e14d2c13c05a992bc06f6950b.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "Clicks 'Invite Users' button, opening the invite dialog."
+    },
+    {
+     "kind": "modal",
+     "text": "Invite user dialog: admin enters email addresses and selects a role."
+    },
+    {
+     "kind": "step",
+     "text": "Submits the invitation."
+    },
+    {
+     "kind": "outcome",
+     "label": "Team members invited via email",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "expansion",
+   "risks": [
+    {
+     "id": "risk_7c_stall_rolechoice",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "signal": "Dwell > 30s on invite dialog; role selector opened and closed without confirm",
+     "label": "Admin unsure which role (Admin, Technical, Limited Technical) to assign",
+     "subStep": "7c"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_7c_text",
+     "riskId": "risk_7c_stall_rolechoice",
+     "modality": "text",
+     "content": "Most field technicians start as 'Technical' users — they can close work orders and log time. You can always change their role later.",
+     "goal": "Remove role-selection paralysis with a sensible default recommendation"
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/app/people-teams/people"
+      },
+      "file": "frontend/src/content/own/PeopleAndTeams/index.tsx",
+      "stage": "expansion"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 3
+      },
+      "file": "frontend/src/content/own/PeopleAndTeams/components/InviteUserDialog.tsx",
+      "signalName": "teammate_invited"
+     }
+    ],
+    "detected": []
+   }
+  }
+ ],
+ "designTokens": {
+  "fontFamily": "\"Inter\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", Helvetica, Arial, sans-serif",
+  "radius": "10px",
+  "light": {
+   "primary": "#5569ff",
+   "primaryForeground": "#ffffff",
+   "accent": "#33C2FF",
+   "background": "#f2f5f9",
+   "foreground": "#223354",
+   "muted": "#6E759F",
+   "border": "rgba(34, 51, 84, 0.1)"
+  },
+  "source": [
+   "frontend/src/theme/schemes/PureLightTheme.ts",
+   "frontend/src/theme/base.ts"
+  ]
+ },
+ "identityInstrumentation": {
+  "expected": [
+   {
+    "kind": "identify",
+    "anchor": {
+     "kind": "sign_in_complete",
+     "component": "frontend/src/content/pages/Auth/Login/Cover/index.tsx"
+    },
+    "file": "frontend/src/content/pages/Auth/Login/Cover/index.tsx"
+   },
+   {
+    "kind": "identify",
+    "anchor": {
+     "kind": "sign_in_complete",
+     "component": "loginInternal"
+    },
+    "file": "frontend/src/contexts/JWTAuthContext.tsx"
+   },
+   {
+    "kind": "identify",
+    "anchor": {
+     "kind": "sign_in_complete",
+     "component": "OauthSuccess"
+    },
+    "file": "frontend/src/content/pages/Oauth/OauthSuccess.tsx"
+   },
+   {
+    "kind": "clearIdentity",
+    "anchor": {
+     "kind": "sign_out",
+     "component": "logout"
+    },
+    "file": "frontend/src/contexts/JWTAuthContext.tsx"
+   }
+  ],
+  "detected": []
+ },
+ "coverageGaps": [
+  "Mobile app (React Native package at /mobile) was not analyzed in depth — routes and components not extracted",
+  "Backend API (at /api) was not scanned — only referenced indirectly via frontend API calls",
+  "Dark theme tokens not found — the app uses MUI theme schemes (PureLightTheme, GreyGooseTheme, PurpleFlowTheme) but no dark-mode CSS variables or .dark selector discovered",
+  "Home site (Next.js at /home) was sampled for copy and routes but individual industry pages were not fully analyzed",
+  "Custom fields and workflow automation settings were not deeply inspected",
+  "No tailwind.config found — design tokens extracted from MUI theme JS rather than CSS custom properties"
+ ],
+ "notes": "Atlas CMMS is a monorepo with three packages: frontend (React SPA — the main CMMS app), home (Next.js marketing site), and mobile (React Native). The frontend uses Material UI 5, Redux Toolkit for state, react-router-dom 5/6 for routing, react-i18next with 18 language bundles, and Paddle for payments. Authentication is JWT-based with an OAuth2 callback route. The app supports white-labeling (custom logos, brand names via config). The marketing home site uses next-intl for i18n. The subscription has 4 tiers: Basic (free), Starter ($10/mo/user), Professional ($15), Business ($40). Self-hosted licensing is also available."
+}
