@@ -18,7 +18,7 @@ normal `scan` when you have forked it heavily, or when it is yours.
 | File | Product | Scanned from |
 |---|---|---|
 | `opnform.json` | [OpnForm](https://github.com/OpnForm/OpnForm), open-source form builder | `3a1b5abd`, 2026-08-07 |
-| `formbricks.json` | [Formbricks](https://github.com/formbricks/formbricks), open-source survey platform | `4185f823`, 2026-08-10 |
+| `formbricks.json` | [Formbricks](https://github.com/formbricks/formbricks), open-source survey platform | `fd6bc93`, 2026-08-06 |
 | `atlas-cmms.json` | [Atlas CMMS](https://github.com/Grashjs/cmms), open-source maintenance management | `5c8e395c`, 2026-08-11 |
 | `documenso.json` | [Documenso](https://github.com/documenso/documenso), open-source document signing | `617f8cc2`, 2026-08-12 |
 
