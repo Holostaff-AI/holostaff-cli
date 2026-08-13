@@ -19,6 +19,11 @@
    "name": "documenso",
    "product": "Documenso, open source document signing",
    "description": "scanned from documenso/documenso main @ 617f8cc2, 2026-08-12"
+  },
+  {
+   "name": "twenty",
+   "product": "Twenty, open source CRM",
+   "description": "scanned from twentyhq/twenty main @ 21a0439f, 2026-08-13"
   }
  ]
 }

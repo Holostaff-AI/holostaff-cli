@@ -21,6 +21,7 @@ normal `scan` when you have forked it heavily, or when it is yours.
 | `formbricks.json` | [Formbricks](https://github.com/formbricks/formbricks), open-source survey platform | `fd6bc93`, 2026-08-06 |
 | `atlas-cmms.json` | [Atlas CMMS](https://github.com/Grashjs/cmms), open-source maintenance management | `5c8e395c`, 2026-08-11 |
 | `documenso.json` | [Documenso](https://github.com/documenso/documenso), open-source document signing | `617f8cc2`, 2026-08-12 |
+| `twenty.json` | [Twenty](https://github.com/twentyhq/twenty), open-source CRM | `21a0439f`, 2026-08-13 |
 
 Presets are plain artifact JSON. `--from` also accepts a local path, and
 accepts either a bare artifact or an API response wrapped in

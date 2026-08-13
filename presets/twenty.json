@@ -1,0 +1,1331 @@
+{
+ "artifact": {
+  "id": "ks_msrla2xk_83su20.v1",
+  "sourceId": "ks_msrla2xk_83su20",
+  "tenantId": "workspace_xY8Ee8Lo7aZc09uYvTdo6yzNvWm1",
+  "version": 1,
+  "runId": "cli_msrla2qf_d4dc8f92",
+  "ingestedAt": "2026-08-13T14:04:20.744Z",
+  "ingestedVia": "cli_scan",
+  "productName": "Twenty",
+  "oneLineDescription": "An open-source CRM that gives technical teams the building blocks for a custom CRM that adapts as the business evolves.",
+  "primaryFramework": "react",
+  "language": "typescript",
+  "routes": [
+   {
+    "path": "/welcome",
+    "description": "Sign in or sign up page for new and returning users",
+    "file": "packages/twenty-front/src/pages/auth/SignInUp.tsx"
+   },
+   {
+    "path": "/invite/:workspaceInviteHash",
+    "description": "Join a workspace via invite link",
+    "file": "packages/twenty-front/src/pages/auth/SignInUp.tsx"
+   },
+   {
+    "path": "/verify",
+    "description": "Email verification code entry after sign-up",
+    "file": "packages/twenty-front/src/pages/onboarding/Verify.tsx"
+   },
+   {
+    "path": "/verify-email",
+    "description": "Email verification from link",
+    "file": "packages/twenty-front/src/modules/auth/components/VerifyEmail.tsx"
+   },
+   {
+    "path": "/workspace-activation",
+    "description": "Workspace activation step after verification",
+    "file": "packages/twenty-front/src/pages/onboarding/WorkspaceActivation.tsx"
+   },
+   {
+    "path": "/create/profile",
+    "description": "Create user profile with name and photo",
+    "file": "packages/twenty-front/src/pages/onboarding/CreateProfile.tsx"
+   },
+   {
+    "path": "/sync/emails",
+    "description": "Connect email accounts during onboarding",
+    "file": "packages/twenty-front/src/pages/onboarding/SyncEmails.tsx"
+   },
+   {
+    "path": "/install-apps",
+    "description": "Install integrations during onboarding",
+    "file": "packages/twenty-front/src/pages/onboarding/InstallApps.tsx"
+   },
+   {
+    "path": "/invite-team",
+    "description": "Invite team members during onboarding",
+    "file": "packages/twenty-front/src/pages/onboarding/InviteTeam.tsx"
+   },
+   {
+    "path": "/plan-required",
+    "description": "Choose a billing plan",
+    "file": "packages/twenty-front/src/pages/onboarding/ChooseYourPlan.tsx"
+   },
+   {
+    "path": "/plan-required/payment-success",
+    "description": "Payment confirmation after plan selection",
+    "file": "packages/twenty-front/src/pages/onboarding/PaymentSuccess.tsx"
+   },
+   {
+    "path": "/book-call",
+    "description": "Book an onboarding call",
+    "file": "packages/twenty-front/src/pages/onboarding/BookCall.tsx"
+   },
+   {
+    "path": "/objects/:objectNamePlural",
+    "description": "Record index listing page for any CRM object (contacts, companies, opportunities, tasks)",
+    "file": "packages/twenty-front/src/pages/object-record/RecordIndexPage.tsx"
+   },
+   {
+    "path": "/object/:objectNameSingular/:objectRecordId",
+    "description": "Detail view of a single CRM record",
+    "file": "packages/twenty-front/src/pages/object-record/RecordShowPage.tsx"
+   },
+   {
+    "path": "/chat/:threadId?",
+    "description": "AI chat assistant interface",
+    "file": "packages/twenty-front/src/pages/ai-chat/AiChatPage.tsx"
+   },
+   {
+    "path": "/settings/profile",
+    "description": "User profile settings"
+   },
+   {
+    "path": "/settings/accounts",
+    "description": "Connected email and calendar accounts"
+   },
+   {
+    "path": "/settings/billing",
+    "description": "Billing and subscription management"
+   },
+   {
+    "path": "/settings/objects",
+    "description": "Custom object and field configuration"
+   },
+   {
+    "path": "/settings/members",
+    "description": "Workspace member management and roles"
+   },
+   {
+    "path": "/settings/general",
+    "description": "General workspace settings including subdomain and security"
+   },
+   {
+    "path": "/settings/ai",
+    "description": "AI agents, skills, and tool configuration"
+   },
+   {
+    "path": "/settings/applications",
+    "description": "Installed applications and integrations"
+   },
+   {
+    "path": "/settings/functions",
+    "description": "Custom logic functions (serverless)"
+   },
+   {
+    "path": "/settings/mcp-apis",
+    "description": "API keys and webhook management"
+   },
+   {
+    "path": "/settings/admin-panel",
+    "description": "Admin panel for instance health, config, and user management"
+   },
+   {
+    "path": "/reset-password/:passwordResetToken",
+    "description": "Password reset form"
+   },
+   {
+    "path": "/authorize",
+    "description": "OAuth authorization consent screen"
+   }
+  ],
+  "components": [
+   {
+    "name": "AppNavigationDrawer",
+    "role": "Root navigation drawer switching between main and settings nav",
+    "file": "packages/twenty-front/src/modules/navigation/components/AppNavigationDrawer.tsx"
+   },
+   {
+    "name": "RecordIndexPage",
+    "role": "Main table/board view listing all records of a CRM object type",
+    "file": "packages/twenty-front/src/pages/object-record/RecordIndexPage.tsx"
+   },
+   {
+    "name": "RecordShowPage",
+    "role": "Detail page for a single CRM record with fields, timeline, and relations",
+    "file": "packages/twenty-front/src/pages/object-record/RecordShowPage.tsx"
+   },
+   {
+    "name": "SignInUp",
+    "role": "Authentication page handling sign-in, sign-up, SSO, and workspace creation flows",
+    "file": "packages/twenty-front/src/pages/auth/SignInUp.tsx"
+   },
+   {
+    "name": "CreateProfile",
+    "role": "Onboarding step for setting name and profile picture",
+    "file": "packages/twenty-front/src/pages/onboarding/CreateProfile.tsx"
+   },
+   {
+    "name": "ChooseYourPlan",
+    "role": "Billing plan selection during onboarding or upgrade",
+    "file": "packages/twenty-front/src/pages/onboarding/ChooseYourPlan.tsx"
+   },
+   {
+    "name": "InviteTeam",
+    "role": "Invite teammates by email during onboarding",
+    "file": "packages/twenty-front/src/pages/onboarding/InviteTeam.tsx"
+   },
+   {
+    "name": "AiChatPage",
+    "role": "AI chat interface for conversational CRM interactions",
+    "file": "packages/twenty-front/src/pages/ai-chat/AiChatPage.tsx"
+   },
+   {
+    "name": "SettingsRoutes",
+    "role": "Nested routing for all settings sub-pages",
+    "file": "packages/twenty-front/src/modules/app/components/SettingsRoutes.tsx"
+   },
+   {
+    "name": "DefaultLayout",
+    "role": "Main app shell with navigation drawer and content area",
+    "file": "packages/twenty-front/src/modules/ui/layout/page/components/DefaultLayout.tsx"
+   },
+   {
+    "name": "OnboardingStepLayout",
+    "role": "Layout wrapper for multi-step onboarding pages",
+    "file": "packages/twenty-front/src/modules/onboarding/components/OnboardingStepLayout.tsx"
+   },
+   {
+    "name": "MainAppLayoutWithSidePanel",
+    "role": "Content area with optional side panel for record details",
+    "file": "packages/twenty-front/src/modules/ui/layout/page/components/MainAppLayoutWithSidePanel.tsx"
+   },
+   {
+    "name": "SyncEmails",
+    "role": "OAuth-based email account connection during onboarding",
+    "file": "packages/twenty-front/src/pages/onboarding/SyncEmails.tsx"
+   }
+  ],
+  "copy": [
+   {
+    "text": "Welcome to Twenty",
+    "location": "src/pages/auth/SignInUp.tsx - locales/en.po"
+   },
+   {
+    "text": "Continue with Email",
+    "location": "src/modules/auth/sign-in-up/components/internal/SignInUpWithCredentials.tsx - locales/en.po"
+   },
+   {
+    "text": "Continue with Google",
+    "location": "src/modules/auth/sign-in-up/components/internal/SignInUpWithGoogle.tsx - locales/en.po"
+   },
+   {
+    "text": "Continue with Microsoft",
+    "location": "src/modules/auth/sign-in-up/components/internal/SignInUpWithMicrosoft.tsx - locales/en.po"
+   },
+   {
+    "text": "Create a workspace",
+    "location": "src/modules/auth/sign-in-up/components/SignInUpGlobalScopeForm.tsx - locales/en.po"
+   },
+   {
+    "text": "Create Profile",
+    "location": "src/pages/onboarding/CreateProfile.tsx - locales/en.po"
+   },
+   {
+    "text": "Invite your team",
+    "location": "src/pages/onboarding/InviteTeam.tsx - locales/en.po"
+   },
+   {
+    "text": "Book a Call",
+    "location": "src/pages/onboarding/BookCall.tsx - locales/en.po"
+   },
+   {
+    "text": "Choose plan",
+    "location": "locales/en.po"
+   },
+   {
+    "text": "Enjoy a 30-day free trial",
+    "location": "src/modules/settings/enterprise/components/EnterprisePlanModal.tsx - locales/en.po"
+   },
+   {
+    "text": "Add your first {objectLabel}",
+    "location": "src/modules/object-record/record-table/empty-state/utils/getEmptyStateTitle.ts"
+   },
+   {
+    "text": "Use our API or add your first {objectLabel} manually",
+    "location": "src/modules/object-record/record-table/empty-state/utils/getEmptyStateSubTitle.ts"
+   },
+   {
+    "text": "No records found",
+    "location": "locales/en.po"
+   },
+   {
+    "text": "No results found",
+    "location": "locales/en.po"
+   },
+   {
+    "text": "Sign in",
+    "location": "locales/en.po"
+   },
+   {
+    "text": "Sign up",
+    "location": "locales/en.po"
+   },
+   {
+    "text": "Connect a new account to your workspace",
+    "location": "locales/en.po"
+   },
+   {
+    "text": "Define what will be visible to other users in your workspace",
+    "location": "locales/en.po"
+   },
+   {
+    "text": "Enrich your leads with People Data Labs",
+    "location": "src/modules/onboarding/constants/OnboardingInstallableApps.ts - locales/en.po"
+   },
+   {
+    "text": "Billing portal session error. Please retry or contact Twenty team",
+    "location": "locales/en.po"
+   },
+   {
+    "text": "Checkout session error. Please retry or contact Twenty team",
+    "location": "locales/en.po"
+   }
+  ],
+  "brandVoice": {
+   "tone": "Direct, functional, and developer-friendly. Copy is short and action-oriented with minimal marketing language. Error messages are honest and include next steps. The product avoids fluff and speaks to technical teams who value clarity over persuasion.",
+   "keywords": [
+    "workspace",
+    "record",
+    "object",
+    "field",
+    "view",
+    "filter",
+    "workflow",
+    "API",
+    "webhook",
+    "agent",
+    "credits"
+   ],
+   "avoidTerms": [
+    "synergy",
+    "leverage",
+    "revolutionize",
+    "seamless",
+    "delightful",
+    "cutting-edge"
+   ]
+  },
+  "workflows": [
+   {
+    "name": "Sign up",
+    "entryPages": [
+     {
+      "route": "/welcome",
+      "text": "Welcome page with sign-in/sign-up form"
+     },
+     {
+      "route": "/invite/:workspaceInviteHash",
+      "text": "Workspace invite link"
+     }
+    ],
+    "steps": [
+     {
+      "kind": "page",
+      "text": "User arrives at the welcome page or invite link.",
+      "route": "/welcome",
+      "visualRef": {
+       "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/a171e46f3bdcf03a1290ca88d5d58b15.png",
+       "w": 1440,
+       "h": 900
+      }
+     },
+     {
+      "kind": "step",
+      "text": "User enters email and clicks Continue."
+     },
+     {
+      "kind": "decision",
+      "question": "Is the user signing up or signing in?",
+      "outcomes": [
+       {
+        "label": "New user (sign up)",
+        "goesTo": 3
+       },
+       {
+        "label": "Existing user (sign in)",
+        "goesTo": 7
+       }
+      ]
+     },
+     {
+      "kind": "step",
+      "text": "User sets a password or chooses OAuth/SSO provider."
+     },
+     {
+      "kind": "page",
+      "text": "Email verification code is sent; user enters the code.",
+      "route": "/verify",
+      "visualRef": {
+       "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/8eca8aafa2c3f94eebabf3f624f2a1d2.png",
+       "w": 1440,
+       "h": 900
+      }
+     },
+     {
+      "kind": "page",
+      "text": "Workspace is activated.",
+      "route": "/workspace-activation",
+      "visualRef": {
+       "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/bcc1ffc68565a981e349d2817197a828.png",
+       "w": 1440,
+       "h": 900
+      }
+     },
+     {
+      "kind": "outcome",
+      "label": "Account created and workspace activated",
+      "result": "converted"
+     },
+     {
+      "kind": "step",
+      "text": "User enters password and signs in."
+     },
+     {
+      "kind": "outcome",
+      "label": "Signed in to existing workspace",
+      "result": "converted"
+     }
+    ],
+    "bowtieStage": "mutual_commit",
+    "risks": [
+     {
+      "id": "risk_4b_stall_form",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 1
+      },
+      "signal": "Form-field interactions; field abandonment; dwell > 20s on email input without submission",
+      "label": "User hesitates at email entry or abandons the form",
+      "subStep": "4b"
+     },
+     {
+      "id": "risk_4b_error_oauth",
+      "kind": "error",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 3
+      },
+      "signal": "OAuth modal dwell > 15s; error banner visible after OAuth attempt",
+      "label": "OAuth flow fails or user dismisses OAuth popup",
+      "subStep": "4b"
+     },
+     {
+      "id": "risk_4c_stall_verify",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 4
+      },
+      "signal": "Dwell on verification page > 60s without successful code entry; page revisits",
+      "label": "User stuck waiting for verification email or enters wrong code",
+      "subStep": "4c"
+     },
+     {
+      "id": "risk_4e_stall_empty",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 5
+      },
+      "signal": "First app_home page load with no click within 10s",
+      "label": "User lands in workspace but doesn't know what to do next",
+      "subStep": "4e"
+     }
+    ],
+    "interventions": [
+     {
+      "id": "int_4b_text",
+      "riskId": "risk_4b_stall_form",
+      "modality": "text",
+      "content": "You can also sign in with Google or Microsoft in one click.",
+      "goal": "Reduce friction by surfacing faster auth alternatives"
+     },
+     {
+      "id": "int_4b_text_oauth",
+      "riskId": "risk_4b_error_oauth",
+      "modality": "text",
+      "content": "OAuth didn't work? Try signing in with your email and password instead.",
+      "goal": "Provide fallback path when OAuth fails"
+     },
+     {
+      "id": "int_4c_text",
+      "riskId": "risk_4c_stall_verify",
+      "modality": "text",
+      "content": "Check your spam folder. You can also resend the verification code.",
+      "goal": "Unblock users stuck on email verification"
+     },
+     {
+      "id": "int_4e_text",
+      "riskId": "risk_4e_stall_empty",
+      "modality": "text",
+      "content": "Start by importing your contacts or adding your first company.",
+      "goal": "Spotlight the single most valuable next action after activation"
+     }
+    ],
+    "instrumentation": {
+     "expected": [
+      {
+       "kind": "markStageEntry",
+       "anchor": {
+        "kind": "entry_page",
+        "route": "/welcome"
+       },
+       "file": "packages/twenty-front/src/pages/auth/SignInUp.tsx",
+       "stage": "mutual_commit"
+      },
+      {
+       "kind": "markStageEntry",
+       "anchor": {
+        "kind": "entry_page",
+        "route": "/invite/:workspaceInviteHash"
+       },
+       "file": "packages/twenty-front/src/pages/auth/SignInUp.tsx",
+       "stage": "mutual_commit"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 6
+       },
+       "file": "packages/twenty-front/src/modules/auth/hooks/useAuth.ts",
+       "signalName": "sign_up_completed"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 8
+       },
+       "file": "packages/twenty-front/src/modules/auth/hooks/useAuth.ts",
+       "signalName": "sign_in_completed"
+      }
+     ],
+     "detected": []
+    }
+   },
+   {
+    "name": "Onboarding",
+    "entryPages": [
+     {
+      "route": "/create/profile",
+      "text": "Create profile step after workspace activation"
+     }
+    ],
+    "steps": [
+     {
+      "kind": "page",
+      "text": "User creates their profile with name and photo.",
+      "route": "/create/profile",
+      "visualRef": {
+       "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/7c38fd9160494f9c3fb3b10e49a04b29.png",
+       "w": 1440,
+       "h": 900
+      }
+     },
+     {
+      "kind": "page",
+      "text": "User connects email accounts via Google or Microsoft OAuth.",
+      "route": "/sync/emails"
+     },
+     {
+      "kind": "page",
+      "text": "User installs apps and integrations (enrichment, calendar sync).",
+      "route": "/install-apps",
+      "visualRef": {
+       "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/1dee374d034dc91d9dd91934fd7f23ca.png",
+       "w": 1440,
+       "h": 900
+      }
+     },
+     {
+      "kind": "page",
+      "text": "User invites team members by email.",
+      "route": "/invite-team",
+      "visualRef": {
+       "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/2f1491e80fdba88dc80712fc7685f3b1.png",
+       "w": 1440,
+       "h": 900
+      }
+     },
+     {
+      "kind": "page",
+      "text": "User books an onboarding call (optional).",
+      "route": "/book-call"
+     },
+     {
+      "kind": "outcome",
+      "label": "Onboarding complete, user enters main app",
+      "result": "converted"
+     }
+    ],
+    "bowtieStage": "onboarding",
+    "risks": [
+     {
+      "id": "risk_5a_stall_profile",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 0
+      },
+      "signal": "Dwell > 30s on profile form without submission; repeated backspace in name fields",
+      "label": "User pauses at profile creation without completing",
+      "subStep": "5a"
+     },
+     {
+      "id": "risk_5b_stall_email_sync",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 1
+      },
+      "signal": "OAuth modal opened then dismissed; dwell > 45s on sync-emails page without connection; Skip button hover",
+      "label": "User unsure about connecting email or OAuth scope feels too aggressive",
+      "subStep": "5b"
+     },
+     {
+      "id": "risk_5c_stall_invite",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 3
+      },
+      "signal": "Dwell > 30s on invite-team page with empty fields; skip button hover",
+      "label": "User doesn't have teammate emails handy or skips team invite",
+      "subStep": "5c"
+     }
+    ],
+    "interventions": [
+     {
+      "id": "int_5a_silence",
+      "riskId": "risk_5a_stall_profile",
+      "modality": "silence",
+      "content": "Profile creation is simple and short. Interrupting here would be more annoying than helpful.",
+      "goal": "Let the user complete the form without interference"
+     },
+     {
+      "id": "int_5b_text",
+      "riskId": "risk_5b_stall_email_sync",
+      "modality": "text",
+      "content": "Connecting your email imports your contacts automatically. You can always do this later in Settings.",
+      "goal": "Reassure the user that email sync is safe and skippable"
+     },
+     {
+      "id": "int_5c_text",
+      "riskId": "risk_5c_stall_invite",
+      "modality": "text",
+      "content": "You can invite teammates anytime from Settings. Skip for now if you want to explore solo first.",
+      "goal": "Reduce pressure to invite immediately"
+     }
+    ],
+    "instrumentation": {
+     "expected": [
+      {
+       "kind": "markStageEntry",
+       "anchor": {
+        "kind": "entry_page",
+        "route": "/create/profile"
+       },
+       "file": "packages/twenty-front/src/pages/onboarding/CreateProfile.tsx",
+       "stage": "onboarding"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 0
+       },
+       "file": "packages/twenty-front/src/pages/onboarding/CreateProfile.tsx",
+       "signalName": "onboarding_step_completed"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 5
+       },
+       "file": "packages/twenty-front/src/modules/onboarding/hooks/useSetNextOnboardingStatus.ts",
+       "signalName": "first_setup_completed"
+      }
+     ],
+     "detected": []
+    }
+   },
+   {
+    "name": "Choose billing plan",
+    "entryPages": [
+     {
+      "route": "/plan-required",
+      "text": "Plan selection page shown during onboarding or upgrade"
+     }
+    ],
+    "steps": [
+     {
+      "kind": "page",
+      "text": "User views available billing plans.",
+      "route": "/plan-required",
+      "visualRef": {
+       "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/bb92de1fe191412a3619b26b146edbad.png",
+       "w": 1440,
+       "h": 900
+      }
+     },
+     {
+      "kind": "step",
+      "text": "User selects a plan and enters payment details."
+     },
+     {
+      "kind": "page",
+      "text": "Payment success confirmation page.",
+      "route": "/plan-required/payment-success",
+      "visualRef": {
+       "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/8f327be3d9b030d06cf9c5870c88bfee.png",
+       "w": 1440,
+       "h": 900
+      }
+     },
+     {
+      "kind": "outcome",
+      "label": "Plan activated",
+      "result": "converted"
+     }
+    ],
+    "bowtieStage": "mutual_commit",
+    "risks": [
+     {
+      "id": "risk_3e_stall_decision",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 0
+      },
+      "signal": "Dwell > 60s on plan-required page; scroll up and down between plan cards; no plan selection click",
+      "label": "Decision fatigue between plan options",
+      "subStep": "3e"
+     },
+     {
+      "id": "risk_4a_error_checkout",
+      "kind": "error",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 1
+      },
+      "signal": "Error banner visible after checkout submission; 'Checkout session error' toast",
+      "label": "Payment processing fails",
+      "subStep": "4a"
+     }
+    ],
+    "interventions": [
+     {
+      "id": "int_3e_text",
+      "riskId": "risk_3e_stall_decision",
+      "modality": "text",
+      "content": "Most teams start with the base plan. You can upgrade anytime as you grow.",
+      "goal": "Collapse the choice to a single recommended next step"
+     },
+     {
+      "id": "int_4a_text",
+      "riskId": "risk_4a_error_checkout",
+      "modality": "text",
+      "content": "Payment didn't go through. Try a different card or contact support.",
+      "goal": "Provide clear recovery path after payment failure"
+     }
+    ],
+    "instrumentation": {
+     "expected": [
+      {
+       "kind": "markStageEntry",
+       "anchor": {
+        "kind": "entry_page",
+        "route": "/plan-required"
+       },
+       "file": "packages/twenty-front/src/pages/onboarding/ChooseYourPlan.tsx",
+       "stage": "mutual_commit"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 0
+       },
+       "file": "packages/twenty-front/src/pages/onboarding/ChooseYourPlan.tsx",
+       "signalName": "plan_viewed"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 2
+       },
+       "file": "packages/twenty-front/src/pages/onboarding/PaymentSuccess.tsx",
+       "signalName": "payment_succeeded"
+      }
+     ],
+     "detected": []
+    }
+   },
+   {
+    "name": "Browse and manage records",
+    "entryPages": [
+     {
+      "route": "/objects/:objectNamePlural",
+      "text": "Record index for contacts, companies, opportunities, etc."
+     }
+    ],
+    "steps": [
+     {
+      "kind": "page",
+      "text": "User lands on a record index page (table or board view).",
+      "route": "/objects/:objectNamePlural",
+      "visualRef": {
+       "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/804f194659d830bc5934ee927b123481.png",
+       "w": 1440,
+       "h": 900
+      }
+     },
+     {
+      "kind": "step",
+      "text": "User filters, sorts, or searches records."
+     },
+     {
+      "kind": "step",
+      "text": "User clicks a record to open its detail view."
+     },
+     {
+      "kind": "page",
+      "text": "User views and edits the record's fields, notes, and timeline.",
+      "route": "/object/:objectNameSingular/:objectRecordId"
+     }
+    ],
+    "bowtieStage": "adoption",
+    "risks": [
+     {
+      "id": "risk_6a_stall_empty",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 0
+      },
+      "signal": "Empty state displayed ('Add your first...'); no click within 15s; user navigates away",
+      "label": "Empty record list with no obvious next action",
+      "subStep": "6a"
+     },
+     {
+      "id": "risk_6b_stall_search",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 1
+      },
+      "signal": "Search query entered with 'No results found' displayed; filter applied with zero results",
+      "label": "Search or filter returns no matches",
+      "subStep": "6b"
+     }
+    ],
+    "interventions": [
+     {
+      "id": "int_6a_text",
+      "riskId": "risk_6a_stall_empty",
+      "modality": "text",
+      "content": "Import a CSV or connect your email to auto-populate your contacts.",
+      "goal": "Surface the fastest path to filling empty state"
+     },
+     {
+      "id": "int_6b_text",
+      "riskId": "risk_6b_stall_search",
+      "modality": "text",
+      "content": "Try broadening your filter or searching by a different field.",
+      "goal": "Help user recover from zero-result state"
+     }
+    ],
+    "instrumentation": {
+     "expected": [
+      {
+       "kind": "markStageEntry",
+       "anchor": {
+        "kind": "entry_page",
+        "route": "/objects/:objectNamePlural"
+       },
+       "file": "packages/twenty-front/src/pages/object-record/RecordIndexPage.tsx",
+       "stage": "adoption"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 0
+       },
+       "file": "packages/twenty-front/src/modules/object-record/record-table/empty-state/components/RecordTableEmptyStateNoGroupNoRecordAtAll.tsx",
+       "signalName": "resource_created"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 1
+       },
+       "signalName": "search_performed"
+      }
+     ],
+     "detected": []
+    }
+   },
+   {
+    "name": "AI chat",
+    "entryPages": [
+     {
+      "route": "/chat/:threadId?",
+      "text": "AI chat page accessible from navigation"
+     }
+    ],
+    "steps": [
+     {
+      "kind": "page",
+      "text": "User opens the AI chat interface.",
+      "route": "/chat/:threadId?",
+      "visualRef": {
+       "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/0ba67d33738d2efeb8ebe26b7e8102fc.png",
+       "w": 1440,
+       "h": 900
+      }
+     },
+     {
+      "kind": "step",
+      "text": "User types a question or command about their CRM data."
+     },
+     {
+      "kind": "step",
+      "text": "AI responds with answers, record lookups, or actions."
+     }
+    ],
+    "bowtieStage": "adoption",
+    "risks": [
+     {
+      "id": "risk_6c_stall_blank",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 0
+      },
+      "signal": "Chat page loaded with empty thread; dwell > 20s without typing",
+      "label": "User doesn't know what to ask the AI",
+      "subStep": "6c"
+     },
+     {
+      "id": "risk_6c_error_response",
+      "kind": "error",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 2
+      },
+      "signal": "Error banner or error message in chat response; retry button visible",
+      "label": "AI response fails or times out",
+      "subStep": "6c"
+     }
+    ],
+    "interventions": [
+     {
+      "id": "int_6c_text_blank",
+      "riskId": "risk_6c_stall_blank",
+      "modality": "text",
+      "content": "Try asking: 'Show me all deals closing this month' or 'Summarize my last 5 interactions with Acme Corp.'",
+      "goal": "Provide example prompts to break the blank-screen paralysis"
+     },
+     {
+      "id": "int_6c_text_error",
+      "riskId": "risk_6c_error_response",
+      "modality": "text",
+      "content": "Something went wrong with the AI response. Try rephrasing or asking a simpler question.",
+      "goal": "Guide recovery from AI failure"
+     }
+    ],
+    "instrumentation": {
+     "expected": [
+      {
+       "kind": "markStageEntry",
+       "anchor": {
+        "kind": "entry_page",
+        "route": "/chat/:threadId?"
+       },
+       "file": "packages/twenty-front/src/pages/ai-chat/AiChatPage.tsx",
+       "stage": "adoption"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 1
+       },
+       "file": "packages/twenty-front/src/pages/ai-chat/AiChatPage.tsx",
+       "signalName": "feature_used"
+      }
+     ],
+     "detected": []
+    }
+   },
+   {
+    "name": "Invite teammates (post-onboarding)",
+    "entryPages": [
+     {
+      "route": "/settings/members",
+      "text": "Workspace members settings page"
+     }
+    ],
+    "steps": [
+     {
+      "kind": "page",
+      "text": "User navigates to workspace members settings.",
+      "route": "/settings/members"
+     },
+     {
+      "kind": "step",
+      "text": "User clicks invite and enters teammate emails."
+     },
+     {
+      "kind": "step",
+      "text": "Invitations are sent; teammates appear as pending."
+     },
+     {
+      "kind": "outcome",
+      "label": "Teammates invited",
+      "result": "converted"
+     }
+    ],
+    "bowtieStage": "expansion",
+    "risks": [
+     {
+      "id": "risk_7c_stall_invite",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 1
+      },
+      "signal": "Invite modal opened then closed without sending; dwell > 30s on invite form",
+      "label": "User opens invite but doesn't complete it",
+      "subStep": "7c"
+     }
+    ],
+    "interventions": [
+     {
+      "id": "int_7c_text",
+      "riskId": "risk_7c_stall_invite",
+      "modality": "text",
+      "content": "Teammates will get an email with a link to join your workspace instantly.",
+      "goal": "Reduce uncertainty about what happens when an invite is sent"
+     }
+    ],
+    "instrumentation": {
+     "expected": [
+      {
+       "kind": "markStageEntry",
+       "anchor": {
+        "kind": "entry_page",
+        "route": "/settings/members"
+       },
+       "stage": "expansion"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 2
+       },
+       "signalName": "teammate_invited"
+      }
+     ],
+     "detected": []
+    }
+   },
+   {
+    "name": "Upgrade plan",
+    "entryPages": [
+     {
+      "route": "/settings/billing",
+      "text": "Billing settings page"
+     }
+    ],
+    "steps": [
+     {
+      "kind": "page",
+      "text": "User navigates to billing settings.",
+      "route": "/settings/billing"
+     },
+     {
+      "kind": "step",
+      "text": "User views current plan and clicks upgrade or change plan."
+     },
+     {
+      "kind": "step",
+      "text": "User selects a new plan tier and confirms payment."
+     },
+     {
+      "kind": "outcome",
+      "label": "Plan upgraded",
+      "result": "converted"
+     }
+    ],
+    "bowtieStage": "expansion",
+    "risks": [
+     {
+      "id": "risk_7a_stall_limit",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 0
+      },
+      "signal": "Billing page loaded after limit-reached banner; dwell > 30s; upgrade button hover-and-dismiss",
+      "label": "User sees limit but hesitates to upgrade",
+      "subStep": "7a"
+     },
+     {
+      "id": "risk_7e_stall_champion",
+      "kind": "stall",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 1
+      },
+      "signal": "Plan comparison page dwell > 60s; back-button press; return visit within 24h without completing",
+      "label": "Decision-maker isn't the current user; needs internal approval",
+      "subStep": "7e"
+     }
+    ],
+    "interventions": [
+     {
+      "id": "int_7a_text",
+      "riskId": "risk_7a_stall_limit",
+      "modality": "text",
+      "content": "You've hit your current plan's limit. Upgrading unlocks more seats and credits immediately.",
+      "goal": "Connect the current friction to its specific resolution"
+     },
+     {
+      "id": "int_7e_email",
+      "riskId": "risk_7e_stall_champion",
+      "modality": "email",
+      "content": "Hi! You were looking at upgrading your Twenty workspace. Here's a summary you can share with your team to make the case.",
+      "goal": "Enable the champion to defend the upgrade internally"
+     }
+    ],
+    "instrumentation": {
+     "expected": [
+      {
+       "kind": "markStageEntry",
+       "anchor": {
+        "kind": "entry_page",
+        "route": "/settings/billing"
+       },
+       "stage": "expansion"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 0
+       },
+       "file": "packages/twenty-front/src/pages/settings/billing/SettingsBilling.tsx",
+       "signalName": "plan_viewed"
+      },
+      {
+       "kind": "emitSignal",
+       "anchor": {
+        "kind": "step",
+        "stepIndex": 3
+       },
+       "signalName": "plan_upgraded"
+      }
+     ],
+     "detected": []
+    }
+   }
+  ],
+  "designTokens": {
+   "fontFamily": "Inter, sans-serif",
+   "radius": "8px",
+   "spacing": "4px",
+   "light": {
+    "primary": "color(display-p3 0.276 0.384 0.837)",
+    "primaryForeground": "color(display-p3 1 1 1)",
+    "accent": "color(display-p3 0.831 0.87 1)",
+    "background": "color(display-p3 1 1 1)",
+    "foreground": "color(display-p3 0.2 0.2 0.2)",
+    "muted": "color(display-p3 0.945 0.945 0.945)",
+    "border": "color(display-p3 0.922 0.922 0.922)"
+   },
+   "dark": {
+    "primary": "color(display-p3 0.276 0.384 0.837)",
+    "primaryForeground": "color(display-p3 0.09 0.09 0.09)",
+    "accent": "color(display-p3 0.163 0.22 0.439)",
+    "background": "color(display-p3 0.09 0.09 0.09)",
+    "foreground": "color(display-p3 0.922 0.922 0.922)",
+    "muted": "color(display-p3 0.114 0.114 0.114)",
+    "border": "color(display-p3 0.133 0.133 0.133)"
+   },
+   "source": [
+    "packages/twenty-ui/src/theme-constants/theme-light.css",
+    "packages/twenty-ui/src/theme-constants/theme-dark.css"
+   ]
+  },
+  "stageCopilots": {
+   "awareness": null,
+   "education": null,
+   "selection": null,
+   "mutual_commit": null,
+   "onboarding": null,
+   "adoption": null,
+   "expansion": null
+  },
+  "identityInstrumentation": {
+   "expected": [
+    {
+     "kind": "identify",
+     "anchor": {
+      "kind": "sign_in_complete",
+      "component": "packages/twenty-front/src/pages/auth/SignInUp.tsx"
+     },
+     "file": "packages/twenty-front/src/pages/auth/SignInUp.tsx"
+    },
+    {
+     "kind": "identify",
+     "anchor": {
+      "kind": "sign_in_complete",
+      "component": "useAuth"
+     },
+     "file": "packages/twenty-front/src/modules/auth/hooks/useAuth.ts"
+    },
+    {
+     "kind": "clearIdentity",
+     "anchor": {
+      "kind": "sign_out",
+      "component": "useAuth.handleSignOut"
+     },
+     "file": "packages/twenty-front/src/modules/auth/hooks/useAuth.ts"
+    },
+    {
+     "kind": "identify",
+     "anchor": {
+      "kind": "sign_in_complete",
+      "component": "Verify"
+     },
+     "file": "packages/twenty-front/src/pages/onboarding/Verify.tsx"
+    },
+    {
+     "kind": "clearIdentity",
+     "anchor": {
+      "kind": "sign_out",
+      "component": "SignOutOnOtherTabSignOutEffect"
+     },
+     "file": "packages/twenty-front/src/modules/auth/effect-components/SignOutOnOtherTabSignOutEffect.tsx"
+    }
+   ],
+   "detected": []
+  },
+  "coverageGaps": [
+   "Did not deeply analyze the twenty-website (Next.js marketing site) - focused on the twenty-front app",
+   "Did not read the full SettingsRoutes file (very large with many lazy-loaded pages)",
+   "Did not analyze workflow automation builder pages (complex nested components)",
+   "Did not inspect the twenty-server backend for API-side auth flows beyond what's referenced in frontend",
+   "i18n copy was sampled from the .po file; did not read all 21,000+ lines - focused on auth/onboarding/empty states",
+   "Could not find a monospace font token in the theme files - may exist in a separate config",
+   "Did not analyze the twenty-emails package for transactional email copy"
+  ],
+  "notes": "Twenty uses Lingui (@lingui/react) for i18n with .po files as the source format. The design system lives in the twenty-ui package using CSS custom properties (--t-* prefix) with display-p3 color space values. The app uses Jotai for state management and react-router-dom v6 with createBrowserRouter. Auth supports email/password, Google OAuth, Microsoft OAuth, and SSO. The onboarding flow is linear with skip buttons on optional steps (email sync, install apps, invite team, book call). The CRM is object-agnostic - it works with any custom object, not just predefined ones like Contacts or Companies.",
+  "depth": "full",
+  "customerEdits": {
+   "stageCopilots": {
+    "adoption": "twenty-juno",
+    "expansion": "twenty-juno",
+    "onboarding": "twenty-juno"
+   }
+  },
+  "updates": {
+   "routes": {
+    "added": [
+     "/authorize",
+     "/book-call",
+     "/chat/:threadId?",
+     "/create/profile",
+     "/install-apps",
+     "/invite-team",
+     "/invite/:workspaceInviteHash",
+     "/object/:objectNameSingular/:objectRecordId",
+     "/objects/:objectNamePlural",
+     "/plan-required",
+     "/plan-required/payment-success",
+     "/reset-password/:passwordResetToken",
+     "/settings/accounts",
+     "/settings/admin-panel",
+     "/settings/ai",
+     "/settings/applications",
+     "/settings/billing",
+     "/settings/functions",
+     "/settings/general",
+     "/settings/mcp-apis",
+     "/settings/members",
+     "/settings/objects",
+     "/settings/profile",
+     "/sync/emails",
+     "/verify",
+     "/verify-email",
+     "/welcome",
+     "/workspace-activation"
+    ],
+    "removed": [],
+    "changed": []
+   },
+   "components": {
+    "added": [
+     "AiChatPage",
+     "AppNavigationDrawer",
+     "ChooseYourPlan",
+     "CreateProfile",
+     "DefaultLayout",
+     "InviteTeam",
+     "MainAppLayoutWithSidePanel",
+     "OnboardingStepLayout",
+     "RecordIndexPage",
+     "RecordShowPage",
+     "SettingsRoutes",
+     "SignInUp",
+     "SyncEmails"
+    ],
+    "removed": [],
+    "changed": []
+   },
+   "copy": {
+    "added": 21,
+    "removed": 0,
+    "changed": 0
+   },
+   "brandVoice": [
+    "tone",
+    "keywords",
+    "avoidTerms"
+   ],
+   "workflows": {
+    "added": [
+     "AI chat",
+     "Browse and manage records",
+     "Choose billing plan",
+     "Invite teammates (post-onboarding)",
+     "Onboarding",
+     "Sign up",
+     "Upgrade plan"
+    ],
+    "removed": [],
+    "changed": []
+   }
+  }
+ }
+}
