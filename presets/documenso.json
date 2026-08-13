@@ -1,0 +1,1407 @@
+{
+ "id": "ks_msej1m5f_08yytu.v2",
+ "sourceId": "ks_msej1m5f_08yytu",
+ "tenantId": "workspace_xY8Ee8Lo7aZc09uYvTdo6yzNvWm1",
+ "version": 2,
+ "runId": "cli_msqq8wrb_db2bbd25",
+ "ingestedAt": "2026-08-12T23:35:32.753Z",
+ "ingestedVia": "cli_scan",
+ "productName": "Documenso",
+ "oneLineDescription": "An open-source document signing platform that lets teams send, sign, and manage legally-binding documents online.",
+ "primaryFramework": "react",
+ "language": "typescript",
+ "routes": [
+  {
+   "path": "/",
+   "description": "Root redirect \u2014 sends authenticated users to their preferred team documents page, unauthenticated to sign-in.",
+   "file": "apps/remix/app/routes/_index.tsx"
+  },
+  {
+   "path": "/signin",
+   "description": "Sign-in page with email/password and SSO options (Google, Microsoft, OIDC).",
+   "file": "apps/remix/app/routes/_unauthenticated+/signin.tsx"
+  },
+  {
+   "path": "/signup",
+   "description": "Account registration page with email/password and social sign-up.",
+   "file": "apps/remix/app/routes/_unauthenticated+/signup.tsx"
+  },
+  {
+   "path": "/forgot-password",
+   "description": "Request a password-reset email.",
+   "file": "apps/remix/app/routes/_unauthenticated+/forgot-password.tsx"
+  },
+  {
+   "path": "/reset-password/:token",
+   "description": "Set a new password using a reset token.",
+   "file": "apps/remix/app/routes/_unauthenticated+/reset-password.$token.tsx"
+  },
+  {
+   "path": "/verify-email/:token",
+   "description": "Verify email address after registration.",
+   "file": "apps/remix/app/routes/_unauthenticated+/verify-email.$token.tsx"
+  },
+  {
+   "path": "/inbox",
+   "description": "Personal inbox \u2014 documents the user has been invited to sign or view.",
+   "file": "apps/remix/app/routes/_authenticated+/inbox.tsx"
+  },
+  {
+   "path": "/t/:teamUrl/documents",
+   "description": "Team documents list \u2014 view, filter, search, bulk-manage documents.",
+   "file": "apps/remix/app/routes/_authenticated+/t.$teamUrl+/documents._index.tsx"
+  },
+  {
+   "path": "/t/:teamUrl/documents/:id/edit",
+   "description": "Document envelope editor \u2014 upload PDF, add recipients and signing fields.",
+   "file": "apps/remix/app/routes/_authenticated+/t.$teamUrl+/documents.$id.edit.tsx"
+  },
+  {
+   "path": "/t/:teamUrl/documents/:id",
+   "description": "Document detail \u2014 view status, audit log, and recipient progress.",
+   "file": "apps/remix/app/routes/_authenticated+/t.$teamUrl+/documents.$id._index.tsx"
+  },
+  {
+   "path": "/t/:teamUrl/templates",
+   "description": "Reusable document templates list.",
+   "file": "apps/remix/app/routes/_authenticated+/t.$teamUrl+/templates._index.tsx"
+  },
+  {
+   "path": "/t/:teamUrl/templates/:id/edit",
+   "description": "Template editor \u2014 configure reusable signing templates.",
+   "file": "apps/remix/app/routes/_authenticated+/t.$teamUrl+/templates.$id.edit.tsx"
+  },
+  {
+   "path": "/t/:teamUrl/settings/general",
+   "description": "Team general settings \u2014 name, URL, avatar.",
+   "file": "apps/remix/app/routes/_authenticated+/t.$teamUrl+/settings.general.tsx"
+  },
+  {
+   "path": "/t/:teamUrl/settings/members",
+   "description": "Team member management \u2014 invite, update roles, remove.",
+   "file": "apps/remix/app/routes/_authenticated+/t.$teamUrl+/settings.members.tsx"
+  },
+  {
+   "path": "/t/:teamUrl/settings/branding",
+   "description": "Team branding \u2014 custom logo, colors for signing experience.",
+   "file": "apps/remix/app/routes/_authenticated+/t.$teamUrl+/settings.branding.tsx"
+  },
+  {
+   "path": "/settings/profile",
+   "description": "User profile settings \u2014 name, avatar, preferences.",
+   "file": "apps/remix/app/routes/_authenticated+/settings+/profile.tsx"
+  },
+  {
+   "path": "/settings/security",
+   "description": "Security settings \u2014 password, 2FA, passkeys, sessions.",
+   "file": "apps/remix/app/routes/_authenticated+/settings+/security._index.tsx"
+  },
+  {
+   "path": "/settings/billing",
+   "description": "Billing management \u2014 view and manage organisation subscriptions.",
+   "file": "apps/remix/app/routes/_authenticated+/settings+/billing.tsx"
+  },
+  {
+   "path": "/o/:orgUrl",
+   "description": "Organisation overview \u2014 list of teams within the organisation.",
+   "file": "apps/remix/app/routes/_authenticated+/o.$orgUrl._index.tsx"
+  },
+  {
+   "path": "/o/:orgUrl/settings/billing",
+   "description": "Organisation billing \u2014 subscription and plan management.",
+   "file": "apps/remix/app/routes/_authenticated+/o.$orgUrl.settings.billing.tsx"
+  },
+  {
+   "path": "/o/:orgUrl/settings/members",
+   "description": "Organisation member management.",
+   "file": "apps/remix/app/routes/_authenticated+/o.$orgUrl.settings.members.tsx"
+  },
+  {
+   "path": "/sign/:token",
+   "description": "Recipient document signing page \u2014 view and fill signing fields.",
+   "file": "apps/remix/app/routes/_recipient+/sign.$token+/_index.tsx"
+  },
+  {
+   "path": "/sign/:token/complete",
+   "description": "Signing complete confirmation page.",
+   "file": "apps/remix/app/routes/_recipient+/sign.$token+/complete.tsx"
+  },
+  {
+   "path": "/d/:token",
+   "description": "Recipient document viewing page (view-only recipients).",
+   "file": "apps/remix/app/routes/_recipient+/d.$token+/_index.tsx"
+  },
+  {
+   "path": "/share/:slug",
+   "description": "Public document sharing page with completion certificate.",
+   "file": "apps/remix/app/routes/_share+/share.$slug.tsx"
+  },
+  {
+   "path": "/p/:url",
+   "description": "Public user/team profile page.",
+   "file": "apps/remix/app/routes/_profile+/p.$url.tsx"
+  }
+ ],
+ "components": [
+  {
+   "name": "EnvelopeEditor",
+   "role": "Full document envelope editor \u2014 upload PDF, configure recipients, place signing fields, and send.",
+   "file": "apps/remix/app/components/general/envelope-editor/envelope-editor.tsx"
+  },
+  {
+   "name": "DocumentSigningPageViewV2",
+   "role": "Recipient-facing document signing experience \u2014 renders PDF with interactive fields for the signer.",
+   "file": "apps/remix/app/components/general/document-signing/document-signing-page-view-v2.tsx"
+  },
+  {
+   "name": "AppHeader",
+   "role": "Main authenticated app header with navigation and user menu.",
+   "file": "apps/remix/app/components/general/app-header.tsx"
+  },
+  {
+   "name": "AppNavDesktop",
+   "role": "Desktop sidebar navigation for the authenticated app shell.",
+   "file": "apps/remix/app/components/general/app-nav-desktop.tsx"
+  },
+  {
+   "name": "AppNavMobile",
+   "role": "Mobile navigation drawer.",
+   "file": "apps/remix/app/components/general/app-nav-mobile.tsx"
+  },
+  {
+   "name": "SignInForm",
+   "role": "Email/password and SSO sign-in form.",
+   "file": "apps/remix/app/components/forms/signin.tsx"
+  },
+  {
+   "name": "SignUpForm",
+   "role": "Registration form with email/password and social options, including a signature capture step.",
+   "file": "apps/remix/app/components/forms/signup.tsx"
+  },
+  {
+   "name": "DocumentsTable",
+   "role": "Data table listing documents with status badges, filters, and bulk actions.",
+   "file": "apps/remix/app/components/tables/documents-table.tsx"
+  },
+  {
+   "name": "TemplatesTable",
+   "role": "Data table listing reusable document templates.",
+   "file": "apps/remix/app/components/tables/templates-table.tsx"
+  },
+  {
+   "name": "InboxTable",
+   "role": "Table listing documents the user has been invited to sign.",
+   "file": "apps/remix/app/components/tables/inbox-table.tsx"
+  },
+  {
+   "name": "BillingPlans",
+   "role": "Subscription plan cards with upgrade/downgrade actions and Stripe checkout.",
+   "file": "apps/remix/app/components/general/billing-plans.tsx"
+  },
+  {
+   "name": "AppCommandMenu",
+   "role": "Global command palette (Cmd+K) for quick navigation and actions.",
+   "file": "apps/remix/app/components/general/app-command-menu.tsx"
+  },
+  {
+   "name": "OrgMenuSwitcher",
+   "role": "Organisation and team context switcher in the sidebar.",
+   "file": "apps/remix/app/components/general/org-menu-switcher.tsx"
+  },
+  {
+   "name": "ClaimAccount",
+   "role": "Post-signing account claim prompt for recipients who don't have accounts yet.",
+   "file": "apps/remix/app/components/general/claim-account.tsx"
+  }
+ ],
+ "copy": [
+  {
+   "text": "Create a new account",
+   "location": "Sign-up page heading \u2014 apps/remix/app/components/forms/signup.tsx"
+  },
+  {
+   "text": "Create your account and start using state-of-the-art document signing. Open and beautiful signing is within your grasp.",
+   "location": "Sign-up page subheading \u2014 apps/remix/app/components/forms/signup.tsx"
+  },
+  {
+   "text": "Sign in to your account",
+   "location": "Sign-in page heading \u2014 apps/remix/app/routes/_unauthenticated+/signin.tsx"
+  },
+  {
+   "text": "Welcome back, we are lucky to have you.",
+   "location": "Sign-in page subheading \u2014 apps/remix/app/routes/_unauthenticated+/signin.tsx"
+  },
+  {
+   "text": "Forgot your password?",
+   "location": "Forgot-password page heading \u2014 apps/remix/app/routes/_unauthenticated+/forgot-password.tsx"
+  },
+  {
+   "text": "No worries, it happens! Enter your email and we'll email you a special link to reset your password.",
+   "location": "Forgot-password page description \u2014 apps/remix/app/routes/_unauthenticated+/forgot-password.tsx"
+  },
+  {
+   "text": "Personal Inbox",
+   "location": "Inbox page heading \u2014 apps/remix/app/routes/_authenticated+/inbox.tsx"
+  },
+  {
+   "text": "Any documents that you have been invited to will appear here",
+   "location": "Inbox page description \u2014 apps/remix/app/routes/_authenticated+/inbox.tsx"
+  },
+  {
+   "text": "We're all empty",
+   "location": "Documents table empty state heading \u2014 apps/remix/app/components/tables/documents-table-empty-state.tsx"
+  },
+  {
+   "text": "You have not yet created or received any documents. To create a document please upload one.",
+   "location": "Documents table empty state body \u2014 apps/remix/app/components/tables/documents-table-empty-state.tsx"
+  },
+  {
+   "text": "No active drafts",
+   "location": "Draft documents empty state \u2014 apps/remix/app/components/tables/documents-table-empty-state.tsx"
+  },
+  {
+   "text": "Registration Successful",
+   "location": "Sign-up success toast title \u2014 apps/remix/app/components/forms/signup.tsx"
+  },
+  {
+   "text": "You have successfully registered. Please verify your account by clicking on the link you received in the email.",
+   "location": "Sign-up success toast body \u2014 apps/remix/app/components/forms/signup.tsx"
+  },
+  {
+   "text": "Document Signed",
+   "location": "Signing complete heading \u2014 apps/remix/app/routes/_recipient+/sign.$token+/complete.tsx"
+  },
+  {
+   "text": "Everyone has signed! You will receive an email copy of the signed document.",
+   "location": "All-signed confirmation \u2014 apps/remix/app/routes/_recipient+/sign.$token+/complete.tsx"
+  },
+  {
+   "text": "Need to sign documents?",
+   "location": "Post-signing account CTA \u2014 apps/remix/app/routes/_recipient+/sign.$token+/complete.tsx"
+  },
+  {
+   "text": "Create your account and start using state-of-the-art document signing.",
+   "location": "Post-signing claim CTA \u2014 apps/remix/app/routes/_recipient+/sign.$token+/complete.tsx"
+  },
+  {
+   "text": "Are you sure?",
+   "location": "Signing completion confirmation dialog title \u2014 apps/remix/app/components/general/document-signing/document-signing-complete-dialog.tsx"
+  },
+  {
+   "text": "You are about to complete signing the following document",
+   "location": "Signing completion dialog description \u2014 apps/remix/app/components/general/document-signing/document-signing-complete-dialog.tsx"
+  },
+  {
+   "text": "Signup is currently disabled or not available for your email domain.",
+   "location": "Sign-up error message \u2014 apps/remix/app/components/forms/signup.tsx"
+  },
+  {
+   "text": "Subscribe",
+   "location": "Billing plan CTA button \u2014 apps/remix/app/components/general/billing-plans.tsx"
+  },
+  {
+   "text": "You are about to subscribe to the {planName}",
+   "location": "Billing subscribe confirmation \u2014 apps/remix/app/components/general/billing-plans.tsx"
+  },
+  {
+   "text": "Confirm email",
+   "location": "Unverified account page heading \u2014 apps/remix/app/routes/_unauthenticated+/unverified-account.tsx"
+  },
+  {
+   "text": "Add and configure multiple documents",
+   "location": "Envelope editor upload page description \u2014 apps/remix/app/components/general/envelope-editor/envelope-editor-upload-page.tsx"
+  }
+ ],
+ "brandVoice": {
+  "tone": "Friendly, concise, and reassuring. Uses plain language with occasional warmth (\"Welcome back, we are lucky to have you\", \"No worries, it happens!\"). Avoids jargon and legalese despite being a signing tool. Adopts a peer-level tone \u2014 supportive but never condescending.",
+  "keywords": [
+   "document",
+   "sign",
+   "signing",
+   "open source",
+   "trust",
+   "recipients",
+   "complete",
+   "template",
+   "envelope",
+   "team",
+   "organisation"
+  ],
+  "avoidTerms": [
+   "e-sign",
+   "DocuSign",
+   "legally binding",
+   "workflow automation",
+   "enterprise-grade"
+  ]
+ },
+ "workflows": [
+  {
+   "name": "Sign Up",
+   "entryPages": [
+    {
+     "route": "/signup",
+     "text": "Create account page"
+    },
+    {
+     "route": "/signin",
+     "text": "Sign-in page links to sign-up"
+    },
+    {
+     "route": "/sign/:token/complete",
+     "text": "Post-signing claim CTA"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "User arrives at the sign-up page.",
+     "route": "/signup",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/c30e65bb254ae881e57383aa811c3cf4.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "User enters name, email, password, and draws their signature."
+    },
+    {
+     "kind": "step",
+     "text": "User submits the registration form."
+    },
+    {
+     "kind": "page",
+     "text": "User is redirected to the unverified-account page.",
+     "route": "/unverified-account"
+    },
+    {
+     "kind": "step",
+     "text": "User clicks the verification link in their email."
+    },
+    {
+     "kind": "page",
+     "text": "Email verified \u2014 user is redirected into the app.",
+     "route": "/",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/7fcf490d96249a052f2deaa458c75a2a.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "outcome",
+     "label": "Account created and verified",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "mutual_commit",
+   "risks": [
+    {
+     "id": "risk_4b_stall_signature",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "signal": "Signature pad opened but no stroke drawn within 30s",
+     "label": "Signature field confusion \u2014 users don't expect to draw a signature at registration",
+     "subStep": "4b"
+    },
+    {
+     "id": "risk_4b_error_password",
+     "kind": "error",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "signal": "Form validation error banner visible on password or email field",
+     "label": "Password validation fails or email already exists",
+     "subStep": "4b"
+    },
+    {
+     "id": "risk_4c_stall_verification",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 3
+     },
+     "signal": "User on /unverified-account for > 5 minutes without navigation",
+     "label": "Email verification wall \u2014 user doesn't receive or find the email",
+     "subStep": "4c"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_4b_text_signature",
+     "riskId": "risk_4b_stall_signature",
+     "modality": "text",
+     "content": "Your signature is used when you sign documents. Just draw something quick \u2014 you can update it later in settings.",
+     "goal": "Unblock the signature step by explaining its purpose and reducing perceived permanence."
+    },
+    {
+     "id": "int_4b_text_password",
+     "riskId": "risk_4b_error_password",
+     "modality": "text",
+     "content": "Try a longer password that doesn't include your name or email. If you already have an account, sign in instead.",
+     "goal": "Resolve the validation error with actionable guidance."
+    },
+    {
+     "id": "int_4c_email_verification",
+     "riskId": "risk_4c_stall_verification",
+     "modality": "email",
+     "content": "Still waiting? Check your spam folder for the Documenso verification email, or click here to resend it.",
+     "goal": "Recover users stuck at the verification wall before they abandon."
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/signup"
+      },
+      "file": "apps/remix/app/routes/_unauthenticated+/signup.tsx",
+      "stage": "mutual_commit"
+     },
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/signin"
+      },
+      "file": "apps/remix/app/routes/_unauthenticated+/signin.tsx",
+      "stage": "mutual_commit"
+     },
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/sign/:token/complete"
+      },
+      "file": "apps/remix/app/routes/_recipient+/sign.$token+/complete.tsx",
+      "stage": "mutual_commit"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 2
+      },
+      "file": "apps/remix/app/components/forms/signup.tsx",
+      "signalName": "sign_up_completed"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Sign In",
+   "entryPages": [
+    {
+     "route": "/signin",
+     "text": "Sign-in page"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "User arrives at the sign-in page.",
+     "route": "/signin",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/b4354818dd2606bf76b46578a3cbf640.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "User enters email and password or clicks an SSO provider button."
+    },
+    {
+     "kind": "step",
+     "text": "User submits credentials."
+    },
+    {
+     "kind": "decision",
+     "question": "Is two-factor authentication enabled?",
+     "outcomes": [
+      {
+       "label": "Yes \u2014 2FA required",
+       "goesTo": 4
+      },
+      {
+       "label": "No \u2014 direct entry",
+       "goesTo": 5
+      }
+     ]
+    },
+    {
+     "kind": "step",
+     "text": "User enters their 2FA code or backup code."
+    },
+    {
+     "kind": "page",
+     "text": "User lands on their team documents page.",
+     "route": "/t/:teamUrl/documents"
+    },
+    {
+     "kind": "outcome",
+     "label": "Signed in successfully",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "adoption",
+   "risks": [
+    {
+     "id": "risk_6a_stall_credentials",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "signal": "Dwell > 20s on sign-in form without interaction",
+     "label": "User can't remember credentials after an absence",
+     "subStep": "6a"
+    },
+    {
+     "id": "risk_6a_error_auth",
+     "kind": "error",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "signal": "Error banner visible \u2014 invalid credentials",
+     "label": "Wrong password or unrecognised email",
+     "subStep": "6a"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_6a_silence_credentials",
+     "riskId": "risk_6a_stall_credentials",
+     "modality": "silence",
+     "content": "Sign-in is a low-friction moment \u2014 the 'Forgot your password?' link is already visible. No intervention needed.",
+     "goal": "Avoid interrupting a routine action."
+    },
+    {
+     "id": "int_6a_text_auth",
+     "riskId": "risk_6a_error_auth",
+     "modality": "text",
+     "content": "Double-check your email address. If you signed up with Google or Microsoft, use that button instead.",
+     "goal": "Guide users who may have used a different auth method."
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/signin"
+      },
+      "file": "apps/remix/app/routes/_unauthenticated+/signin.tsx",
+      "stage": "adoption"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 5
+      },
+      "file": "apps/remix/app/components/forms/signin.tsx",
+      "signalName": "sign_in_completed"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Send Document for Signing",
+   "entryPages": [
+    {
+     "route": "/t/:teamUrl/documents",
+     "text": "Documents list page"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "User is on the documents list page.",
+     "route": "/t/:teamUrl/documents",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/29d75c9207065a219d8653293bad8123.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "User uploads a PDF by dropping it into the drop zone or clicking the upload button."
+    },
+    {
+     "kind": "page",
+     "text": "Envelope editor opens for the new document.",
+     "route": "/t/:teamUrl/documents/:id/edit",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/3c280a970bb8f6cf17bbc6bf682c7fc8.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "User adds recipient(s) with name, email, and role (signer, viewer, approver)."
+    },
+    {
+     "kind": "step",
+     "text": "User places signing fields (signature, date, text, checkbox) on the document pages."
+    },
+    {
+     "kind": "step",
+     "text": "User reviews settings and clicks Send."
+    },
+    {
+     "kind": "outcome",
+     "label": "Document sent to recipients",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "adoption",
+   "risks": [
+    {
+     "id": "risk_5c_stall_upload",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "signal": "Drop zone visible for > 60s without a file dropped or selected",
+     "label": "User doesn't know how to start \u2014 empty state paralysis before first upload",
+     "subStep": "5c"
+    },
+    {
+     "id": "risk_5c_error_upload",
+     "kind": "error",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "signal": "Error toast visible: file too large or wrong format",
+     "label": "Upload fails due to file size or unsupported format",
+     "subStep": "5c"
+    },
+    {
+     "id": "risk_6b_stall_recipients",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 3
+     },
+     "signal": "Dwell > 45s on recipient form without adding any recipient",
+     "label": "Unclear what role to assign or how to fill the form",
+     "subStep": "6b"
+    },
+    {
+     "id": "risk_6b_stall_fields",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 4
+     },
+     "signal": "Dwell > 60s on field placement page without placing any field",
+     "label": "User doesn't understand where or how to drag fields onto the PDF",
+     "subStep": "6b"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_5c_text_upload",
+     "riskId": "risk_5c_stall_upload",
+     "modality": "text",
+     "content": "Drag a PDF here or click to browse. You can add multiple documents to one envelope.",
+     "goal": "Prompt the user to take the first action."
+    },
+    {
+     "id": "int_5c_text_upload_error",
+     "riskId": "risk_5c_error_upload",
+     "modality": "text",
+     "content": "The file must be a PDF under the size limit. Try compressing it or splitting it into separate documents.",
+     "goal": "Explain the constraint and give an actionable fix."
+    },
+    {
+     "id": "int_6b_text_recipients",
+     "riskId": "risk_6b_stall_recipients",
+     "modality": "text",
+     "content": "Add the email of the person who needs to sign. If you're not sure about roles, 'Signer' is the default.",
+     "goal": "Reduce decision paralysis on the role selector."
+    },
+    {
+     "id": "int_6b_voice_fields",
+     "riskId": "risk_6b_stall_fields",
+     "modality": "voice_presentation",
+     "content": "Let me show you \u2014 drag a Signature field from the sidebar onto the spot where the signer should sign. You can resize and reposition it afterwards.",
+     "goal": "Walk the user through field placement with a visual demo."
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/t/:teamUrl/documents"
+      },
+      "file": "apps/remix/app/routes/_authenticated+/t.$teamUrl+/documents._index.tsx",
+      "stage": "adoption"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 1
+      },
+      "file": "apps/remix/app/components/general/envelope/envelope-drop-zone-wrapper.tsx",
+      "signalName": "resource_created"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Sign a Document (Recipient)",
+   "entryPages": [
+    {
+     "route": "/sign/:token",
+     "text": "Signing link from email notification"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "Recipient opens the signing link and sees the document with their fields highlighted.",
+     "route": "/sign/:token",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/b70c8c96b16bcf0031961f6aff7dc717.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "Recipient reviews the document content."
+    },
+    {
+     "kind": "step",
+     "text": "Recipient fills in required fields (signature, initials, text fields)."
+    },
+    {
+     "kind": "modal",
+     "text": "Confirmation dialog: 'Are you sure? You are about to complete signing the following document.'"
+    },
+    {
+     "kind": "step",
+     "text": "Recipient confirms and clicks Complete."
+    },
+    {
+     "kind": "page",
+     "text": "Signing complete confirmation page is shown.",
+     "route": "/sign/:token/complete",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/8bd97227a4e16881105290a4f09c43e9.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "outcome",
+     "label": "Document signed successfully",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "adoption",
+   "risks": [
+    {
+     "id": "risk_5c_stall_fields_recipient",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "signal": "Dwell > 45s on signing page without interacting with any field",
+     "label": "Recipient unsure which fields to fill or how to draw a signature",
+     "subStep": "5c"
+    },
+    {
+     "id": "risk_5c_error_submit",
+     "kind": "error",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 4
+     },
+     "signal": "Error toast: 'We were unable to submit this document at this time'",
+     "label": "Signing submission fails due to server error or network issue",
+     "subStep": "5c"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_5c_text_recipient_fields",
+     "riskId": "risk_5c_stall_fields_recipient",
+     "modality": "text",
+     "content": "Tap the highlighted field to fill it in. For signature fields, you can draw, type, or upload your signature.",
+     "goal": "Guide the recipient to their first field interaction."
+    },
+    {
+     "id": "int_5c_text_submit_error",
+     "riskId": "risk_5c_error_submit",
+     "modality": "text",
+     "content": "Something went wrong \u2014 please try again. Your progress is saved, so you won't lose any filled fields.",
+     "goal": "Reassure the recipient that their work is safe and encourage retry."
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/sign/:token"
+      },
+      "file": "apps/remix/app/routes/_recipient+/sign.$token+/_index.tsx",
+      "stage": "adoption"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 4
+      },
+      "file": "apps/remix/app/components/general/envelope-signing/envelope-signing-complete-dialog.tsx",
+      "signalName": "goal_completed"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Create Template",
+   "entryPages": [
+    {
+     "route": "/t/:teamUrl/templates",
+     "text": "Templates list page"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "User is on the templates list page.",
+     "route": "/t/:teamUrl/templates",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/ee504af225c062a7aafd27b178d38255.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "User clicks to create a new template."
+    },
+    {
+     "kind": "page",
+     "text": "Template editor opens.",
+     "route": "/t/:teamUrl/templates/:id/edit",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/3a7a223e9d7cd4aa4c4ac14a26585557.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "User uploads a PDF and configures default recipients and fields."
+    },
+    {
+     "kind": "step",
+     "text": "User saves the template."
+    },
+    {
+     "kind": "outcome",
+     "label": "Template created for reuse",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "adoption",
+   "risks": [
+    {
+     "id": "risk_6c_stall_discover",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "signal": "User has sent 3+ documents but has never visited /templates",
+     "label": "User doesn't discover templates exist \u2014 repeats manual setup each time",
+     "subStep": "6c"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_6c_text_templates",
+     "riskId": "risk_6c_stall_discover",
+     "modality": "text",
+     "content": "Sending similar documents often? Save this as a template \u2014 next time you'll just fill in the recipients and send.",
+     "goal": "Surface the templates feature to a user who would benefit from it."
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/t/:teamUrl/templates"
+      },
+      "file": "apps/remix/app/routes/_authenticated+/t.$teamUrl+/templates._index.tsx",
+      "stage": "adoption"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 4
+      },
+      "file": "apps/remix/app/components/general/envelope-editor/envelope-editor.tsx",
+      "signalName": "resource_created"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Manage Organisation Billing",
+   "entryPages": [
+    {
+     "route": "/o/:orgUrl/settings/billing",
+     "text": "Organisation billing settings"
+    },
+    {
+     "route": "/settings/billing",
+     "text": "Personal billing settings"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "User navigates to billing settings.",
+     "route": "/o/:orgUrl/settings/billing"
+    },
+    {
+     "kind": "step",
+     "text": "User reviews current plan and usage."
+    },
+    {
+     "kind": "step",
+     "text": "User selects a plan and clicks Subscribe."
+    },
+    {
+     "kind": "modal",
+     "text": "Confirmation dialog: 'You are about to subscribe to the {planName}' with org options."
+    },
+    {
+     "kind": "step",
+     "text": "User completes payment via Stripe checkout."
+    },
+    {
+     "kind": "outcome",
+     "label": "Plan upgraded",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "expansion",
+   "risks": [
+    {
+     "id": "risk_7a_stall_plan_choice",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 2
+     },
+     "signal": "Dwell > 60s on billing page toggling between Monthly/Yearly without clicking Subscribe",
+     "label": "Decision fatigue choosing between plans or intervals",
+     "subStep": "7a"
+    },
+    {
+     "id": "risk_7e_stall_internal",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 4
+     },
+     "signal": "User reaches Stripe checkout but abandons without completing payment",
+     "label": "User needs internal approval \u2014 can't commit payment alone",
+     "subStep": "7e"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_7a_text_plan",
+     "riskId": "risk_7a_stall_plan_choice",
+     "modality": "text",
+     "content": "Not sure which plan? The yearly option saves you ~20%. You can always switch later.",
+     "goal": "Collapse the choice with a concrete recommendation."
+    },
+    {
+     "id": "int_7e_email_checkout",
+     "riskId": "risk_7e_stall_internal",
+     "modality": "email",
+     "content": "You were looking at upgrading your Documenso plan. If you need to share pricing with your team, here's a summary you can forward.",
+     "goal": "Enable the champion to share pricing internally and return to complete."
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/o/:orgUrl/settings/billing"
+      },
+      "file": "apps/remix/app/routes/_authenticated+/o.$orgUrl.settings.billing.tsx",
+      "stage": "expansion"
+     },
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/settings/billing"
+      },
+      "file": "apps/remix/app/routes/_authenticated+/settings+/billing.tsx",
+      "stage": "expansion"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 1
+      },
+      "file": "apps/remix/app/components/general/billing-plans.tsx",
+      "signalName": "plan_viewed"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 4
+      },
+      "file": "apps/remix/app/components/general/billing-plans.tsx",
+      "signalName": "checkout_started"
+     }
+    ],
+    "detected": []
+   }
+  },
+  {
+   "name": "Invite Team Members",
+   "entryPages": [
+    {
+     "route": "/t/:teamUrl/settings/members",
+     "text": "Team member settings"
+    },
+    {
+     "route": "/o/:orgUrl/settings/members",
+     "text": "Organisation member settings"
+    }
+   ],
+   "steps": [
+    {
+     "kind": "page",
+     "text": "User navigates to team or organisation member settings.",
+     "route": "/t/:teamUrl/settings/members",
+     "visualRef": {
+      "url": "https://holostaff-render-assets.s3.us-east-1.amazonaws.com/mockups/ec147743a28c69463ab02e956abe20e9.png",
+      "w": 1440,
+      "h": 900
+     }
+    },
+    {
+     "kind": "step",
+     "text": "User clicks Invite and enters the new member's email and role."
+    },
+    {
+     "kind": "step",
+     "text": "User submits the invitation."
+    },
+    {
+     "kind": "outcome",
+     "label": "Invitation sent",
+     "result": "converted"
+    }
+   ],
+   "bowtieStage": "expansion",
+   "risks": [
+    {
+     "id": "risk_7c_stall_invite",
+     "kind": "stall",
+     "anchor": {
+      "kind": "step",
+      "stepIndex": 1
+     },
+     "signal": "Invite dialog opened but dismissed without submitting",
+     "label": "User unsure what role to assign or whether to invite at team vs org level",
+     "subStep": "7c"
+    }
+   ],
+   "interventions": [
+    {
+     "id": "int_7c_text_invite",
+     "riskId": "risk_7c_stall_invite",
+     "modality": "text",
+     "content": "Members with the 'Member' role can send and manage their own documents. Use 'Admin' only if they need to change team settings.",
+     "goal": "Clarify role meanings to unblock the invite."
+    }
+   ],
+   "instrumentation": {
+    "expected": [
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/t/:teamUrl/settings/members"
+      },
+      "file": "apps/remix/app/routes/_authenticated+/t.$teamUrl+/settings.members.tsx",
+      "stage": "expansion"
+     },
+     {
+      "kind": "markStageEntry",
+      "anchor": {
+       "kind": "entry_page",
+       "route": "/o/:orgUrl/settings/members"
+      },
+      "file": "apps/remix/app/routes/_authenticated+/o.$orgUrl.settings.members.tsx",
+      "stage": "expansion"
+     },
+     {
+      "kind": "emitSignal",
+      "anchor": {
+       "kind": "step",
+       "stepIndex": 2
+      },
+      "file": "apps/remix/app/components/dialogs/team-member-create-dialog.tsx",
+      "signalName": "teammate_invited"
+     }
+    ],
+    "detected": []
+   }
+  }
+ ],
+ "designTokens": {
+  "fontFamily": "Inter",
+  "fontFamilyMono": "",
+  "radius": "0.5rem",
+  "spacing": "",
+  "light": {
+   "primary": "95.08 71.08% 67.45%",
+   "primaryForeground": "95.08 71.08% 10%",
+   "accent": "210 40% 96.1%",
+   "background": "0 0% 100%",
+   "foreground": "222.2 47.4% 11.2%",
+   "muted": "210 40% 96.1%",
+   "border": "214.3 31.8% 91.4%"
+  },
+  "dark": {
+   "primary": "95.08 71.08% 67.45%",
+   "primaryForeground": "95.08 71.08% 10%",
+   "accent": "0 0% 27.9%",
+   "background": "0 0% 14.9%",
+   "foreground": "0 0% 97%",
+   "muted": "0 0% 23.4%",
+   "border": "0 0% 27.9%"
+  },
+  "source": [
+   "packages/ui/styles/theme.css",
+   "packages/tailwind-config/index.cjs",
+   "apps/remix/app/app.css"
+  ]
+ },
+ "stageCopilots": {
+  "awareness": null,
+  "education": null,
+  "selection": null,
+  "mutual_commit": null,
+  "onboarding": null,
+  "adoption": null,
+  "expansion": null
+ },
+ "identityInstrumentation": {
+  "expected": [
+   {
+    "kind": "identify",
+    "anchor": {
+     "kind": "sign_in_complete",
+     "component": "apps/remix/app/routes/_unauthenticated+/signin.tsx"
+    },
+    "file": "apps/remix/app/routes/_unauthenticated+/signin.tsx"
+   },
+   {
+    "kind": "identify",
+    "anchor": {
+     "kind": "sign_in_complete",
+     "component": "apps/remix/app/routes/_unauthenticated+/signup.tsx"
+    },
+    "file": "apps/remix/app/routes/_unauthenticated+/signup.tsx"
+   },
+   {
+    "kind": "identify",
+    "anchor": {
+     "kind": "sign_in_complete",
+     "component": "SignInForm"
+    },
+    "file": "apps/remix/app/components/forms/signin.tsx"
+   },
+   {
+    "kind": "identify",
+    "anchor": {
+     "kind": "sign_in_complete",
+     "component": "AuthClient.emailPassword.signIn"
+    },
+    "file": "packages/auth/client/index.ts"
+   },
+   {
+    "kind": "clearIdentity",
+    "anchor": {
+     "kind": "sign_out",
+     "component": "AuthClient.signOut"
+    },
+    "file": "packages/auth/client/index.ts"
+   },
+   {
+    "kind": "clearIdentity",
+    "anchor": {
+     "kind": "sign_out",
+     "component": "signOutRoute"
+    },
+    "file": "packages/auth/server/routes/sign-out.ts"
+   }
+  ],
+  "detected": []
+ },
+ "coverageGaps": [
+  "i18n: Documenso uses Lingui for runtime i18n; compiled message catalogs (.po/.json) were not found in source \u2014 copy was extracted from inline <Trans> tags only.",
+  "Admin panel routes (admin+/) were identified but not deeply analyzed \u2014 they are internal staff tools, not customer-facing.",
+  "Embed components (apps/remix/app/components/embed/) exist for embedded signing flows but were not mapped as separate workflows.",
+  "Email templates (packages/email/) contain customer-facing copy (invitation emails, completion notifications) that was not sampled.",
+  "The docs app (apps/docs) and marketing/landing pages were not analyzed \u2014 the Remix app has no public landing page; the root route redirects authenticated users.",
+  "Webhook and API token settings flows were identified but not mapped as workflows \u2014 they are power-user features with low traffic."
+ ],
+ "notes": "Documenso is a monorepo with the main app in apps/remix (React Router / Remix). It uses Lingui for i18n (no static JSON locale files in source \u2014 compiled at build time). The Holostaff SDK is already integrated: it initialises from the authenticated layout and calls markStageEntry based on route patterns. The app uses a multi-tenant hierarchy: User \u2192 Organisation \u2192 Team, with documents and templates scoped to teams. Recipients (signers) use separate unauthenticated routes (/sign/:token) and are deliberately excluded from the copilot scope.",
+ "depth": "full",
+ "customerEdits": {
+  "stageCopilots": {
+   "adoption": "documenso-nora",
+   "expansion": "documenso-nora",
+   "onboarding": "documenso-nora"
+  }
+ },
+ "updates": {
+  "routes": {
+   "added": [
+    "/",
+    "/d/:token",
+    "/o/:orgUrl",
+    "/o/:orgUrl/settings/billing",
+    "/o/:orgUrl/settings/members",
+    "/t/:teamUrl/settings/branding",
+    "/t/:teamUrl/settings/general",
+    "/t/:teamUrl/settings/members"
+   ],
+   "removed": [
+    "/check-email",
+    "/dashboard",
+    "/o/:orgUrl/settings",
+    "/settings/organisations",
+    "/sign/:token/expired",
+    "/sign/:token/rejected",
+    "/t/:teamUrl/settings"
+   ],
+   "changed": [
+    "/forgot-password",
+    "/inbox",
+    "/p/:url",
+    "/reset-password/:token",
+    "/settings/billing",
+    "/settings/profile",
+    "/settings/security",
+    "/share/:slug",
+    "/sign/:token",
+    "/sign/:token/complete",
+    "/signin",
+    "/signup",
+    "/t/:teamUrl/documents",
+    "/t/:teamUrl/documents/:id",
+    "/t/:teamUrl/documents/:id/edit",
+    "/t/:teamUrl/templates",
+    "/t/:teamUrl/templates/:id/edit",
+    "/verify-email/:token"
+   ]
+  },
+  "components": {
+   "added": [
+    "AppCommandMenu",
+    "AppHeader",
+    "AppNavMobile",
+    "ClaimAccount",
+    "OrgMenuSwitcher"
+   ],
+   "removed": [
+    "DocumentSigningCompleteDialog",
+    "DocumentSigningForm",
+    "EnvelopeDistributeDialog",
+    "MenuSwitcher",
+    "OrganisationInvitations"
+   ],
+   "changed": [
+    "AppNavDesktop",
+    "BillingPlans",
+    "DocumentSigningPageViewV2",
+    "DocumentsTable",
+    "EnvelopeEditor",
+    "InboxTable",
+    "SignInForm",
+    "SignUpForm",
+    "TemplatesTable"
+   ]
+  },
+  "copy": {
+   "added": 13,
+   "removed": 12,
+   "changed": 0
+  },
+  "brandVoice": [
+   "tone",
+   "keywords",
+   "avoidTerms"
+  ],
+  "workflows": {
+   "added": [
+    "Create Template",
+    "Invite Team Members",
+    "Manage Organisation Billing",
+    "Send Document for Signing",
+    "Sign In"
+   ],
+   "removed": [
+    "Billing & Plan Upgrade",
+    "Create a Template",
+    "Organisation & Team Setup",
+    "Send a Document for Signing"
+   ],
+   "changed": [
+    "Sign Up",
+    "Sign a Document (Recipient)"
+   ]
+  }
+ }
+}
