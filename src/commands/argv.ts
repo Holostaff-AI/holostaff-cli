@@ -82,6 +82,8 @@ export interface SimulateArgs {
   ci: boolean
   sourceId?: string
   scenarioId?: string
+  /** write a PR-comment markdown report to this path (CI mode) */
+  report?: string
 }
 
 export function parseArgs(argv: string[]): ParsedArgs {
@@ -116,6 +118,7 @@ function parseSimulate(rest: string[]): ParsedArgs {
     if (tok === '--ci') { opts.ci = true; continue }
     if (tok === '--source') { opts.sourceId = rest[++i]; continue }
     if (tok === '--scenario') { opts.scenarioId = rest[++i]; continue }
+    if (tok === '--report') { opts.report = rest[++i]; continue }
     if (tok === '--preflight-only') { opts.preflightOnly = true; continue }
     if (tok === '--suite') { opts.suite = rest[++i] ?? ''; continue }
     if (tok === '--baseline') { opts.baseline = rest[++i]; continue }

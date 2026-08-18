@@ -152,6 +152,16 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
     ? {}
     : { SIM_MODEL_BASE_URL: `${apiBase}/api/cli/sim`, SIM_MODEL_KEY: apiKey }
 
+  interface RunRow {
+    scenario: string
+    persona: string
+    endState: string
+    steps: number | null
+    wallMin: number | null
+    confusions: number | null
+    exitLine: string
+  }
+  const rows: RunRow[] = []
   let failures = 0
   let ran = 0
   for (const scenario of scenarios) {
@@ -196,6 +206,21 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
         ? JSON.parse(readFileSync(join(latest, 'cogs.json'), 'utf8'))
         : null
       if (runJson.endState !== 'done') failures++
+      const rj = runJson as {
+        endState?: string
+        endDetail?: string
+        metrics?: { steps?: number; wallMin?: number; confusions?: number }
+        sayLines?: Array<{ say?: string }>
+      }
+      rows.push({
+        scenario: String(scenario.spec.name ?? scenario.id),
+        persona: String(manifest.personas.find(p => p.id === personaId)?.name ?? personaId),
+        endState: rj.endState ?? '?',
+        steps: rj.metrics?.steps ?? null,
+        wallMin: rj.metrics?.wallMin ?? null,
+        confusions: rj.metrics?.confusions ?? null,
+        exitLine: (rj.endDetail || rj.sayLines?.slice(-1)[0]?.say || '').slice(0, 140),
+      })
       const up = await fetch(`${apiBase}/api/cli/sim/results`, {
         method: 'POST',
         headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
@@ -212,5 +237,32 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
   }
 
   log(`${ran} run(s), ${failures} did not reach the goal`)
+
+  if (opts.report) {
+    const OUTCOME: Record<string, string> = {
+      done: '✅ reached the goal',
+      'gave-up': '🛑 gave up',
+      'step-cap': '⚠️ ran out of steps',
+      'wall-cap': '⚠️ ran out of time',
+    }
+    const lines: string[] = []
+    lines.push('## 🎭 Holostaff simulation')
+    lines.push('')
+    lines.push(`Synthetic users ran this branch. ${failures === 0 ? 'Every run reached its goal.' : `${failures} of ${ran} run(s) missed the goal.`}`)
+    lines.push('')
+    lines.push('| Scenario | Persona | Outcome | Steps | Minutes | Confusions |')
+    lines.push('|---|---|---|---|---|---|')
+    for (const r of rows) {
+      lines.push(`| ${r.scenario} | ${r.persona} | ${OUTCOME[r.endState] ?? r.endState} | ${r.steps ?? ''} | ${r.wallMin ?? ''} | ${r.confusions ?? ''} |`)
+    }
+    lines.push('')
+    for (const r of rows) {
+      if (r.exitLine) lines.push(`> **${r.persona}**, at the end: "${r.exitLine}"`)
+    }
+    lines.push('')
+    lines.push('All numbers are synthetic (simulated users, not real traffic). Watch the runs on the [Results surface](https://www.holostaff.ai/impact).')
+    writeFileSync(opts.report, lines.join('\n') + '\n')
+    log(`report written to ${opts.report}`)
+  }
   return failures > 0 ? 1 : 0
 }
