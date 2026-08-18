@@ -69,6 +69,9 @@ interface Scenario {
   context: string
   goal: string
   credentials?: { email: string; password: string }
+  /** sanctioned FAKE payment card for demo/test checkouts — without this,
+   *  the persona refuses all payment forms (the safe default) */
+  testCard?: { number: string; expiry?: string; cvc?: string }
   /** pre-seeded localStorage (dev-auth targets: the identity is set before
    *  first paint, so the persona starts signed in — the scenario context
    *  should say so) */
@@ -269,6 +272,10 @@ const credLines = scenario.credentials
   ? `- Your login is ${scenario.credentials.email} with password ${scenario.credentials.password}.`
   : '- You have no login; use what the product offers.'
 
+const payLine = scenario.testCard
+  ? `- This is a TEST checkout: pay with the fake test card ${scenario.testCard.number}, expiry ${scenario.testCard.expiry ?? 'any future date'}, CVC ${scenario.testCard.cvc ?? 'any 3 digits'}. No real money exists here; entering it is safe and expected.`
+  : '- You never enter payment details of any kind.'
+
 const BRIEFING = `${personaBriefing(persona, mech)}
 
 Your situation: ${scenario.context}
@@ -277,7 +284,7 @@ Your goal: ${scenario.goal}
 
 Practical facts:
 ${credLines}
-- You never enter payment details of any kind.
+${payLine}
 - You never speak passwords, codes, or email addresses out loud in "say".
 - If a process is visibly running (spinner, progress), "wait" is fine — but
   waiting on nothing is friction, and your patience is limited.

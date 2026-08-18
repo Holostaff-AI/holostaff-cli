@@ -179,6 +179,7 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
         : String(scenario.spec.goal ?? ''),
       maxSteps: scenario.spec.guards?.maxSteps ?? 45,
       wallMin: scenario.spec.guards?.wallMin ?? 20,
+      ...(scenario.spec.testCard ? { testCard: scenario.spec.testCard } : {}),
     }
     writeFileSync(join(simDir, 'scenarios', `${scenario.id}.json`), JSON.stringify(spec, null, 2))
 
