@@ -3,3 +3,4 @@ dist
 .holostaff
 *.log
 .DS_Store
+*.tgz
