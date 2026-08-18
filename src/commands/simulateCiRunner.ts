@@ -49,6 +49,15 @@ interface ManifestScenario {
 interface Manifest {
   personas: Array<Record<string, unknown> & { id: string }>
   scenarios: ManifestScenario[]
+  budget?: { monthlyRuns: number; used: number; remaining: number }
+}
+
+/** Optional repo-side suite config (.holostaff/simulate.json) — reviewable
+ *  in the repo like the recipe (D12). */
+interface SuiteConfig {
+  scenarios?: string[]
+  samples?: number
+  thresholds?: { minSuccessRate?: number }
 }
 
 const log = (m: string) => process.stderr.write(`holostaff sim: ${m}\n`)
@@ -123,8 +132,38 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
   const manifest = await mres.json() as Manifest
   let scenarios = manifest.scenarios
   if (opts.scenarioId) scenarios = scenarios.filter(s => s.id === opts.scenarioId)
+
+  const suitePath = join(process.cwd(), '.holostaff', 'simulate.json')
+  const suite: SuiteConfig = existsSync(suitePath)
+    ? JSON.parse(readFileSync(suitePath, 'utf8')) as SuiteConfig
+    : {}
+  if (Array.isArray(suite.scenarios) && suite.scenarios.length) {
+    scenarios = scenarios.filter(s => suite.scenarios!.includes(s.id))
+  }
+  const samples = Math.max(1, suite.samples ?? 1)
+  const minSuccessRate = suite.thresholds?.minSuccessRate ?? 1.0
+
   if (!scenarios.length) { log('no scenarios to run. Author one on the journey map canvas.'); return 2 }
-  log(`${scenarios.length} scenario(s), ${manifest.personas.length} persona(s) in the workspace`)
+  log(`${scenarios.length} scenario(s) × ${samples} sample(s), ${manifest.personas.length} persona(s) in the workspace`)
+
+  // D20: monthly run budget — plan the job, skip what exceeds the budget,
+  // and say so with a visible annotation (never silently).
+  const planned = scenarios.reduce((n, s) => n + Math.max(1, s.personaIds.length || 1) * samples, 0)
+  const budget = manifest.budget
+  let allowance = planned
+  if (budget) {
+    allowance = Math.min(planned, budget.remaining)
+    if (budget.remaining < planned) {
+      const msg = `monthly run budget: ${budget.used}/${budget.monthlyRuns} used — running ${allowance} of ${planned} planned run(s), skipping the rest`
+      log(msg)
+      if (process.env.GITHUB_ACTIONS) console.log(`::warning title=Holostaff run budget::${msg}`)
+    } else if (budget.monthlyRuns > 0 && (budget.used + planned) / budget.monthlyRuns >= 0.8) {
+      const msg = `monthly run budget at ${Math.round(((budget.used + planned) / budget.monthlyRuns) * 100)}% after this job (${budget.used + planned}/${budget.monthlyRuns})`
+      log(msg)
+      if (process.env.GITHUB_ACTIONS) console.log(`::notice title=Holostaff run budget::${msg}`)
+    }
+  }
+  let skipped = 0
 
   await serveUp(recipe, process.cwd())
   if (opts.preflightOnly) { log('preflight-only: done'); return 0 }
@@ -160,6 +199,7 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
     wallMin: number | null
     confusions: number | null
     exitLine: string
+    resultId?: string
   }
   const rows: RunRow[] = []
   let failures = 0
@@ -185,6 +225,8 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
 
     for (const personaId of personaIds) {
       if (!manifest.personas.some(p => p.id === personaId)) continue
+      for (let sample = 0; sample < samples; sample++) {
+      if (ran >= allowance) { skipped++; continue }
       ran++
       log(`run: ${scenario.spec.name ?? scenario.id} as ${personaId}`)
       const code = await new Promise<number>((resolve) => {
@@ -234,10 +276,31 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
         }),
       })
       log(up.ok ? `result uploaded (${runJson.endState})` : `result upload failed: HTTP ${up.status}`)
+      if (up.ok) {
+        const { resultId } = await up.json() as { resultId?: string }
+        if (rows.length) rows[rows.length - 1]!.resultId = resultId
+        // ship the screen recording so the workspace can compose the
+        // rehearsal clip on demand (lazy render)
+        const videoName = (runJson as { video?: string }).video ?? 'screen.webm'
+        const videoPath = join(latest, videoName)
+        if (resultId && existsSync(videoPath)) {
+          const rec = await fetch(`${apiBase}/api/cli/sim/results/${resultId}/recording`, {
+            method: 'PUT',
+            headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'video/webm' },
+            body: readFileSync(videoPath),
+          }).catch(() => null)
+          log(rec?.ok ? 'recording uploaded (clip renders on view)' : 'recording upload skipped')
+        }
+      }
+      }
     }
   }
 
-  log(`${ran} run(s), ${failures} did not reach the goal`)
+  const successRate = ran > 0 ? (ran - failures) / ran : 0
+  // A budget skip is not a failure (D20): an all-skipped job passes with
+  // its annotation. A job that ran nothing for other reasons fails loud.
+  const passed = ran === 0 ? skipped > 0 : successRate >= minSuccessRate
+  log(`${ran} run(s), ${failures} missed the goal, success rate ${(successRate * 100).toFixed(0)}% (threshold ${(minSuccessRate * 100).toFixed(0)}%)${skipped ? `, ${skipped} skipped over budget` : ''}`)
 
   if (opts.report) {
     const OUTCOME: Record<string, string> = {
@@ -249,7 +312,11 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
     const lines: string[] = []
     lines.push('## 🎭 Holostaff simulation')
     lines.push('')
-    lines.push(`Synthetic users ran this branch. ${failures === 0 ? 'Every run reached its goal.' : `${failures} of ${ran} run(s) missed the goal.`}`)
+    lines.push(ran === 0 && skipped > 0
+      ? 'No runs executed: the monthly run budget is used up.'
+      : `Synthetic users ran this branch. ${failures === 0 ? 'Every run reached its goal.' : `${failures} of ${ran} run(s) missed the goal.`} Success rate ${(successRate * 100).toFixed(0)}% against a ${(minSuccessRate * 100).toFixed(0)}% threshold: ${passed ? 'pass.' : 'fail.'}`)
+    if (skipped) lines.push('')
+    if (skipped) lines.push(`⏭️ ${skipped} run(s) were skipped: the monthly run budget is used up. Raise it in workspace settings or wait for the new month.`)
     lines.push('')
     lines.push('| Scenario | Persona | Outcome | Steps | Minutes | Confusions |')
     lines.push('|---|---|---|---|---|---|')
@@ -258,12 +325,12 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
     }
     lines.push('')
     for (const r of rows) {
-      if (r.exitLine) lines.push(`> **${r.persona}**, at the end: "${r.exitLine}"`)
+      if (r.exitLine) lines.push(`> **${r.persona}**, at the end: "${r.exitLine}"${r.resultId ? ` — [watch this run](https://www.holostaff.ai/impact?run=${encodeURIComponent(r.resultId)})` : ''}`)
     }
     lines.push('')
     lines.push('All numbers are synthetic (simulated users, not real traffic). Watch the runs on the [Results surface](https://www.holostaff.ai/impact).')
     writeFileSync(opts.report, lines.join('\n') + '\n')
     log(`report written to ${opts.report}`)
   }
-  return failures > 0 ? 1 : 0
+  return passed ? 0 : 1
 }
