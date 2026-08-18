@@ -25,6 +25,7 @@ const COMMAND_HELP = [
   '    holostaff deploy [--dry-run] [--force]            Open a deploy PR for the bound source',
   '    holostaff embed COPILOT_ID [--quiet] [--json]     Headless embed: plan, commit, open PR',
   '             [--out PATH] [--no-pr]',
+  '    holostaff simulate SUITE [--baseline ID]          Run a synthetic-user suite (preview)',
   '    holostaff --version                               Print CLI version',
   '    holostaff --help                                  This message',
   '',

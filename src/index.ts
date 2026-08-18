@@ -28,6 +28,7 @@ import {
 } from './commands/text.js'
 import { runScanCi } from './commands/scanCi.js'
 import { runEmbedCi } from './commands/embedCi.js'
+import { runSimulateCi } from './commands/simulateCi.js'
 import { runDeploy } from './deploy/index.js'
 
 // Read version from our own package.json at runtime — keeps a single
@@ -80,6 +81,10 @@ async function main() {
         process.exit(1)
       }
     }
+    case 'simulate':
+      // Headless like scan; dispatches to the local engine until the
+      // hosted CI runner ships (user-simulation PRD P4).
+      process.exit(await runSimulateCi(args.opts))
     case 'embed':
       // Headless like scan — the interactive flow lives at /embed in
       // the shell; this path is for CI and the deployment test rig.

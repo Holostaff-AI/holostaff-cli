@@ -68,8 +68,21 @@ export type ParsedArgs =
   | { kind: 'embed'; opts: EmbedArgs }
   | { kind: 'help' }
   | { kind: 'version' }
+  | { kind: 'simulate'; opts: SimulateArgs }
   | { kind: 'unknown'; arg: string }
   | { kind: 'bad_args'; reason: string }
+
+export interface SimulateArgs {
+  suite: string
+  baseline?: string
+  label?: string
+  preflightOnly: boolean
+  /** CI mode: recipe from ./.holostaff/environment.json, scenarios +
+   *  personas from the workspace, results uploaded back */
+  ci: boolean
+  sourceId?: string
+  scenarioId?: string
+}
 
 export function parseArgs(argv: string[]): ParsedArgs {
   if (argv.length === 0) return { kind: 'interactive' }
@@ -91,8 +104,28 @@ export function parseArgs(argv: string[]): ParsedArgs {
     return parseScan(['--from', rest[0]!, ...rest.slice(1)])
   }
   if (a === 'deploy') return parseDeploy(argv.slice(1))
+  if (a === 'simulate') return parseSimulate(argv.slice(1))
   if (a === 'embed') return parseEmbed(argv.slice(1))
   return { kind: 'unknown', arg: a }
+}
+
+function parseSimulate(rest: string[]): ParsedArgs {
+  const opts: SimulateArgs = { suite: '', preflightOnly: false, ci: false }
+  for (let i = 0; i < rest.length; i++) {
+    const tok = rest[i]!
+    if (tok === '--ci') { opts.ci = true; continue }
+    if (tok === '--source') { opts.sourceId = rest[++i]; continue }
+    if (tok === '--scenario') { opts.scenarioId = rest[++i]; continue }
+    if (tok === '--preflight-only') { opts.preflightOnly = true; continue }
+    if (tok === '--suite') { opts.suite = rest[++i] ?? ''; continue }
+    if (tok === '--baseline') { opts.baseline = rest[++i]; continue }
+    if (tok === '--label') { opts.label = rest[++i]; continue }
+    if (tok.startsWith('--')) return { kind: 'bad_args', reason: `unknown simulate flag: ${tok}` }
+    if (!opts.suite) { opts.suite = tok; continue }
+    return { kind: 'bad_args', reason: `simulate takes a single suite name (got extra: ${tok})` }
+  }
+  if (!opts.suite && !opts.ci) return { kind: 'bad_args', reason: 'simulate requires a suite name (holostaff simulate <suite>) or --ci' }
+  return { kind: 'simulate', opts }
 }
 
 function parseEmbed(rest: string[]): ParsedArgs {
