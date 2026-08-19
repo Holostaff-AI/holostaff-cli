@@ -204,6 +204,15 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
   const rows: RunRow[] = []
   let failures = 0
   let ran = 0
+  // Level 1 workflow certification (autopilots PRD §6.1): per-workflow
+  // tallies, reported to the workspace after the suite so the Autopilots
+  // surface shows certification state per workflow.
+  const wfTally = new Map<string, { runs: number; failures: number; runIds: string[] }>()
+  const tallyFor = (wf: string) => {
+    let t = wfTally.get(wf)
+    if (!t) { t = { runs: 0, failures: 0, runIds: [] }; wfTally.set(wf, t) }
+    return t
+  }
   for (const scenario of scenarios) {
     const personaIds = scenario.personaIds.length ? scenario.personaIds : manifest.personas.slice(0, 1).map(p => p.id)
     const spec = {
@@ -249,6 +258,9 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
         ? JSON.parse(readFileSync(join(latest, 'cogs.json'), 'utf8'))
         : null
       if (runJson.endState !== 'done') failures++
+      const tally = tallyFor(scenario.workflowName || 'workflow')
+      tally.runs++
+      if (runJson.endState !== 'done') tally.failures++
       const rj = runJson as {
         endState?: string
         endDetail?: string
@@ -271,6 +283,7 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
           scenarioId: scenario.id,
           personaId,
           name: scenario.spec.name ?? scenario.id,
+          sourceId,
           runJson,
           cogs,
         }),
@@ -279,6 +292,7 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
       if (up.ok) {
         const { resultId } = await up.json() as { resultId?: string }
         if (rows.length) rows[rows.length - 1]!.resultId = resultId
+        if (resultId) tally.runIds.push(resultId)
         // ship the screen recording so the workspace can compose the
         // rehearsal clip on demand (lazy render)
         const videoName = (runJson as { video?: string }).video ?? 'screen.webm'
@@ -302,6 +316,36 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
   const passed = ran === 0 ? skipped > 0 : successRate >= minSuccessRate
   log(`${ran} run(s), ${failures} missed the goal, success rate ${(successRate * 100).toFixed(0)}% (threshold ${(minSuccessRate * 100).toFixed(0)}%)${skipped ? `, ${skipped} skipped over budget` : ''}`)
 
+  // Report Level 1 workflow certification per workflow (best-effort: an
+  // older server without the endpoint never fails the job).
+  interface CertLine { workflow: string; passed: boolean; ok: number; runs: number }
+  const certLines: CertLine[] = []
+  for (const [workflow, t] of wfTally) {
+    if (t.runs === 0) continue
+    const rate = (t.runs - t.failures) / t.runs
+    const certPassed = rate >= minSuccessRate
+    certLines.push({ workflow, passed: certPassed, ok: t.runs - t.failures, runs: t.runs })
+    const cres = await fetch(`${apiBase}/api/cli/sim/certifications`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        sourceId,
+        workflowName: workflow,
+        passed: certPassed,
+        rate,
+        threshold: minSuccessRate,
+        runs: t.runs,
+        failures: t.failures,
+        commit: process.env.GITHUB_SHA ?? undefined,
+        branch: process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || undefined,
+        runIds: t.runIds,
+      }),
+    }).catch(() => null)
+    log(cres?.ok
+      ? `certification recorded: ${workflow} ${certPassed ? 'passed' : 'FAILED'} (${t.runs - t.failures}/${t.runs})`
+      : `certification report skipped for ${workflow} (server did not accept it)`)
+  }
+
   if (opts.report) {
     const OUTCOME: Record<string, string> = {
       done: '✅ reached the goal',
@@ -324,6 +368,14 @@ export async function runSimulateCiMode(opts: SimulateArgs): Promise<number> {
       lines.push(`| ${r.scenario} | ${r.persona} | ${OUTCOME[r.endState] ?? r.endState} | ${r.steps ?? ''} | ${r.wallMin ?? ''} | ${r.confusions ?? ''} |`)
     }
     lines.push('')
+    if (certLines.length) {
+      for (const c of certLines) {
+        lines.push(c.passed
+          ? `- **${c.workflow}**: workflow certified (${c.ok}/${c.runs} runs)`
+          : `- **${c.workflow}**: workflow certification failed (${c.ok}/${c.runs} runs, threshold ${(minSuccessRate * 100).toFixed(0)}%)`)
+      }
+      lines.push('')
+    }
     for (const r of rows) {
       if (r.exitLine) lines.push(`> **${r.persona}**, at the end: "${r.exitLine}"${r.resultId ? ` — [watch this run](https://www.holostaff.ai/impact?run=${encodeURIComponent(r.resultId)})` : ''}`)
     }
