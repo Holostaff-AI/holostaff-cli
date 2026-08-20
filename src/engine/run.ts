@@ -27,7 +27,7 @@
  * and the product, nothing else.
  */
 
-import { mkdirSync, writeFileSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type Page } from 'playwright'
@@ -86,6 +86,11 @@ interface Scenario {
    *  accepts the offer, answers its asks, Allows/Denies its gates, and
    *  judges the outcome. The briefing changes accordingly. */
   mode?: string
+  /** Inject the Holostaff SDK into the page (hosts that don't embed it):
+   *  the IIFE bundle is added as an init script with a minimal init —
+   *  autopilot surfaces on, heavy subsystems off. Our-cloud only (the
+   *  bundle ships next to this checkout, not with the CLI engine). */
+  sdkInject?: { tenantId: string; sourceId: string; baseUrl?: string }
 }
 
 const SIM_DIR = process.env.SIM_DIR ?? HERE
@@ -280,7 +285,7 @@ digest, then choose ONE action as strict JSON:
   "quote": "optional — the exact on-screen text that misled you",
   "action": one of
     {"type":"goto","path":"/somewhere"}                   // navigate within the app
-    {"type":"click","text":"visible label"}               // click button/link by its visible text; buttons listed as (icon: name) are clicked by that name
+    {"type":"click","text":"visible label"}               // click button/link by its visible text; buttons listed as (icon: name) are clicked by that name; a label with [in: X] belongs to the block named X — copy the whole label including [in: X] and any #k
     {"type":"hover","text":"visible label"}               // rest your mouse on something — apps often reveal controls on hover
     {"type":"fill","target":"placeholder or label text","value":"...","nth":2}  // nth optional: 2 = the second matching box on screen
     {"type":"choose","target":"dropdown label","value":"the option you pick"}   // pick from a dropdown (native or custom)
@@ -370,6 +375,27 @@ const main = async (): Promise<void> => {
     await ctx.addInitScript((entries: Record<string, string>) => {
       for (const [k, v] of Object.entries(entries)) window.localStorage.setItem(k, v)
     }, scenario.initLocalStorage)
+  }
+  if (scenario.sdkInject) {
+    const bundle = join(HERE, '..', '..', '..', 'sdk', 'dist', 'holostaff-sdk.iife.js')
+    if (existsSync(bundle)) {
+      await ctx.addInitScript({ path: bundle })
+      await ctx.addInitScript((cfg: { tenantId: string; sourceId: string; baseUrl?: string }) => {
+        const g = window as unknown as { HolostaffSDK?: { holostaff: { init: (o: unknown) => void } } }
+        g.HolostaffSDK?.holostaff.init({
+          tenantId: cfg.tenantId,
+          sourceId: cfg.sourceId,
+          ...(cfg.baseUrl ? { baseUrl: cfg.baseUrl } : {}),
+          observe: { enabled: false },
+          presence: { enabled: false },
+          theater: { enabled: false },
+          voice: { enabled: false },
+        })
+      }, scenario.sdkInject)
+      console.log('  sdk injected (autopilot surfaces on, heavy subsystems off)')
+    } else {
+      console.log(`  sdkInject requested but bundle missing at ${bundle}`)
+    }
   }
   page = await ctx.newPage()
   // backstop for popups that evade the shim: adopt them into the main view
@@ -637,6 +663,46 @@ const report = async (): Promise<void> => {
 
 function escapeRe(s: string): string { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') }
 
+// "Message #2" / "Message #2/5" — the digest's ordinal grammar for
+// repeated identical labels (P6.1). 1-based, visible document order.
+function parseOrdinal(raw: string): { text: string; nth: number } {
+  const m = /^(.*?)\s*#(\d+)(?:\s*\/\s*\d+)?$/.exec(raw.trim())
+  if (m && m[1]!.trim()) return { text: m[1]!.trim(), nth: parseInt(m[2]!, 10) }
+  return { text: raw.trim(), nth: 0 }
+}
+
+// "Message [in: Contact] #2" — the digest's containment grammar (P6.1
+// slice 3): [in: X] names the labeled block the control lives in.
+function parseTarget(raw: string): { text: string; nth: number; container: string } {
+  const o = parseOrdinal(raw)
+  const m = /^(.*?)\s*\[in:?\s+([^\]]+)\]$/i.exec(o.text)
+  if (m && m[1]!.trim()) return { text: m[1]!.trim(), nth: o.nth, container: m[2]!.trim() }
+  return { text: o.text, nth: o.nth, container: '' }
+}
+
+// The tightest visible container whose text includes the block name —
+// selector list mirrors the digest's CONTAINER_SEL.
+async function containerScope(pg: Page, name: string) {
+  const loc = pg.locator(
+    'li, tr, fieldset, section, article, [role="group"], [role="listitem"], [role="row"], '
+    + '[class*="card"], [class*="block"], [class*="item"], [class*="panel"], [class*="row"], [class*="step"], [class*="field"]',
+    { hasText: new RegExp(escapeRe(name), 'i') },
+  )
+  return pickTightest(loc)
+}
+
+async function pickNthVisible(loc: ReturnType<Page['locator']>, k: number) {
+  const n = Math.min(await loc.count(), 24)
+  let seen = 0
+  for (let i = 0; i < n; i++) {
+    const el = loc.nth(i)
+    if (!(await el.isVisible().catch(() => false))) continue
+    seen++
+    if (seen === k) return el
+  }
+  return null
+}
+
 // hasText matches ancestors and hidden duplicates — pick the VISIBLE
 // candidate with the tightest own text (bench lesson).
 async function pickTightest(loc: ReturnType<Page['locator']>) {
@@ -655,21 +721,35 @@ async function pickTightest(loc: ReturnType<Page['locator']>) {
 // click handlers off plain divs/spans and users neither know nor care
 // about tag semantics. "(icon: name)" targets from the digest resolve to
 // the control containing that icon.
-async function resolveTarget(pg: Page, text: string) {
+async function resolveTarget(pg: Page, raw: string) {
+  const { text, nth, container } = parseTarget(raw)
+  // A [in: X] scope narrows the search to that block; if the scope (or a
+  // match inside it) cannot be found, fall back to the whole page rather
+  // than fail — the digest and the DOM can drift between ticks.
+  const scope = container ? await containerScope(pg, container) : null
+  const base = scope ?? pg
   const iconM = /\(?icon:?\s*([a-z0-9-]+)\)?/i.exec(text)
   if (iconM) {
-    const byIcon = await pickTightest(
-      pg.locator(`button:has([class*="${iconM[1]}"]), [role="button"]:has([class*="${iconM[1]}"])`),
-    )
-    if (byIcon) return byIcon
+    const iconSel = `button:has([class*="${iconM[1]}"]), [role="button"]:has([class*="${iconM[1]}"])`
+    for (const b of scope ? [scope, pg] : [pg]) {
+      const icons = b.locator(iconSel)
+      const byIcon = nth > 0 ? await pickNthVisible(icons, nth) : await pickTightest(icons)
+      if (byIcon) return byIcon
+    }
   }
   const re = new RegExp(escapeRe(text), 'i')
-  return (
-    (await pickTightest(pg.locator('button, [role="button"], a', { hasText: re }))) ??
-    (await pickTightest(pg.getByText(re))) ??
-    // "click the Enter-your-email box" — inputs are named by placeholder
-    (await resolveField(pg, text))
-  )
+  for (const b of scope ? [scope, pg] : [pg]) {
+    const found = nth > 0
+      // An ordinal names one specific instance — kth visible match in
+      // document order, never the "tightest".
+      ? (await pickNthVisible(b.locator('button, [role="button"], a', { hasText: re }), nth))
+        ?? (await pickNthVisible(b.getByText(re), nth))
+      : (await pickTightest(b.locator('button, [role="button"], a', { hasText: re })))
+        ?? (await pickTightest(b.getByText(re)))
+    if (found) return found
+  }
+  // "click the Enter-your-email box" — inputs are named by placeholder
+  return resolveField(pg, raw)
 }
 
 // nth (1-based, from the persona's own count of matching boxes) wins;
@@ -677,10 +757,16 @@ async function resolveTarget(pg: Page, text: string) {
 // twice lands in the next blank option, not over the first (run-4/5
 // lesson: the options carry default VALUES, so empty-preference alone
 // still overwrote — the vision model now names the box it means).
-async function resolveField(pg: Page, t: string, nth?: number) {
+async function resolveField(pg: Page, raw: string, nthArg?: number) {
+  // An explicit nth from the action wins; otherwise an ordinal suffix in
+  // the target itself ("Option Text #3/5") names the instance.
+  const parsed = parseTarget(raw)
+  const t = parsed.text
+  const nth = nthArg || parsed.nth || undefined
+  const scope = parsed.container ? await containerScope(pg, parsed.container) : null
   // A sighted user names a box by whatever it SHOWS: placeholder, label,
   // or its current value ("the Option 2 box"). Match all three.
-  const cands = pg.locator('input, textarea')
+  const cands = (scope ?? pg).locator('input, textarea')
   const n = Math.min(await cands.count(), 40)
   const tLow = t.toLowerCase()
   const visible: ReturnType<Page['locator']>[] = []
