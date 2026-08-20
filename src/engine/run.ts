@@ -81,6 +81,11 @@ interface Scenario {
   wallMin: number
   /** derived-success check (D5): a command printing {"success", "evidence"} */
   verify?: { cmd: string }
+  /** 'handover' = Level 2 certification (autopilots PRD §6.2): the persona
+   *  hands control to the product's autopilot and plays the human side —
+   *  accepts the offer, answers its asks, Allows/Denies its gates, and
+   *  judges the outcome. The briefing changes accordingly. */
+  mode?: string
 }
 
 const SIM_DIR = process.env.SIM_DIR ?? HERE
@@ -226,11 +231,32 @@ const payLine = scenario.testCard
   ? `- This is a TEST checkout: pay with the fake test card ${scenario.testCard.number}, expiry ${scenario.testCard.expiry ?? 'any future date'}, CVC ${scenario.testCard.cvc ?? 'any 3 digits'}. No real money exists here; entering it is safe and expected.`
   : '- You never enter payment details of any kind.'
 
+const handoverLines = scenario.mode === 'handover' ? `
+
+This product has an AUTOPILOT, and today you want it to do the work:
+- A small card will offer to do this workflow for you ("Do this for me").
+  Accept it. If a box asks what you want, tell it in your own words.
+- After you hand over, your job is to WATCH. The autopilot moves the
+  cursor and fills things by itself. Do not do the task yourself — use
+  "wait" while it visibly works, and react honestly to what you see.
+- It may show small cards asking you questions. Answer them in your own
+  words.
+- A small prompt may ask you to Allow or Deny one of its actions (like
+  placing an order). Decide like yourself: if it matches what you asked
+  for, Allow. If it worries you, Deny.
+- If it asks you to type sensitive fields (like the card number)
+  yourself, type them into the page yourself, then press its continue
+  button.
+- If it says "Paused" because you touched something, press Resume when
+  you want it to continue.
+- When it says it finished, look at the screen and judge honestly:
+  "done" only if your task truly got done; "stuck" if it failed you.` : ''
+
 const BRIEFING = `${personaBriefing(persona, mech)}
 
 Your situation: ${scenario.context}
 
-Your goal: ${scenario.goal}
+Your goal: ${scenario.goal}${handoverLines}
 
 Practical facts:
 ${credLines}
