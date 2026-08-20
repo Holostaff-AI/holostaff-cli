@@ -107,7 +107,11 @@ export const DIGEST_JS = `(() => {
       push('dropdown', 'label="' + lbl + '" current="' + cur + '" options=[' + opts.join(' | ') + ']', el)
       return
     }
-    push('input', (el.type || el.tagName.toLowerCase()) + ' placeholder="' + (el.placeholder || '') + '" label="' + lbl + '"', el)
+    // Current value included (masked for passwords): without it a fill
+    // produces NO visible change in the digest and the reader refills the
+    // same box forever (P6.1 finding).
+    const val = el.type === 'password' ? (el.value ? '•••' : '') : (el.value || '')
+    push('input', (el.type || el.tagName.toLowerCase()) + ' placeholder="' + (el.placeholder || '') + '" label="' + lbl + '" value="' + val.slice(0, 30) + '"', el)
   })
   root.querySelectorAll('code,pre,[class*="alert"],[class*="empty"],[class*="toast"]').forEach(el => { if (vis(el)) push('text', el.textContent) })
   root.querySelectorAll('p,li,span[class*="caption"],[class*="subtitle"]').forEach(el => {
