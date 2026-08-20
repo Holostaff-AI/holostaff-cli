@@ -13,7 +13,7 @@ export const DIGEST_JS = `(() => {
   // Interactive tags get ordinal disambiguation instead of dedup (P6.1):
   // five identical "Message" blocks list as "Message #2/5" etc., or block
   // N can never be targeted. Prose tags keep dedup.
-  const ORDINAL_TAGS = { button: 1, link: 1, input: 1, dropdown: 1 }
+  const ORDINAL_TAGS = { button: 1, link: 1, input: 1, dropdown: 1, node: 1 }
   const entries = []
   const seen = new Set()
   const push = (tag, text, el) => {
@@ -96,6 +96,14 @@ export const DIGEST_JS = `(() => {
       if (m) label = '(icon: ' + m[1].replace(/-\\d+-(solid|outline)$/, '') + ')'
     }
     push(el.tagName === 'A' ? 'link' : 'button', label, el)
+  })
+  // Canvas/flow editors (react-flow, vue-flow …) render their nodes as
+  // plain divs — invisible to the button scan, so the only same-named
+  // thing on screen was the palette card that ADDS a node (P6.1 finding).
+  root.querySelectorAll('[class*="__node"]').forEach(el => {
+    if (!vis(el)) return
+    if (el.querySelector('[class*="__node"]')) return
+    push('node', (el.textContent || '').trim().slice(0, 60), el)
   })
   root.querySelectorAll('input,textarea,select').forEach(el => {
     if (!vis(el)) return
