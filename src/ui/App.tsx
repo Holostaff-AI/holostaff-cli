@@ -303,7 +303,7 @@ function embedResultMessage(result: EmbedExitResult): ShellMessage[] {
       } else {
         lines.push(`Push when ready: git push -u origin ${result.branch}.`)
       }
-      lines.push(`After your build deploys, mark embedded at https://www.holostaff.ai/copilots.`)
+      lines.push(`After your build deploys, your certified autopilots go live at https://www.holostaff.ai/autopilots.`)
       return [{ id: newId(), kind: 'system', tone: 'success', text: lines.join('\n') }]
     }
     case 'cancelled':

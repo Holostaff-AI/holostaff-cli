@@ -56,13 +56,13 @@ export function CopilotPicker({ onPick, onCancel }: CopilotPickerProps) {
     case 'loading':
       return (
         <Box marginTop={1} marginLeft={2}>
-          <Text color="gray">Loading your copilots…</Text>
+          <Text color="gray">Loading your autopilots…</Text>
         </Box>
       )
     case 'failed':
       return (
         <Box flexDirection="column" marginTop={1} marginLeft={2}>
-          <Text color="red">✗ Couldn't load copilots</Text>
+          <Text color="red">✗ Couldn't load autopilots</Text>
           <Text color="gray">{phase.error}</Text>
           <Box marginTop={1}><Text color="gray">Press Esc to cancel.</Text></Box>
         </Box>
@@ -70,19 +70,19 @@ export function CopilotPicker({ onPick, onCancel }: CopilotPickerProps) {
     case 'empty':
       return (
         <Box flexDirection="column" marginTop={1} marginLeft={2}>
-          <Text color="yellow">! No copilots in this workspace yet.</Text>
+          <Text color="yellow">! Nothing to embed in this workspace yet.</Text>
           <Text color="gray">Create one first:</Text>
-          <Text color="cyan">  {APP_BASE_URL}/copilots</Text>
+          <Text color="cyan">  {APP_BASE_URL}/autopilots</Text>
           <Box marginTop={1}><Text color="gray">Press Esc to cancel.</Text></Box>
         </Box>
       )
     case 'list':
       return (
         <Box flexDirection="column" marginTop={1} marginLeft={2}>
-          <Text bold>Which copilot should we embed?</Text>
+          <Text bold>Which autopilot identity should we embed?</Text>
           <Box marginTop={1}>
             <Text color="gray">
-              The chosen copilot's id is baked into the embed snippet — visitors will see this copilot.
+              The chosen id is baked into the embed snippet. Visitors get this workspace's autopilots.
             </Text>
           </Box>
           <Box marginTop={1}>

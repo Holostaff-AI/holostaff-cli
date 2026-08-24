@@ -7,6 +7,18 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-08-22
+
+### Changed
+- Repositioned to workflow autopilots: README, package description, and
+  user-visible terminal strings now describe creating workflow autopilots
+  (computer-use agents embedded in your product). The artifact schema and
+  commands are unchanged.
+- Embed flow strings point at the dashboard's Autopilots page.
+
+### Fixed
+- Recorded runs hide baked-in legacy widget roots from rig-era images.
+
 ## [0.7.1] — 2026-08-04
 
 ### Security

@@ -318,7 +318,7 @@ function EditingView({
         onChange={(v) => onChange('notes', v)}
         onSubmit={onAdvance}
         disabled={phase.saving}
-        placeholder="Free-form context for the copilot — anything that doesn't fit elsewhere."
+        placeholder="Free-form context for the autopilot. Anything that doesn't fit elsewhere."
       />
 
       <Box marginTop={1} flexDirection="column">
