@@ -7,6 +7,11 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.10.2] - 2026-08-24
+
+### Changed
+- README: the button is "Do this for me", matching the SDK offer card.
+
 ## [0.10.1] - 2026-08-22
 
 ### Changed

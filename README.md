@@ -1,6 +1,6 @@
 # Holostaff
 
-**Give your product a "Do it for me" button.**
+**Give your product a "Do this for me" button.**
 
 [![npm](https://img.shields.io/npm/v/@holostaff/cli)](https://www.npmjs.com/package/@holostaff/cli)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
@@ -8,7 +8,7 @@
 
 [holostaff.ai](https://www.holostaff.ai) · [Live demo](https://www.holostaff.ai/demo) · [Docs](https://docs.holostaff.ai) · [Pricing](https://www.holostaff.ai/pricing) · [What a computer-use agent is](https://www.holostaff.ai/computer-use-agents)
 
-A workflow autopilot is a computer-use agent that lives inside your product: a "Do it for me" button on a workflow. The user hands over the task, and the autopilot completes it on screen, in the user's own session. This CLI is the front door: one command turns your repo into the journey map autopilots are built from.
+A workflow autopilot is a computer-use agent that lives inside your product: a "Do this for me" button on a workflow. The user hands over the task, and the autopilot completes it on screen, in the user's own session. This CLI is the front door: one command turns your repo into the journey map autopilots are built from.
 
 Not a chatbot (it never chats; it acts). Not a product tour (a tour explains the task; an autopilot does it). Not an outside browser agent (it is the computer-use agent your product *owns*: same origin, your rules, certified on your builds).
 
