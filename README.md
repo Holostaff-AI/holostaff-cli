@@ -1,8 +1,16 @@
 # Holostaff
 
-[holostaff.ai](https://www.holostaff.ai) · [Live demo](https://www.holostaff.ai/demo) · [Docs](https://docs.holostaff.ai) · [Pricing](https://www.holostaff.ai/pricing)
+**Give your product a "Do it for me" button.**
 
-**Create workflow autopilots for your product.** A workflow autopilot is a computer-use agent that lives inside your product: a "Do it for me" button on a workflow. The user hands over the task, and the autopilot completes it on screen, in the user's own session. This CLI is the front door: one command turns your repo into the journey map autopilots are built from.
+[![npm](https://img.shields.io/npm/v/@holostaff/cli)](https://www.npmjs.com/package/@holostaff/cli)
+[![license](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
+[![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](#)
+
+[holostaff.ai](https://www.holostaff.ai) · [Live demo](https://www.holostaff.ai/demo) · [Docs](https://docs.holostaff.ai) · [Pricing](https://www.holostaff.ai/pricing) · [What a computer-use agent is](https://www.holostaff.ai/computer-use-agents)
+
+A workflow autopilot is a computer-use agent that lives inside your product: a "Do it for me" button on a workflow. The user hands over the task, and the autopilot completes it on screen, in the user's own session. This CLI is the front door: one command turns your repo into the journey map autopilots are built from.
+
+Not a chatbot (it never chats; it acts). Not a product tour (a tour explains the task; an autopilot does it). Not an outside browser agent (it is the computer-use agent your product *owns*: same origin, your rules, certified on your builds).
 
 ![holostaff /scan demo](assets/demo.gif)
 
@@ -41,6 +49,54 @@ A workflow autopilot does it. The user clicks the offer, watches the task get do
 **4. Deploy.** `holostaff deploy` opens a pull request: SDK init, journey stage markers, the embed. Your team reviews the diff like any other change. Merging is going live. Reverting is rollback. Nothing lands on its own.
 
 **5. Verify.** Every handover is logged, watchable, and counted only when the task actually completed.
+
+## The deploy PR, in full
+
+The entire production footprint is a diff you review. Nothing lands on its own:
+
+```diff
++ import { holostaff } from '@holostaff/sdk'
++
++ // Once at app startup.
++ holostaff.init({
++   sourceId: 'cli-source-abc',
++   tenantId: 'your-tenant-id',
++ })
++
++ // At journey-stage boundaries, placed from your journey map.
++ holostaff.markStageEntry('onboarding')
++
++ // On sign-in / sign-out.
++ holostaff.identify(user.id)
++ holostaff.clearIdentity()
+```
+
+The SDK renders the offer card, the intent overlay, the run, the anchored questions, the Allow pill, and the always-visible Stop. You write none of that. Reverting the PR removes all of it.
+
+## Certification in CI
+
+Synthetic users gate every pull request. Green means the autopilots on that build are certified; a failing suite takes the offer down instead of shipping a broken handover.
+
+```yaml
+name: Holostaff simulate
+on:
+  pull_request:
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Holostaff-AI/simulate-action@v1
+        with:
+          api-key: ${{ secrets.HOLOSTAFF_API_KEY }}
+          source-id: ks_your_source_id
+```
+
+The PR comment reads `workflow certified (n/n runs)` when the suite passes. See [simulate-action](https://github.com/Holostaff-AI/simulate-action).
 
 ## The safety envelope
 

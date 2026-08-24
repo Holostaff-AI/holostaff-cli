@@ -7,6 +7,13 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-08-22
+
+### Changed
+- README is now the dev landing page: badges, the deploy PR in full,
+  certification-in-CI workflow, the not-a-chatbot block, and the
+  computer-use-agent genus up top.
+
 ## [0.10.0] - 2026-08-22
 
 ### Changed
