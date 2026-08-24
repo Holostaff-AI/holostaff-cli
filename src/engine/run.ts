@@ -392,7 +392,28 @@ const main = async (): Promise<void> => {
           voice: { enabled: false },
         })
       }, scenario.sdkInject)
-      console.log('  sdk injected (autopilot surfaces on, heavy subsystems off)')
+      // Rig targets built during the test-rig era carry their OWN baked-in
+      // SDK (old version, presence chip on) inside the app image — the
+      // Documenso recordings showed the copilot chip from THAT copy, not
+      // the injected one. Hide the legacy copilot surfaces: an
+      // autopilot-era deployment would not have them.
+      // Inline !important beats the legacy widget's own !important id
+      // rules (a later stylesheet was winning the specificity tie); the
+      // observer + interval catch late mounts and style rewrites.
+      await ctx.addInitScript(`(() => {
+        const hide = () => {
+          for (const id of ['holostaff-presence-root', 'holostaff-note-root', 'holostaff-stage-root']) {
+            const el = document.getElementById(id)
+            if (el) el.style.setProperty('display', 'none', 'important')
+          }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+          hide()
+          new MutationObserver(hide).observe(document.documentElement, { childList: true, subtree: true })
+          setInterval(hide, 500)
+        })
+      })()`)
+      console.log('  sdk injected (autopilot surfaces on, heavy subsystems off, legacy widget hidden)')
     } else {
       console.log(`  sdkInject requested but bundle missing at ${bundle}`)
     }
