@@ -7,7 +7,7 @@
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](#)
 [![changelog](https://img.shields.io/badge/changelog-0.10.2-8a2be2)](./CHANGELOG.md)
 
-[holostaff.ai](https://www.holostaff.ai) · [Live map](https://www.holostaff.ai/journey-maps/ks_msej1m5f_08yytu/canvas) · [Docs](https://docs.holostaff.ai) · [Pricing](https://www.holostaff.ai/pricing-autopilots) · [What a computer-use agent is](https://www.holostaff.ai/computer-use-agents)
+[holostaff.ai](https://www.holostaff.ai) · [Live map](https://www.holostaff.ai/journey-maps/ks_msej1m5f_08yytu/canvas) · [Docs](https://docs.holostaff.ai) · [Pricing](https://www.holostaff.ai/pricing) · [What a computer-use agent is](https://www.holostaff.ai/computer-use-agents)
 
 Holostaff adds a "Do this for me" button to your web app. When a user clicks it, an agent completes that task on screen, in the user's own session, clicking and typing where they would. It asks before anything that pays, sends, or deletes. We call one of these agents a workflow autopilot.
 
@@ -125,7 +125,7 @@ Alpha means: interfaces may still change between minor versions, scans of very l
 
 ## What it costs
 
-Scan and map: free, no card. Going live: 14-day trial, then Team at $99/month (300 simulation runs and 100 completed handovers included, then $0.49 and $0.99 each) or Growth at $299/month (1,500 runs and 500 handovers included, then $0.29 and $0.69). A handover that stops or fails costs nothing. [Pricing](https://www.holostaff.ai/pricing-autopilots).
+Scan and map: free, no card. Going live: 14-day trial, then Team at $99/month (300 simulation runs and 100 completed handovers included, then $0.49 and $0.99 each) or Growth at $299/month (1,500 runs and 500 handovers included, then $0.29 and $0.69). A handover that stops or fails costs nothing. [Pricing](https://www.holostaff.ai/pricing).
 
 ## Commands
 
