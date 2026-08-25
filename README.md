@@ -1,6 +1,4 @@
-# Holostaff
-
-**Give your product a "Do this for me" button.**
+<p align="center"><a href="https://www.holostaff.ai"><img src="assets/banner.png" alt="Give your product a &quot;Do this for me&quot; button." width="100%"></a></p>
 
 [![npm](https://img.shields.io/npm/v/@holostaff/cli)](https://www.npmjs.com/package/@holostaff/cli)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
