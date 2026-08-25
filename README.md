@@ -54,8 +54,8 @@ The SDK renders the offer card, the run, the questions it asks, the Allow pill, 
 
 - **Size.** `@holostaff/sdk` is about 80 KB gzipped, loaded once. It adds no framework and no global CSS beyond its own scoped styles.
 - **Network.** It talks to one host: your Holostaff workspace API. No third-party trackers, no ad networks.
-- **What it sees.** The autopilot acts from what is on screen, so the SDK records the page with [rrweb](https://github.com/rrweb-io/rrweb) while a session is active. Password, email, and phone inputs are always masked. Mark any rendered PII with the `holostaff-mask` or `holostaff-block` CSS class and it never leaves the browser. Nothing is sent until the user's first real interaction, so bots and bounces cost nothing and ship nothing. Set `observe: { enabled: false }` to turn capture off for a host.
-- **Data handling.** Hosting regions, subprocessors, retention, and DPA terms are on one page: [holostaff.ai/security](https://www.holostaff.ai/security). Vulnerability reports: [SECURITY.md](./SECURITY.md).
+- **What it sees.** The autopilot acts from what is on screen, so the SDK records the page structure and visible text while a session is active. Password, email, and phone inputs are always masked. Mark any rendered PII with the `holostaff-mask` or `holostaff-block` CSS class and it never leaves the browser. Nothing is sent until the user's first real interaction, so bots and bounces cost nothing and ship nothing. Set `observe: { enabled: false }` to turn capture off for a host.
+- **Data handling.** Hosting regions, retention, and DPA terms are on one page: [holostaff.ai/security](https://www.holostaff.ai/security). Vulnerability reports: [SECURITY.md](./SECURITY.md).
 - **Uninstall.** Revert the PR. The CLI keeps its state in `.holostaff/` in your repo and `~/.holostaff/credentials.json`. Delete both and nothing remains.
 
 ## The safety envelope

@@ -13,9 +13,9 @@ Email security@holostaff.ai. We acknowledge within 2 business days and keep you 
 
 ## What the runtime SDK touches
 
-The SDK your deploy PR adds records the page with rrweb so the autopilot can act from what is on screen. Password, email, and phone inputs are always masked; mark rendered personal data with `holostaff-mask` or `holostaff-block`; set `observe: { enabled: false }` to turn capture off for a host. Consequential actions wait for the user's inline Allow, and the autopilot never types into password, payment, or code fields. These rules are enforced in the runtime, not the prompt.
+The SDK your deploy PR adds records the page structure and visible text so the autopilot can act from what is on screen. Password, email, and phone inputs are always masked; mark rendered personal data with `holostaff-mask` or `holostaff-block`; set `observe: { enabled: false }` to turn capture off for a host. Consequential actions wait for the user's inline Allow, and the autopilot never types into password, payment, or code fields. These rules are enforced in the runtime, not the prompt.
 
-Full data-handling details (hosting regions, subprocessors, retention, DPA): https://www.holostaff.ai/security
+Full data-handling details (hosting regions, retention, DPA): https://www.holostaff.ai/security
 
 ## Supported versions
 
