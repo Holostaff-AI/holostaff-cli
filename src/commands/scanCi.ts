@@ -118,7 +118,11 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
     }, log, 3)
   }
 
-  log(`· authed as workspace ${auth.workspaceId} via ${auth.source === 'env' ? 'env' : 'local credentials'}`)
+  {
+    const ws = auth.workspaceName ? `${auth.workspaceName} (${auth.workspaceId})` : auth.workspaceId
+    const who = auth.email ? `${auth.email} · workspace ${ws}` : `workspace ${ws}`
+    log(`· authed as ${who} via ${auth.source === 'env' ? 'env' : 'local credentials'}`)
+  }
   log(`· running scan on ${cwd}`)
 
   // 2a. Preset import — no agent, no model spend, no wait. The map of

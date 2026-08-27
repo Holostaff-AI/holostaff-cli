@@ -41,6 +41,13 @@ export interface DeployArgs {
   dryRun: boolean
   /** Skip the open-deploy prompt; push onto any open deploy. */
   force: boolean
+  /**
+   * Write the instrumentation into this checkout on a branch and open
+   * the PR with `gh` (or print the steps). No GitHub App needed.
+   */
+  local: boolean
+  /** Mark the open deploy merged (for `--local` deploys the App never sees). */
+  merged: boolean
 }
 
 export interface EmbedArgs {
@@ -159,10 +166,12 @@ function parseEmbed(rest: string[]): ParsedArgs {
 }
 
 function parseDeploy(rest: string[]): ParsedArgs {
-  const opts: DeployArgs = { dryRun: false, force: false }
+  const opts: DeployArgs = { dryRun: false, force: false, local: false, merged: false }
   for (const tok of rest) {
     if (tok === '--dry-run' || tok === '-n') { opts.dryRun = true; continue }
     if (tok === '--force' || tok === '-f') { opts.force = true; continue }
+    if (tok === '--local') { opts.local = true; continue }
+    if (tok === '--merged') { opts.merged = true; continue }
     return { kind: 'bad_args', reason: `unknown deploy flag: ${tok}` }
   }
   return { kind: 'deploy', opts }

@@ -13,6 +13,8 @@ Two real handovers on real open-source apps. Nothing staged, edited for time.
 | --- | --- |
 | ![Autopilot invites a teammate in a document signing app](assets/handover-documenso.gif) | ![Autopilot builds and publishes a form in a form builder](assets/handover-opnform.gif) |
 
+More clips, with sound off and nothing cut but time: [holostaff.ai/gallery](https://www.holostaff.ai/gallery).
+
 [holostaff.ai](https://www.holostaff.ai) · [Live map, no sign-up](https://www.holostaff.ai/journey-maps/ks_msej1m5f_08yytu/canvas) · [Docs](https://docs.holostaff.ai) · [Pricing](https://www.holostaff.ai/pricing) · [Security](https://www.holostaff.ai/security)
 
 ## Contents
@@ -58,6 +60,8 @@ This repo is the CLI. It scans your repo and draws the map. The agent that runs 
 
 One pull request, opened by `holostaff deploy`. It needs the Holostaff GitHub App on your repo's org (an org admin installs it once from Settings → Integrations). You review the PR. Merging is going live. Reverting is rollback.
 
+No App, or not an org admin? `holostaff deploy --local` writes the same change into your checkout on a branch and opens the PR from your machine (or prints the two steps to do it). After it merges, `holostaff deploy --merged` tells the dashboard.
+
 ```diff
 + import { holostaff } from '@holostaff/sdk'
 +
@@ -72,11 +76,11 @@ One pull request, opened by `holostaff deploy`. It needs the Holostaff GitHub Ap
 + holostaff.clearIdentity()
 ```
 
-The PR also adds `@holostaff/sdk` and `livekit-client` to `package.json`, a `markStageEntry` call in each stage-entry view, and `.holostaff/deploy-state.json`. The SDK draws the button, the run, the questions, the Allow pill, and the Stop. You write none of it. Revert the PR and all of it is gone.
+The PR also adds `@holostaff/sdk` to `package.json`, a `markStageEntry` call in each stage-entry view, and `.holostaff/deploy-state.json`. The SDK draws the button, the run, the questions, the Allow pill, and the Stop. You write none of it. Revert the PR and all of it is gone.
 
-- About 20 KB gzipped for the core, plus an 80 KB page recorder. The voice layer is a separate chunk that loads only if you enable it.
+- About 15 KB gzipped for the core. The page recorder (about 23 KB) loads on the user's first interaction. Voice is off unless you enable it, and loads as its own chunk.
 - Talks to one host: your Holostaff workspace API. No third-party trackers.
-- Opens a session on page load (catalog, stage marker). Records the page structure and visible text so the agent can see the screen; the recording is buffered and sent once the user interacts. Password, email, and phone fields are always masked. Add `holostaff-mask` or `holostaff-block` to anything else private. Turn recording off per host with `observe: { enabled: false }`.
+- Sends nothing before the user's first real interaction: no session, no catalog, no recording. Bots and bounces send nothing. After that it records the page structure and visible text so the agent can see the screen. Password, email, and phone fields are always masked. Add `holostaff-mask` or `holostaff-block` to anything else private. Turn recording off per host with `observe: { enabled: false }`.
 - Uninstall: revert the PR, delete `.holostaff/` in your repo and `~/.holostaff/credentials.json`.
 
 ## Safety rules
@@ -164,6 +168,8 @@ A handover that stops or fails costs nothing. [Full pricing](https://www.holosta
 | `holostaff` | Open the interactive shell |
 | `holostaff scan [--add-repo ID] [--quiet] [--json] [--out PATH]` | Headless scan and upload |
 | `holostaff deploy [--dry-run] [--force]` | Open the deploy PR |
+| `holostaff deploy --local [--dry-run]` | Write the deploy branch in this checkout and open the PR yourself (no GitHub App) |
+| `holostaff deploy --merged` | Mark a `--local` deploy merged |
 | `holostaff import NAME` | Import a preset map instead of scanning (`import` alone lists them) |
 | `holostaff login` `logout` `whoami` `workspace` | Auth and session |
 | `holostaff --version` `--help` | Version, usage |

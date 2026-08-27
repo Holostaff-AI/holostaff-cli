@@ -27,6 +27,7 @@
 import React from 'react'
 import { Box, Text, useInput } from 'ink'
 import type { ScanFindings } from '../../agent/findingsSchema.js'
+import { resolveAuth } from '../../auth/credentials.js'
 
 export interface TrustReportProps {
   findings: ScanFindings
@@ -49,6 +50,13 @@ export interface TrustReportProps {
 
 const COPY_SAMPLE_SIZE = 5
 
+function describeDestination(): { workspace: string; email?: string } {
+  const auth = resolveAuth()
+  if (auth.source === 'none') return { workspace: 'your Holostaff workspace' }
+  const workspace = auth.workspaceName ?? auth.workspaceId ?? 'your Holostaff workspace'
+  return { workspace, email: auth.email }
+}
+
 export function TrustReport({
   findings,
   durationMs,
@@ -69,6 +77,10 @@ export function TrustReport({
     if (ch === 's') return onSaveLocal()
   }, { isActive: !inputDisabled })
 
+  // Name the destination so a shared-machine user sees exactly which
+  // account and workspace the upload goes to before pressing Y.
+  const dest = describeDestination()
+
   const copySample = findings.copy.slice(0, COPY_SAMPLE_SIZE)
   const copyMore = Math.max(0, findings.copy.length - copySample.length)
 
@@ -82,7 +94,7 @@ export function TrustReport({
 
       <Identity findings={findings} />
 
-      <Section title="What we'll send to your Holostaff workspace">
+      <Section title={`What we'll send to ${dest.workspace}`}>
         <Bullet label="Identity">product name, description, framework, language</Bullet>
         <Bullet label="Routes">{findings.routes.length} paths + descriptions</Bullet>
         <Bullet label="Components">{findings.components.length} names + roles</Bullet>
@@ -129,7 +141,7 @@ export function TrustReport({
       <Box marginTop={1} flexDirection="column">
         <Text color="gray">───────────────────────────────────────────────────────────────</Text>
         <Box marginTop={1}>
-          <Text>Send this to your Holostaff workspace?</Text>
+          <Text>Send this to <Text bold>{dest.workspace}</Text>{dest.email ? <Text> (<Text bold>{dest.email}</Text>)</Text> : null}?</Text>
         </Box>
         <Box marginTop={1} flexDirection="column">
           <Box>

@@ -23,7 +23,7 @@ export type FlowEvent =
   | { type: 'browser_opened' }
   | { type: 'browser_fallback' }
   | { type: 'polling'; secondsElapsed: number }
-  | { type: 'approved'; userId: string; workspaceId: string; expiresAt: string }
+  | { type: 'approved'; userId: string; workspaceId: string; expiresAt: string; email?: string; workspaceName?: string }
   | { type: 'failed'; reason: string; kind: 'denied' | 'expired' | 'timeout' | 'consumed' | 'network' | 'unknown' }
 
 export interface DeviceFlowHandle {
@@ -42,7 +42,11 @@ export interface DeviceFlowOpts {
   totalTimeoutMs?: number
   /** Default the server-suggested interval. */
   pollIntervalMs?: number
-  /** Skip opening the browser (e.g. when the test wants to do it manually). */
+  /**
+   * Skip opening the browser (e.g. when the test wants to do it manually).
+   * `HOLOSTAFF_NO_BROWSER=1` in the environment forces this too, so a
+   * user on a shared machine can paste the URL into their own profile.
+   */
   skipOpen?: boolean
   onEvent: (e: FlowEvent) => void
 }
@@ -81,7 +85,7 @@ export function runDeviceFlow(opts: DeviceFlowOpts): DeviceFlowHandle {
     if (cancelled) return
 
     // ─── 2. Open browser ──────────────────────────────────────────
-    if (!opts.skipOpen) {
+    if (!opts.skipOpen && !noBrowserRequested()) {
       const r = await openUrl(start.verificationUri)
       opts.onEvent({ type: r === 'opened' ? 'browser_opened' : 'browser_fallback' })
     } else {
@@ -128,6 +132,8 @@ export function runDeviceFlow(opts: DeviceFlowOpts): DeviceFlowHandle {
             userId: result.userId,
             workspaceId: result.workspaceId,
             expiresAt: result.expiresAt,
+            ...(result.email ? { email: result.email } : {}),
+            ...(result.workspaceName ? { workspaceName: result.workspaceName } : {}),
             baseUrl: opts.baseUrl,
             storedAt: new Date().toISOString(),
           })
@@ -136,6 +142,8 @@ export function runDeviceFlow(opts: DeviceFlowOpts): DeviceFlowHandle {
             userId: result.userId,
             workspaceId: result.workspaceId,
             expiresAt: result.expiresAt,
+            email: result.email,
+            workspaceName: result.workspaceName,
           })
           return
         }
@@ -159,6 +167,12 @@ export function runDeviceFlow(opts: DeviceFlowOpts): DeviceFlowHandle {
   })()
 
   return { cancel, promise }
+}
+
+/** `HOLOSTAFF_NO_BROWSER=1` (or true/yes) disables the auto-open. */
+export function noBrowserRequested(): boolean {
+  const v = (process.env.HOLOSTAFF_NO_BROWSER ?? '').trim().toLowerCase()
+  return v === '1' || v === 'true' || v === 'yes'
 }
 
 function sleep(ms: number, isCancelled: () => boolean): Promise<void> {

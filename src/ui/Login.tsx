@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Box, Text, useApp, useInput } from 'ink'
-import { runDeviceFlow, type FlowEvent } from '../auth/deviceFlow.js'
+import { runDeviceFlow, noBrowserRequested, type FlowEvent } from '../auth/deviceFlow.js'
 
 /**
  * Login UI. Renders the device-flow with explicit, named steps — no
@@ -11,6 +11,7 @@ export function Login({ baseUrl, repoName, onDone }: { baseUrl: string; repoName
   const { exit } = useApp()
   const [phase, setPhase] = useState<Phase>('idle')
   const [info, setInfo] = useState<{ uri?: string; code?: string; expiresAt?: string }>({})
+  const [identity, setIdentity] = useState<{ email?: string; workspaceName?: string; workspaceId?: string }>({})
   const [error, setError] = useState<string | null>(null)
   const [secondsElapsed, setSecondsElapsed] = useState(0)
   const [cancel, setCancel] = useState<(() => void) | null>(null)
@@ -64,6 +65,7 @@ export function Login({ baseUrl, repoName, onDone }: { baseUrl: string; repoName
         setSecondsElapsed(e.secondsElapsed)
         break
       case 'approved':
+        setIdentity({ email: e.email, workspaceName: e.workspaceName, workspaceId: e.workspaceId })
         setPhase('approved')
         // Brief pause so the user sees the success line, then continue.
         setTimeout(onDone, 600)
@@ -87,7 +89,7 @@ export function Login({ baseUrl, repoName, onDone }: { baseUrl: string; repoName
           secondsElapsed={secondsElapsed}
         />
       )}
-      {phase === 'approved' && <Text color="green">✓ Connected to your Holostaff workspace.</Text>}
+      {phase === 'approved' && <ApprovedLine {...identity} />}
       {phase === 'failed' && <FailedView error={error ?? 'unknown error'} />}
       {phase === 'cancelled' && <Text color="yellow">Cancelled. See you later.</Text>}
     </Box>
@@ -101,12 +103,25 @@ function IdlePrompt() {
     <Box flexDirection="column">
       <Text>First, I need to connect to your Holostaff workspace. New to Holostaff? Your account and workspace are created in your browser in one step.</Text>
       <Box marginTop={1}>
+        <Text color="yellow">Approve in the browser as the account you want to own this workspace. Signed in as someone else there? Sign out first, or open the URL in another profile.</Text>
+      </Box>
+      <Box marginTop={1}>
         {/* One Text with nested spans: sibling <Text> nodes in a row Box
             wrap independently at the terminal edge and drop characters
             ("PressEnte…") — nesting wraps as a single paragraph. */}
-        <Text color="gray">Press <Text bold color="white">Enter</Text> to open your browser, or set <Text color="cyan">HOLOSTAFF_API_KEY</Text> in your shell to use a CI key.</Text>
+        <Text color="gray">Press <Text bold color="white">Enter</Text> to {noBrowserRequested() ? 'get a sign-in URL' : 'open your browser'}, or set <Text color="cyan">HOLOSTAFF_API_KEY</Text> in your shell to use a CI key. <Text color="cyan">HOLOSTAFF_NO_BROWSER=1</Text> prints the URL instead of opening a browser.</Text>
       </Box>
     </Box>
+  )
+}
+
+function ApprovedLine({ email, workspaceName, workspaceId }: { email?: string; workspaceName?: string; workspaceId?: string }) {
+  const ws = workspaceName ?? workspaceId
+  if (!email && !ws) return <Text color="green">✓ Connected to your Holostaff workspace.</Text>
+  return (
+    <Text color="green">
+      ✓ Signed in as <Text bold>{email ?? 'unknown account'}</Text> · workspace <Text bold>{ws ?? 'unknown'}</Text>
+    </Text>
   )
 }
 
@@ -116,13 +131,18 @@ function AwaitingApproval({
   return (
     <Box flexDirection="column">
       <Text>{manual
-        ? 'Couldn\'t open your browser automatically. Please open this URL:'
+        ? (noBrowserRequested()
+          ? 'Browser auto-open is off (HOLOSTAFF_NO_BROWSER). Open this URL in the profile you want to use:'
+          : 'Couldn\'t open your browser automatically. Please open this URL:')
         : 'Opened your browser. If it didn\'t pop up, here\'s the URL:'}</Text>
       <Box marginTop={1} marginLeft={2}>
         <Text color="cyan">{uri}</Text>
       </Box>
       <Box marginTop={1} marginLeft={2}>
         <Text>Code: <Text bold>{code}</Text> <Text color="gray">(you'll see this on the page — it should match)</Text></Text>
+      </Box>
+      <Box marginTop={1}>
+        <Text color="gray">The page shows which account is approving. Make sure it is yours.</Text>
       </Box>
       <Box marginTop={1}>
         <Text color="gray">⏵ Waiting for confirmation... ({secondsElapsed}s)</Text>

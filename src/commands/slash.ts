@@ -84,16 +84,20 @@ const EMBED: SlashCommand = {
 
 const DEPLOY: SlashCommand = {
   name: '/deploy',
-  desc: 'Open a deploy PR for the bound source. Flags: --dry-run, --force.',
+  desc: 'Open a deploy PR for the bound source. Flags: --dry-run, --force, --local, --merged.',
   run: async (args) => {
     const dryRun = /(^|\s)(--dry-run|-n)(\s|$)/.test(args)
     const force = /(^|\s)(--force|-f)(\s|$)/.test(args)
+    const local = /(^|\s)--local(\s|$)/.test(args)
+    const merged = /(^|\s)--merged(\s|$)/.test(args)
     // silent: the structured result drives the message; nonInteractive:
     // readline prompts would clash with Ink's raw-mode stdin.
     const result = await runDeploy({
       repoRoot: process.cwd(),
       dryRun,
       force,
+      local,
+      merged,
       silent: true,
       nonInteractive: true,
     })
@@ -113,6 +117,30 @@ function formatDeployOutcome(r: RunDeployResult, dryRun: boolean): SlashOutcome 
           'Merge the PR to make this version live. The dashboard pill flips on the merge webhook.',
         ].join('\n'),
       }
+    case 'local_pr_opened':
+      return {
+        kind: 'message', tone: 'success',
+        text: [
+          `Deploy ${r.deploy?.id ?? ''} → branch ${r.branch ?? ''} committed here and PR opened:`,
+          `  ${r.prUrl}`,
+          '',
+          'Merge the PR to ship. After merging, run `/deploy --merged` so the dashboard shows it live.',
+        ].join('\n'),
+      }
+    case 'local_committed':
+      return {
+        kind: 'message', tone: 'warn',
+        text: [
+          `Deploy ${r.deploy?.id ?? ''} → branch ${r.branch ?? ''} committed here. The PR was not opened.`,
+          ...(r.message ? r.message.split('\n') : []),
+        ].join('\n'),
+      }
+    case 'local_plan':
+      return { kind: 'message', tone: 'info', text: r.message ?? 'Dry run complete.' }
+    case 'marked_merged':
+      return { kind: 'message', tone: 'success', text: `Deploy ${r.deploy?.id ?? ''} marked merged. v${r.deploy?.artifactVersion ?? ''} is live on the dashboard.` }
+    case 'local_apply_failed':
+      return { kind: 'message', tone: 'error', text: `deploy --local failed: ${r.message ?? 'unknown error'}` }
     case 'live':
       return {
         kind: 'message', tone: 'info',

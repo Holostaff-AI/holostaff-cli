@@ -96,6 +96,8 @@ async function main() {
         repoRoot: process.cwd(),
         dryRun: args.opts.dryRun,
         force: args.opts.force,
+        local: args.opts.local,
+        merged: args.opts.merged,
       })
       process.exit(result.exitCode)
     }

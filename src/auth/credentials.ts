@@ -21,6 +21,11 @@ export interface Credentials {
   expiresAt: string
   workspaceId: string
   userId: string
+  /** Email of the account that approved the login (shown so the user can
+   *  see WHO signed in, not just an opaque uid). Absent on old creds. */
+  email?: string
+  /** Display name of the bound workspace. Absent on old creds. */
+  workspaceName?: string
   /** Backend base URL (e.g. https://holostaff-vision-XXX.us-central1.run.app). */
   baseUrl: string
   /** When we wrote this file locally — used for diagnostic logging. */
@@ -48,6 +53,10 @@ export interface ResolvedAuth {
   workspaceId?: string
   /** User identity if known (file source only — env source has no user). */
   userId?: string
+  /** Account email if the server sent one (file source only). */
+  email?: string
+  /** Workspace display name if known (file source only). */
+  workspaceName?: string
   /** Effective backend base URL. */
   baseUrl: string
   /** True when source === 'file' and the stored token is past its expiry. */
@@ -80,6 +89,8 @@ export function resolveAuth(): ResolvedAuth {
       token: file.accessToken,
       workspaceId: file.workspaceId,
       userId: file.userId,
+      email: file.email,
+      workspaceName: file.workspaceName,
       baseUrl: file.baseUrl,
       expired,
     }

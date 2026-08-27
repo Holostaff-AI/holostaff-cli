@@ -81,6 +81,21 @@ export interface ApplyOptions {
   onEvent?: (ev: ApplyEvent) => void
 }
 
+/**
+ * Lines of `git status --porcelain` that count as customer dirt. Our
+ * own state dir (.holostaff/source.json, written by scan) never does;
+ * on repos that don't gitignore it, scan → embed would always fail the
+ * clean-tree preflight otherwise. Throws when git itself fails.
+ */
+export async function dirtyTreeLines(cwd: string): Promise<string> {
+  const { stdout: rawStatus } = await exec('git', ['status', '--porcelain'], { cwd })
+  return rawStatus
+    .split('\n')
+    .filter((l) => l.trim().length > 0 && !/^..\s+(")?\.holostaff\//.test(l))
+    .join('\n')
+    .trim()
+}
+
 export async function applyPlan(options: ApplyOptions): Promise<ApplyResult> {
   const { cwd, plan, workspaceId, sourceId, copilotId, onEvent } = options
   const emit = onEvent ?? (() => {})
@@ -88,14 +103,7 @@ export async function applyPlan(options: ApplyOptions): Promise<ApplyResult> {
   // 1) Preflight — clean tree.
   emit({ type: 'preflight' })
   try {
-    const { stdout: rawStatus } = await exec('git', ['status', '--porcelain'], { cwd })
-    // Our own state dir (.holostaff/source.json, written by scan) must
-    // never count as customer dirt — on repos that don't gitignore it,
-    // scan → embed would always fail this preflight.
-    const stdout = rawStatus
-      .split('\n')
-      .filter((l) => l.trim().length > 0 && !/^..\s+(")?\.holostaff\//.test(l))
-      .join('\n')
+    const stdout = await dirtyTreeLines(cwd)
     if (stdout.trim().length > 0) {
       emit({ type: 'tree_dirty', details: stdout.trim() })
       return {
@@ -282,7 +290,7 @@ async function applyEdit(
  * the detected package manager. Throws on resolver failure — a branch
  * with a stale lockfile is worse than a failed apply.
  */
-async function syncLockfile(
+export async function syncLockfile(
   cwd: string,
   declared: 'npm' | 'pnpm' | 'yarn' | undefined,
   emit: (ev: ApplyEvent) => void,

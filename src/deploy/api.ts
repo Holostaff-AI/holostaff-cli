@@ -57,10 +57,12 @@ export interface DeployRun {
   editsKey: string
   triggeredBy: string
   triggeredAt: string
-  state: 'pr_opening' | 'pr_open' | 'merged' | 'closed_unmerged' | 'failed'
+  state: 'pr_opening' | 'awaiting_pr' | 'pr_open' | 'merged' | 'closed_unmerged' | 'failed'
   pr: DeployPr | null
   repushedBy: Array<{ by: string; at: string; artifactVersion: number }>
   failureReason?: string
+  /** `deploy --local`: branch committed in the checkout, PR not opened yet. */
+  localBranch?: string
   mergedAt?: string
   closedAt?: string
 }
@@ -76,6 +78,22 @@ export class ApiError extends Error {
     super(message)
     this.name = 'ApiError'
   }
+  /** Server-supplied `detail` line, when the error body carried one. */
+  get detail(): string | undefined {
+    return stringField(this.body, 'detail')
+  }
+  /** Server-supplied `hint` line (a next step), when present. */
+  get hint(): string | undefined {
+    return stringField(this.body, 'hint')
+  }
+}
+
+function stringField(body: unknown, key: string): string | undefined {
+  if (body && typeof body === 'object' && key in body) {
+    const v = (body as Record<string, unknown>)[key]
+    if (typeof v === 'string' && v.length > 0) return v
+  }
+  return undefined
 }
 
 async function call<T>(
@@ -187,15 +205,81 @@ export async function setDeployState(
   auth: DeployAuth,
   sourceId: string,
   deployId: string,
-  state: 'merged' | 'closed_unmerged' | 'failed',
-  options: { failureReason?: string } = {},
+  state: 'merged' | 'closed_unmerged' | 'failed' | 'awaiting_pr',
+  options: { failureReason?: string; branch?: string } = {},
 ): Promise<DeployRun> {
   const res = await call<{ deploy: DeployRun }>(
     auth,
     `/api/cli/sources/${encodeURIComponent(sourceId)}/deploys/${encodeURIComponent(deployId)}`,
-    { method: 'PATCH', body: { state, failureReason: options.failureReason } },
+    { method: 'PATCH', body: { state, failureReason: options.failureReason, branch: options.branch } },
   )
   return res.deploy
+}
+
+// ---------- deploy --local ----------
+
+export interface LocalPlanChange {
+  file: string
+  status: 'create' | 'edit' | 'unchanged' | 'skipped'
+  content?: string
+  detail: string
+  calls?: Array<{ kind: string; stage?: string; workflowNames: string[] }>
+}
+
+export interface LocalPlan {
+  branch: string
+  changes: LocalPlanChange[]
+  deployStateJson: string
+  prTitle: string
+  prBody: string
+  summary: { filesPatched: number; filesSkipped: number; callsApplied: number; callsSkipped: number } | null
+  artifactVersion: number
+  preview: boolean
+}
+
+/** Repo paths whose current contents the local plan needs. */
+export async function getLocalPlanFiles(
+  auth: DeployAuth,
+  sourceId: string,
+  artifactVersion: number,
+): Promise<string[]> {
+  const res = await call<{ artifactVersion: number; files: string[] }>(
+    auth,
+    `/api/cli/sources/${encodeURIComponent(sourceId)}/local-plan/files?artifactVersion=${artifactVersion}`,
+  )
+  return res.files
+}
+
+/**
+ * Plan for a registered deploy: the server compiles the runtime state
+ * (as create-pr does) and returns the files to write. Never touches
+ * GitHub.
+ */
+export async function createLocalPlan(
+  auth: DeployAuth,
+  sourceId: string,
+  deployId: string,
+  files: Record<string, string>,
+): Promise<LocalPlan> {
+  return await call<LocalPlan>(
+    auth,
+    `/api/cli/sources/${encodeURIComponent(sourceId)}/deploys/${encodeURIComponent(deployId)}/local-plan`,
+    { method: 'POST', body: { files } },
+  )
+}
+
+/** Dry-run plan: no deploy record, nothing changes server-side. */
+export async function previewLocalPlan(
+  auth: DeployAuth,
+  sourceId: string,
+  artifactVersion: number,
+  files: Record<string, string>,
+): Promise<LocalPlan> {
+  return await call<LocalPlan>(
+    auth,
+    `/api/cli/sources/${encodeURIComponent(sourceId)}/local-plan`,
+    { method: 'POST', body: { artifactVersion, files } },
+  )
 }
 
 /**

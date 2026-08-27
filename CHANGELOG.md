@@ -7,6 +7,15 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-27
+
+### Added
+- `holostaff deploy --local`: writes the deploy instrumentation into the current checkout on branch `holostaff/deploy-v{N}`, commits, and opens the PR with `gh` (or prints the push + PR steps). No GitHub App installation needed, so engineers who are not org admins are no longer stopped by 412. `--dry-run --local` prints the files that would be written.
+- `holostaff deploy --merged`: marks the open deploy merged so the dashboard shows it live after a `--local` PR merges.
+
+### Changed
+- The 412 (no GitHub App on the repo) error now shows the server detail and points at `deploy --local`.
+
 ## [0.10.4] - 2026-08-27
 
 ### Fixed

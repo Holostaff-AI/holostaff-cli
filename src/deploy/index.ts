@@ -18,30 +18,48 @@
  *   - default                  the flow above
  *   - --dry-run / -n           steps 1–4 only; prints the plan; never registers
  *   - --force / -f             skip the prompt; push onto any open deploy
+ *   - --local                  step 7 happens in this checkout: the server
+ *                              returns the patch set, the CLI writes it on
+ *                              branch holostaff/deploy-v{N}, commits, and
+ *                              opens the PR with `gh` (or prints the steps).
+ *                              No GitHub App needed.
+ *   - --merged                 mark the open deploy merged (a --local PR the
+ *                              App never saw); flips the dashboard to live.
  */
 
 import { resolveAuth } from '../auth/credentials.js'
 import { readBinding, type SourceBinding } from '../binding/sourceBinding.js'
 import {
   ApiError,
+  attachPr,
   createDeploy,
   createDeployPr,
+  createLocalPlan,
   getArtifact,
+  getLocalPlanFiles,
   getOpenDeploy,
   getSource,
+  previewLocalPlan,
   setDeployState,
   type DeployRun,
   type KnowledgeSourceState,
+  type LocalPlan,
 } from './api.js'
 import type { DeployAuth } from './types.js'
 import { editsKeyOf } from './editsKey.js'
 import { promptChoice, type PromptOption } from './prompt.js'
 import { detectGithubRepoFullName } from './gitRepo.js'
+import { applyLocalPlan, readLocalFiles, DEPLOY_STATE_FILE } from './localApply.js'
+import { openPullRequest, type PrResult } from '../instrument/openPullRequest.js'
 
 export interface RunDeployOptions {
   repoRoot: string
   dryRun?: boolean
   force?: boolean
+  /** Write the deploy into this checkout and open the PR yourself. */
+  local?: boolean
+  /** Mark the open deploy merged (for --local PRs the GitHub App never sees). */
+  merged?: boolean
   /** Suppress all stdout. Used by tests. */
   silent?: boolean
   /**
@@ -62,6 +80,11 @@ export interface RunDeployResult {
     | 'open_deploy_aborted'
     | 'pr_opened'
     | 'pr_create_failed'
+    | 'local_plan'
+    | 'local_pr_opened'
+    | 'local_committed'
+    | 'local_apply_failed'
+    | 'marked_merged'
     | 'no_repo'
     | 'no_auth'
     | 'no_binding'
@@ -70,6 +93,8 @@ export interface RunDeployResult {
   source?: KnowledgeSourceState
   message?: string
   prUrl?: string
+  /** `--local`: branch committed in the checkout. */
+  branch?: string
 }
 
 interface OutputSink {
@@ -153,6 +178,8 @@ async function runWithBinding(
   out.log(`→ Reading source state for ${binding.name} (${binding.sourceId})...`)
   const source = await getSource(auth, binding.sourceId)
 
+  if (opts.merged) return await markOpenDeployMerged(auth, binding, source, opts, out)
+
   if (!source.liveArtifactVersion) {
     out.error('Source has no live artifact yet. Run `holostaff scan` first.')
     return { exitCode: 1, kind: 'pending_scan', source }
@@ -203,11 +230,16 @@ async function runWithBinding(
   out.log(`  intent:           ${source.openDeployId ? 'force-push onto open deploy' : 'open new deploy'}`)
   out.log('')
 
+  if (opts.local) {
+    return await runLocalDeploy(auth, binding, source, liveVersion, opts, out)
+  }
+
   if (opts.dryRun) {
     out.log('Prerequisite: the Holostaff GitHub App must be installed on the repo\'s org')
     out.log('  (an org admin does it once at https://www.holostaff.ai/integrations/github).')
-    out.log('  Without it, deploy stops with 412 before opening the PR.')
-    out.log('The PR adds: @holostaff/sdk (+ livekit-client) to package.json, the SDK init')
+    out.log('  Without it, deploy stops with 412 before opening the PR;')
+    out.log('  `holostaff deploy --local` writes the branch here instead and needs no App.')
+    out.log('The PR adds: @holostaff/sdk to package.json, the SDK init')
     out.log('  in your app entry, markStageEntry calls in the stage-entry views, and .holostaff/deploy-state.json.')
     out.log('Dry run — no deploy registered. Re-run without --dry-run to proceed.')
     const kind: RunDeployResult['kind'] =
@@ -258,11 +290,13 @@ async function runWithBinding(
       if (err.status === 503) reason = 'github-app-not-configured'
       else if (err.status === 412) reason = 'no-installation-for-repo'
       out.error(`PR creation failed (${err.status}): ${err.message}`)
+      if (err.detail) out.error(`  ${err.detail}`)
       if (err.status === 503) {
         out.error('  → Server admin: set GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY, GITHUB_APP_WEBHOOK_SECRET.')
       } else if (err.status === 412) {
         out.error(`  → Install the Holostaff GitHub App on the org that owns ${repoFullName}.`)
         out.error('  → Visit /integrations/github on the dashboard for the install link.')
+        out.error(`  → ${err.hint ?? 'Or run `holostaff deploy --local` to write the change into this checkout and open the PR yourself.'}`)
       }
     } else {
       out.error(`PR creation failed: ${(err as Error).message}`)
@@ -282,6 +316,165 @@ async function runWithBinding(
       message: (err as Error).message,
     }
   }
+}
+
+// -------------------------------------------------------------------------
+// --local: write the deploy into this checkout
+// -------------------------------------------------------------------------
+
+async function runLocalDeploy(
+  auth: DeployAuth,
+  binding: SourceBinding,
+  source: KnowledgeSourceState,
+  liveVersion: number,
+  opts: RunDeployOptions,
+  out: OutputSink,
+): Promise<RunDeployResult> {
+  // 1. Which files does the patch set need? Send their current contents.
+  out.log('→ Reading the files the deploy touches...')
+  const wanted = await getLocalPlanFiles(auth, binding.sourceId, liveVersion)
+  const files = readLocalFiles(opts.repoRoot, wanted)
+  out.log(`  ${Object.keys(files).length} of ${wanted.length} present in this checkout`)
+
+  // 2. Dry run: preview plan, nothing registered or compiled.
+  if (opts.dryRun) {
+    const plan = await previewLocalPlan(auth, binding.sourceId, liveVersion, files)
+    const lines = describePlan(plan)
+    for (const l of lines) out.log(l)
+    out.log('')
+    out.log('Dry run — nothing written, no deploy registered. Re-run without --dry-run to proceed.')
+    const kind: RunDeployResult['kind'] = 'local_plan'
+    return { exitCode: 0, kind, source, message: lines.join('\n') }
+  }
+
+  // 3. Register intent, then plan (this compiles the runtime state).
+  out.log('→ Registering deploy intent...')
+  const { deploy, repushed } = await createDeploy(
+    auth, binding.sourceId, liveVersion,
+    { force: opts.force || Boolean(source.openDeployId) },
+  )
+  out.log(`  ✓ ${repushed ? 'Repushed onto' : 'Created'} deploy ${deploy.id}`)
+
+  let plan: LocalPlan
+  try {
+    plan = await createLocalPlan(auth, binding.sourceId, deploy.id, files)
+  } catch (err) {
+    await setDeployState(auth, binding.sourceId, deploy.id, 'failed', { failureReason: 'local-plan-failed' }).catch(() => null)
+    throw err
+  }
+  for (const l of describePlan(plan)) out.log(l)
+  out.log('')
+
+  // 4. Write + commit.
+  out.log(`→ Writing to branch ${plan.branch}...`)
+  const applied = await applyLocalPlan({ repoRoot: opts.repoRoot, plan, onLog: (l) => out.log(`  ${l}`) })
+  if (!applied.ok) {
+    out.error(`deploy --local failed (${applied.step}): ${applied.error}`)
+    const failed = await setDeployState(
+      auth, binding.sourceId, deploy.id, 'failed', { failureReason: `local-${applied.step}-failed` },
+    ).catch(() => null)
+    return { exitCode: 1, kind: 'local_apply_failed', source, deploy: failed ?? deploy, message: applied.error }
+  }
+
+  // 5. PR via gh, or the manual steps.
+  out.log('→ Opening the pull request...')
+  const pr = await openPullRequest({
+    cwd: opts.repoRoot,
+    branch: applied.branch,
+    title: plan.prTitle,
+    body: plan.prBody,
+  })
+  if (pr.kind === 'opened') {
+    const number = Number(/\/pull\/(\d+)/.exec(pr.url)?.[1] ?? 0)
+    const updated = await attachPr(auth, binding.sourceId, deploy.id, {
+      url: pr.url, number: number || 1, branch: applied.branch, forge: 'github',
+    }).catch(() => null)
+    out.log(`  ✓ PR: ${pr.url}`)
+    out.log('')
+    out.log(`Deploy ${deploy.id} state: pr_open.`)
+    out.log('Merge the PR to ship. After merging, run `holostaff deploy --merged` so the dashboard shows it live.')
+    return {
+      exitCode: 0, kind: 'local_pr_opened', source,
+      deploy: updated ?? { ...deploy, state: 'pr_open' },
+      prUrl: pr.url, branch: applied.branch,
+    }
+  }
+
+  const manual = manualPrSteps(pr, applied.branch)
+  for (const l of manual) out.log(`  ${l}`)
+  const updated = await setDeployState(
+    auth, binding.sourceId, deploy.id, 'awaiting_pr', { branch: applied.branch },
+  ).catch(() => null)
+  out.log('')
+  out.log(`Deploy ${deploy.id} state: awaiting_pr (branch committed here, PR not opened yet).`)
+  return {
+    exitCode: 0, kind: 'local_committed', source,
+    deploy: updated ?? { ...deploy, state: 'awaiting_pr', localBranch: applied.branch },
+    branch: applied.branch,
+    message: manual.join('\n'),
+  }
+}
+
+function describePlan(plan: LocalPlan): string[] {
+  const lines: string[] = []
+  lines.push(`Branch: ${plan.branch}`)
+  lines.push('Files:')
+  for (const c of plan.changes) {
+    const tag = c.status === 'create' ? 'create   '
+      : c.status === 'edit' ? 'edit     '
+      : c.status === 'unchanged' ? 'unchanged'
+      : 'skipped  '
+    lines.push(`  ${tag} ${c.file}  ${c.detail}`)
+  }
+  lines.push(`  write     ${DEPLOY_STATE_FILE}`)
+  lines.push('  edit      package.json (+ @holostaff/sdk, only if a patched file imports it and it is missing)')
+  if (plan.summary) {
+    lines.push(`Calls: ${plan.summary.callsApplied} applied, ${plan.summary.callsSkipped} skipped.`)
+  }
+  return lines
+}
+
+function manualPrSteps(pr: PrResult, branch: string): string[] {
+  const why = pr.kind === 'skipped'
+    ? pr.reason === 'gh_missing' ? 'the `gh` CLI is not installed'
+      : pr.reason === 'gh_unauthed' ? '`gh` is not logged in'
+      : 'this repo has no `origin` remote'
+    : pr.kind === 'failed' ? `${pr.step} failed: ${pr.error}` : 'unknown'
+  return [
+    `The PR was not opened (${why}). The branch is committed here. To open it yourself:`,
+    `  git push -u origin ${branch}`,
+    `  then open a pull request for ${branch} on GitHub (title: see the last commit).`,
+    'After merging, run `holostaff deploy --merged` so the dashboard shows it live.',
+  ]
+}
+
+// -------------------------------------------------------------------------
+// --merged: flip a --local deploy the App never saw
+// -------------------------------------------------------------------------
+
+async function markOpenDeployMerged(
+  auth: DeployAuth,
+  binding: SourceBinding,
+  source: KnowledgeSourceState,
+  opts: RunDeployOptions,
+  out: OutputSink,
+): Promise<RunDeployResult> {
+  const open = source.openDeployId ? await getOpenDeploy(auth, binding.sourceId) : null
+  if (!open) {
+    out.error('No open deploy to mark merged.')
+    return { exitCode: 1, kind: 'api_error', source, message: 'no open deploy' }
+  }
+  if (open.state !== 'awaiting_pr' && open.state !== 'pr_open') {
+    out.error(`Open deploy ${open.id} is ${open.state}; only awaiting_pr / pr_open deploys can be marked merged.`)
+    return { exitCode: 1, kind: 'api_error', source, deploy: open, message: `deploy is ${open.state}` }
+  }
+  if (opts.dryRun) {
+    out.log(`Dry run — would mark deploy ${open.id} (v${open.artifactVersion}) merged.`)
+    return { exitCode: 0, kind: 'local_plan', source, deploy: open, message: `would mark ${open.id} merged` }
+  }
+  const updated = await setDeployState(auth, binding.sourceId, open.id, 'merged')
+  out.log(`✓ Deploy ${open.id} marked merged. v${open.artifactVersion} is live on the dashboard.`)
+  return { exitCode: 0, kind: 'marked_merged', source, deploy: updated }
 }
 
 async function decideOpenDeploy(

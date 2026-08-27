@@ -14,7 +14,16 @@ export interface StartResponse {
 
 export type PollResult =
   | { status: 'pending' }
-  | { status: 'approved'; accessToken: string; userId: string; workspaceId: string; expiresAt: string }
+  | {
+      status: 'approved'
+      accessToken: string
+      userId: string
+      workspaceId: string
+      expiresAt: string
+      /** Sent by newer servers; identity shown to the user after approval. */
+      email?: string
+      workspaceName?: string
+    }
   | { status: 'denied' }
   | { status: 'expired' }
   | { status: 'consumed' }
@@ -23,6 +32,8 @@ export type PollResult =
 export interface WorkspacesResponse {
   workspaces: Array<{ id: string; name: string; isDefault?: boolean }>
   currentWorkspaceId: string
+  /** Email of the signed-in account (newer servers only). */
+  email?: string
 }
 
 export interface ApiError extends Error {
