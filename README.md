@@ -116,7 +116,7 @@ The PR comment reads `workflow certified (n/n runs)` when the suite passes.
 
 ## Your data
 
-The scan runs on your machine. The first map (routes, workflows, step names) publishes about 90 seconds in so you can look while the deep pass runs; before the full artifact uploads, a trust report shows exactly what it holds:
+The scan runs on your machine. Before it starts, the CLI asks for one confirmation: the first map (routes and workflow names) publishes to your workspace as the scan goes, about 90 seconds in, so you can look while the deep pass runs. Answer no and nothing leaves your machine. Before the full artifact uploads, a trust report shows exactly what it holds:
 
 - Product name, description, framework, language.
 - Routes and component names with roles.
@@ -141,7 +141,7 @@ A handover that stops or fails costs nothing. [Full pricing](https://www.holosta
 
 ## Status
 
-**Alpha, and live.** Every flow in this README works end to end against the hosted service. Interfaces may change between minor versions. Read the diff before merging anything the agent commits. Releases are tagged and listed in the [changelog](./CHANGELOG.md).
+**Live.** Every flow in this README works end to end against the hosted service. Interfaces may change between minor versions. Read the diff before merging anything the agent commits. Releases are tagged and listed in the [changelog](./CHANGELOG.md).
 
 ## Commands
 

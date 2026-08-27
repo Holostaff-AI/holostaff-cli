@@ -19,7 +19,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react'
-import { Box, Text } from 'ink'
+import { Box, Text, useInput } from 'ink'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { appendFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
@@ -40,6 +40,10 @@ import { UploadProgress, type UploadPhase } from './UploadProgress.js'
 
 type Phase =
   | { kind: 'preflight' }
+  // Consent gate: the first map publishes as the scan goes, so the user
+  // says yes before anything leaves the machine.
+  | { kind: 'consent' }
+  | { kind: 'declined' }
   // Pre-scan source picker, only shown when mergeMode='append'.
   | { kind: 'picking_source' }
   | { kind: 'running'; progress: ScanProgressState }
@@ -65,6 +69,8 @@ export type ScanExitResult =
   | { kind: 'uploaded'; sourceId: string; sourceName: string; version: number; viewUrl: string }
   | { kind: 'saved_local'; path: string }
   | { kind: 'cancelled' }
+  /** User said no at the consent line. The scan never started. */
+  | { kind: 'declined' }
   | { kind: 'failed'; error: string }
 
 export interface ScanProps {
@@ -119,15 +125,37 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
   const startedAtRef = useRef(Date.now())
   const telemetryEmittedRef = useRef(false)
 
-  // Initial mount: decide between picker (append + no pick yet) and scan.
+  // Consent before anything leaves the machine. The first map (routes,
+  // workflow names) publishes as the scan goes, so the user says yes up
+  // front. Skipped when the skeleton upload is off (--no-auto-upload:
+  // nothing leaves before the trust report) and for the capture rig
+  // (HOLOSTAFF_AUTOCONFIRM=1), which already auto-confirms the upload.
+  const needsConsent =
+    process.env.HOLOSTAFF_AUTOCONFIRM !== '1' && !process.argv.includes('--no-auto-upload')
+  const [consented, setConsented] = useState(!needsConsent)
+
+  useInput(
+    (input, key) => {
+      const ch = input.toLowerCase()
+      if (key.return || ch === 'y') return setConsented(true)
+      if (key.escape || ch === 'n') return setPhase({ kind: 'declined' })
+    },
+    { isActive: phase.kind === 'consent' },
+  )
+
+  // Initial mount: consent first, then picker (append + no pick yet) or scan.
   useEffect(() => {
+    if (!consented) {
+      setPhase({ kind: 'consent' })
+      return
+    }
     if (mergeMode === 'append' && !pickedSource) {
       setPhase({ kind: 'picking_source' })
       return
     }
     void startScan()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mergeMode, pickedSource])
+  }, [consented, mergeMode, pickedSource])
 
   async function startScan() {
     if (scanStartedRef.current) return
@@ -274,6 +302,11 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
   // delay then is longer because the success message includes a URL
   // the user may want to click.
   useEffect(() => {
+    if (phase.kind === 'declined') {
+      // Nothing ran, nothing was sent: no scan status, no telemetry event.
+      const t = setTimeout(() => onExit({ kind: 'declined' }), 1200)
+      return () => clearTimeout(t)
+    }
     if (phase.kind === 'cancelled') {
       if (!telemetryEmittedRef.current) {
         telemetryEmittedRef.current = true
@@ -404,6 +437,27 @@ export function Scan({ cwd, mergeMode = 'replace', onExit }: ScanProps) {
   switch (phase.kind) {
     case 'preflight':
       return <Centered>Preparing to scan {cwd}…</Centered>
+
+    case 'consent':
+      return (
+        <Box flexDirection="column" marginTop={1} marginLeft={2}>
+          <Text>
+            The scan publishes a first map (routes and workflow names) to your workspace as it goes.
+            The full report shows before the detailed upload.
+          </Text>
+          <Box marginTop={1}>
+            <Text>Continue? </Text>
+            <Text color="gray">[Y/n]</Text>
+          </Box>
+        </Box>
+      )
+
+    case 'declined':
+      return (
+        <Box marginTop={1} marginLeft={2}>
+          <Text color="gray">Scan not started. Nothing left your machine.</Text>
+        </Box>
+      )
 
     case 'picking_source':
       return (

@@ -43,6 +43,8 @@ export type EmbedExitResult =
   | { kind: 'cancelled' }
   | { kind: 'failed'; error: string }
   | { kind: 'no_binding' }
+  /** Workspace has no autopilots yet. Nothing was changed. */
+  | { kind: 'nothing_to_embed'; createUrl: string }
 
 export interface EmbedProps {
   cwd: string
@@ -154,6 +156,16 @@ export function Embed({ cwd, onExit }: EmbedProps) {
       if (ch === 'n') return setPhase({ kind: 'cancelled' })
     },
     { isActive: phase.kind === 'reviewing' },
+  )
+
+  // The picker's own screens say "Press Esc to cancel"; honour that
+  // here so a stuck picker (load failure) returns to the shell instead
+  // of leaving Ctrl+C as the only way out.
+  useInput(
+    (_input, key) => {
+      if (key.escape) setPhase({ kind: 'cancelled' })
+    },
+    { isActive: phase.kind === 'picking_copilot' },
   )
 
   useEffect(() => {
@@ -282,6 +294,7 @@ export function Embed({ cwd, onExit }: EmbedProps) {
             startAgent()
           }}
           onCancel={() => setPhase({ kind: 'cancelled' })}
+          onEmpty={(createUrl) => onExit({ kind: 'nothing_to_embed', createUrl })}
         />
       )
     case 'running':

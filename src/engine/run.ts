@@ -29,12 +29,49 @@
 
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { chromium, type Browser, type Page } from 'playwright'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import { createRequire } from 'node:module'
+import { execFileSync } from 'node:child_process'
+import type { Browser, Page } from 'playwright'
 import { loadPersona, mechanicalParams, personaBriefing, type PersonaSheet } from './personaSheet.js'
 import { DIGEST_JS } from './digest.js'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
+
+// ── browser runtime ───────────────────────────────────────────────────────
+// playwright is not a dependency of the CLI: it is ~300 MB of install for
+// a command most users never run. The engine loads it on demand, looking
+// in (1) the CLI's own tree, (2) the project the command runs in, and
+// (3) the global npm root, so `npm i -g playwright` is enough.
+const BROWSER_INSTALL_HINT =
+  'The evaluation engine needs a browser runtime. Run: npm i -g playwright && npx playwright install chromium'
+
+type PlaywrightModule = typeof import('playwright')
+
+async function loadPlaywright(): Promise<PlaywrightModule> {
+  const candidates: Array<() => string> = [
+    () => 'playwright',
+    () => createRequire(join(process.cwd(), 'package.json')).resolve('playwright'),
+    () => {
+      const root = execFileSync('npm', ['root', '-g'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
+      return createRequire(join(root, 'package.json')).resolve('playwright')
+    },
+  ]
+  for (const candidate of candidates) {
+    let spec: string
+    try { spec = candidate() } catch { continue }
+    try {
+      const url = spec === 'playwright' ? spec : pathToFileURL(spec).href
+      // playwright ships CommonJS; through a file URL its exports sit
+      // under `default`.
+      const mod = (await import(url)) as PlaywrightModule & { default?: PlaywrightModule }
+      const pw = typeof mod.chromium?.launch === 'function' ? mod : mod.default
+      if (pw && typeof pw.chromium?.launch === 'function') return pw
+    } catch { /* try the next location */ }
+  }
+  console.error(BROWSER_INSTALL_HINT)
+  process.exit(2)
+}
 
 // ── config ────────────────────────────────────────────────────────────────
 const args = process.argv.slice(2)
@@ -364,7 +401,14 @@ const t0 = Date.now()
 const main = async (): Promise<void> => {
   console.log(`sim run ${runId} — ${persona.name} (${PERSONA_ID}) × ${scenario.id}`)
   console.log(`  mech: nudge@${mech.patienceNudgeAfter} giveup-ok@${mech.giveUpLegitAfter} maxWait=${mech.maxWaitSeconds}s`)
-  browser = await chromium.launch()
+  const { chromium } = await loadPlaywright()
+  try {
+    browser = await chromium.launch()
+  } catch (err) {
+    // Package present but no browser binary downloaded yet.
+    console.error(`${BROWSER_INSTALL_HINT}\n  (${(err as Error).message.split('\n')[0]})`)
+    process.exit(2)
+  }
   const ctx = await browser.newContext({
     viewport: { width: 1280, height: 720 },
     recordVideo: { dir: OUT, size: { width: 1280, height: 720 } },

@@ -31,6 +31,19 @@ export function InputBar({ onSubmit, disabled, placeholder }: InputBarProps) {
     onSubmit(trimmed)
   }
 
+  // ink-text-input only submits on a bare Enter keypress. When the
+  // terminal delivers text and the newline in one chunk (a paste, a
+  // fast typist, any scripted driver) the "\r" lands inside the value
+  // and the command sits in the prompt until a second Enter. Treat a
+  // newline anywhere in the buffer as the submit.
+  function handleChange(next: string) {
+    if (/[\r\n]/.test(next)) {
+      handleSubmit(next.replace(/[\r\n]+/g, ' '))
+      return
+    }
+    setValue(next)
+  }
+
   return (
     <Box flexDirection="column" marginTop={1}>
       <Box>
@@ -40,7 +53,7 @@ export function InputBar({ onSubmit, disabled, placeholder }: InputBarProps) {
         <Box flexGrow={1}>
           {disabled
             ? <Text color="gray">{value || placeholder || ''}</Text>
-            : <TextInput value={value} onChange={setValue} onSubmit={handleSubmit} />}
+            : <TextInput value={value} onChange={handleChange} onSubmit={handleSubmit} />}
         </Box>
       </Box>
       {!value && !disabled && placeholder && (

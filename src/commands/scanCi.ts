@@ -124,6 +124,7 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
     log(`· authed as ${who} via ${auth.source === 'env' ? 'env' : 'local credentials'}`)
   }
   log(`· running scan on ${cwd}`)
+  log('· headless mode: no prompts. The map (routes, workflows, copy) uploads to your workspace when the scan finishes; source code never leaves this machine.')
 
   // 2a. Preset import — no agent, no model spend, no wait. The map of
   // a public product does not need re-deriving per customer.

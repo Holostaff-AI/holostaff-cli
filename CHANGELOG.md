@@ -7,6 +7,16 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-08-27
+
+### Changed
+- The interactive scan asks for consent before it starts: the first map (routes and workflow names) publishes to your workspace as the scan goes, and the full report still shows before the detailed upload. Answer no and nothing leaves your machine. `holostaff scan` (headless) keeps auto-confirming and now prints one line saying what uploads and when.
+- `playwright` is no longer a dependency. Only the evaluation engine needs it; it loads on demand and prints the install command when missing. Removes 2 packages and about 20 MB from `npm install`.
+
+### Fixed
+- Slash commands ran only on a second Enter when the command and the newline arrived together (paste, fast typing, scripted input). One Enter now runs the command.
+- `/embed` in a workspace with no autopilots returned to the shell with a message instead of leaving the user stuck with Ctrl+C as the only exit.
+
 ## [0.11.0] - 2026-08-27
 
 ### Added

@@ -209,6 +209,15 @@ function scanResultMessage(result: ScanExitResult | undefined): ShellMessage[] {
           text: 'Scan cancelled. Nothing was uploaded.',
         },
       ]
+    case 'declined':
+      return [
+        {
+          id: newId(),
+          kind: 'system',
+          tone: 'info',
+          text: 'Scan not started. Nothing left your machine.',
+        },
+      ]
     case 'failed':
       return [
         {
@@ -308,6 +317,11 @@ function embedResultMessage(result: EmbedExitResult): ShellMessage[] {
     }
     case 'cancelled':
       return [{ id: newId(), kind: 'system', tone: 'info', text: '/embed cancelled. Nothing was changed.' }]
+    case 'nothing_to_embed':
+      return [{
+        id: newId(), kind: 'system', tone: 'warn',
+        text: `Nothing to embed yet. Create an autopilot first at ${result.createUrl}, then run /embed again.`,
+      }]
     case 'no_binding':
       return [{ id: newId(), kind: 'system', tone: 'warn', text: 'No knowledge source for this repo. Type /scan to create one first.' }]
     case 'failed':

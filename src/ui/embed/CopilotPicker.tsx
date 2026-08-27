@@ -17,6 +17,8 @@ import { resolveAuth } from '../../auth/credentials.js'
 export interface CopilotPickerProps {
   onPick: (copilot: { id: string; name: string }) => void
   onCancel: () => void
+  /** Workspace has no autopilots. `createUrl` is where to make one. */
+  onEmpty: (createUrl: string) => void
 }
 
 type Phase =
@@ -27,7 +29,7 @@ type Phase =
 
 const APP_BASE_URL = process.env.HOLOSTAFF_APP_BASE_URL ?? 'https://www.holostaff.ai'
 
-export function CopilotPicker({ onPick, onCancel }: CopilotPickerProps) {
+export function CopilotPicker({ onPick, onCancel, onEmpty }: CopilotPickerProps) {
   const [phase, setPhase] = useState<Phase>({ kind: 'loading' })
   const startedRef = useRef(false)
 
@@ -44,6 +46,9 @@ export function CopilotPicker({ onPick, onCancel }: CopilotPickerProps) {
     void listCopilots(auth.baseUrl, auth.token).then(({ copilots }) => {
       if (!copilots.length) {
         setPhase({ kind: 'empty' })
+        // Hand control back to the shell after the notice renders. No
+        // key to press: there is nothing to pick and nothing to cancel.
+        setTimeout(() => onEmpty(`${APP_BASE_URL}/autopilots`), 1500)
         return
       }
       setPhase({ kind: 'list', copilots })
@@ -73,7 +78,7 @@ export function CopilotPicker({ onPick, onCancel }: CopilotPickerProps) {
           <Text color="yellow">! Nothing to embed in this workspace yet.</Text>
           <Text color="gray">Create one first:</Text>
           <Text color="cyan">  {APP_BASE_URL}/autopilots</Text>
-          <Box marginTop={1}><Text color="gray">Press Esc to cancel.</Text></Box>
+          <Box marginTop={1}><Text color="gray">Back to the shell in a moment.</Text></Box>
         </Box>
       )
     case 'list':

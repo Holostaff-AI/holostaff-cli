@@ -1,6 +1,6 @@
 {
   "name": "@holostaff/cli",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "Scan your repo, map your workflows, and create workflow autopilots your users can hand a task to.",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Holostaff-AI/holostaff-cli#readme",
@@ -55,13 +55,13 @@
     "ink-select-input": "^6.0.0",
     "ink-spinner": "^5.0.0",
     "ink-text-input": "^6.0.0",
-    "playwright": "^1.59.1",
     "react": "^18.3.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "@types/react": "^18.3.12",
+    "playwright": "^1.59.1",
     "tsx": "^4.19.0",
     "typescript": "^5.9.3"
   },
