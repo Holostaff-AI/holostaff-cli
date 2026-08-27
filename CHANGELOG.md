@@ -7,6 +7,13 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.10.4] - 2026-08-27
+
+### Fixed
+- `/instrument` no longer crashes the shell with `require is not defined` (ESM import).
+- `deploy --dry-run` states the GitHub App prerequisite and what the PR adds.
+- README: honest timings, PR contents, SDK size and network behaviour.
+
 ## [0.10.3] - 2026-08-27
 
 ### Fixed

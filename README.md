@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/@holostaff/cli)](https://www.npmjs.com/package/@holostaff/cli)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](#)
-[![changelog](https://img.shields.io/badge/changelog-0.10.3-8a2be2)](./CHANGELOG.md)
+[![changelog](https://img.shields.io/badge/changelog-0.10.4-8a2be2)](./CHANGELOG.md)
 
 A user clicks the button. An agent does the task for them, on their screen, in their own session. It asks before anything that pays, sends, or deletes. We call it a workflow autopilot.
 
@@ -38,7 +38,7 @@ cd your-app
 holostaff
 ```
 
-Then type `/scan`. Sign in when asked. In about two minutes you have a map of your product's workflows.
+Sign in when asked (your browser opens once). The scan starts on its own: a first map is live in about 90 seconds, the deep pass finishes in 3 to 5 minutes.
 
 No model keys. No config. No YAML. Works with React, Next.js, Vue, Nuxt, Remix, SvelteKit, Astro, and Express.
 
@@ -56,7 +56,7 @@ This repo is the CLI. It scans your repo and draws the map. The agent that runs 
 
 ## What lands in your codebase
 
-One pull request, opened by `holostaff deploy`. You review it. Merging is going live. Reverting is rollback.
+One pull request, opened by `holostaff deploy`. It needs the Holostaff GitHub App on your repo's org (an org admin installs it once from Settings → Integrations). You review the PR. Merging is going live. Reverting is rollback.
 
 ```diff
 + import { holostaff } from '@holostaff/sdk'
@@ -72,11 +72,11 @@ One pull request, opened by `holostaff deploy`. You review it. Merging is going 
 + holostaff.clearIdentity()
 ```
 
-The SDK draws the button, the run, the questions, the Allow pill, and the Stop. You write none of it. Revert the PR and all of it is gone.
+The PR also adds `@holostaff/sdk` and `livekit-client` to `package.json`, a `markStageEntry` call in each stage-entry view, and `.holostaff/deploy-state.json`. The SDK draws the button, the run, the questions, the Allow pill, and the Stop. You write none of it. Revert the PR and all of it is gone.
 
-- About 80 KB gzipped, loaded once.
-- Talks to one host: your Holostaff workspace. No trackers.
-- Records the page structure and visible text so the agent can see the screen. Password, email, and phone fields are always masked. Add `holostaff-mask` or `holostaff-block` to anything else private. Nothing is sent before the user's first real click. Turn it off per host with `observe: { enabled: false }`.
+- About 20 KB gzipped for the core, plus an 80 KB page recorder. The voice layer is a separate chunk that loads only if you enable it.
+- Talks to one host: your Holostaff workspace API. No third-party trackers.
+- Opens a session on page load (catalog, stage marker). Records the page structure and visible text so the agent can see the screen; the recording is buffered and sent once the user interacts. Password, email, and phone fields are always masked. Add `holostaff-mask` or `holostaff-block` to anything else private. Turn recording off per host with `observe: { enabled: false }`.
 - Uninstall: revert the PR, delete `.holostaff/` in your repo and `~/.holostaff/credentials.json`.
 
 ## Safety rules
@@ -112,7 +112,7 @@ The PR comment reads `workflow certified (n/n runs)` when the suite passes.
 
 ## Your data
 
-The scan runs on your machine. Before anything uploads, a trust report shows the exact artifact. It holds only:
+The scan runs on your machine. The first map (routes, workflows, step names) publishes about 90 seconds in so you can look while the deep pass runs; before the full artifact uploads, a trust report shows exactly what it holds:
 
 - Product name, description, framework, language.
 - Routes and component names with roles.

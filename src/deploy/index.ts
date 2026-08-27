@@ -204,6 +204,11 @@ async function runWithBinding(
   out.log('')
 
   if (opts.dryRun) {
+    out.log('Prerequisite: the Holostaff GitHub App must be installed on the repo\'s org')
+    out.log('  (an org admin does it once at https://www.holostaff.ai/integrations/github).')
+    out.log('  Without it, deploy stops with 412 before opening the PR.')
+    out.log('The PR adds: @holostaff/sdk (+ livekit-client) to package.json, the SDK init')
+    out.log('  in your app entry, markStageEntry calls in the stage-entry views, and .holostaff/deploy-state.json.')
     out.log('Dry run — no deploy registered. Re-run without --dry-run to proceed.')
     const kind: RunDeployResult['kind'] =
       liveVersion !== deployedVersion ? 'pending_scan' : 'pending_edits'

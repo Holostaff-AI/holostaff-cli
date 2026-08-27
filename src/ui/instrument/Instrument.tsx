@@ -22,6 +22,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react'
+import { PlanDiff } from './PlanDiff.js'
 import { Box, Text, useInput } from 'ink'
 import Spinner from 'ink-spinner'
 
@@ -298,7 +299,6 @@ export function Instrument({ cwd, onExit }: InstrumentProps) {
 function ReviewView({ plan }: { plan: InstrumentationPlan }) {
   // Imported lazily — small file with no side effects, but keeps the
   // top imports tight.
-  const { PlanDiff } = require('./PlanDiff.js') as typeof import('./PlanDiff.js')
   return (
     <Box flexDirection="column">
       <PlanDiff plan={plan} />
