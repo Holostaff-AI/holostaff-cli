@@ -7,6 +7,11 @@ All notable changes to `@holostaff/cli` are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.10.3] - 2026-08-27
+
+### Fixed
+- `holostaff scan` / `holostaff import` sign you in inline when run in a terminal with no credentials, instead of stopping with "run holostaff login".
+
 ## [0.10.2] - 2026-08-24
 
 ### Changed

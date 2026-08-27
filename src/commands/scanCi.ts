@@ -73,7 +73,24 @@ export async function runScanCi(opts: ScanArgs, cwd: string): Promise<number> {
   // runs: same machine, same user who ran `holostaff login`). File
   // creds were previously rejected here, which made every local
   // headless invocation fail for no security gain.
-  const auth = resolveAuth()
+  let auth = resolveAuth()
+  // Interactive terminal with no credentials: run the device flow inline
+  // instead of refusing (ICP sim: `holostaff import twenty` said "run
+  // holostaff login" while the docs promised sign-in in the same command).
+  if ((auth.source === 'none' || !auth.token || !auth.workspaceId) && process.stdin.isTTY && !opts.json) {
+    const { runDeviceFlow } = await import('../auth/deviceFlow.js')
+    log('Not signed in yet. Opening your browser to connect (or use the link below).')
+    await runDeviceFlow({
+      baseUrl: auth.baseUrl,
+      onEvent: (e) => {
+        if (e.type === 'started') log(`  ${e.verificationUri}\n  code ${e.code}`)
+        else if (e.type === 'browser_fallback') log('  Could not open a browser here. Open the link above on any device.')
+        else if (e.type === 'approved') log('✓ Connected to your Holostaff workspace.')
+        else if (e.type === 'failed') log(`✗ Sign-in ${e.kind}: ${e.reason}`)
+      },
+    }).promise
+    auth = resolveAuth()
+  }
   if (auth.source === 'none' || !auth.token || !auth.workspaceId) {
     emitTelemetry({
       command: 'scan_ci',

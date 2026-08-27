@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/@holostaff/cli)](https://www.npmjs.com/package/@holostaff/cli)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](#)
-[![changelog](https://img.shields.io/badge/changelog-0.10.2-8a2be2)](./CHANGELOG.md)
+[![changelog](https://img.shields.io/badge/changelog-0.10.3-8a2be2)](./CHANGELOG.md)
 
 A user clicks the button. An agent does the task for them, on their screen, in their own session. It asks before anything that pays, sends, or deletes. We call it a workflow autopilot.
 
